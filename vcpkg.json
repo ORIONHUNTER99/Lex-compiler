@@ -3,5 +3,5 @@
   "name": "lex",
   "version": "0.1.0",
   "description": "Lex language transpiler for game modding",
-  "dependencies": []
+  "dependencies": ["catch2"]
 }

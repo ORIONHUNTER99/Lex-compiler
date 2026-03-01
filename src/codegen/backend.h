@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <map>
 #include "../ast/ast.h"
 
 namespace lex {

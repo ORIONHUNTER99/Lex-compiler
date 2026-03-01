@@ -1,0 +1,546 @@
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
+
+#include "../src/lexer/lexer.h"
+#include "../src/lexer/keywords.h"
+#include "../src/parser/parser.h"
+#include "../src/ast/ast.h"
+
+#include <regex>
+#include <string>
+
+using namespace lex;
+
+TEST_CASE("Lexer - Keywords") {
+    SECTION("era keyword") {
+        Lexer lexer("era");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens.size() == 2);
+        REQUIRE(tokens[0].type == TokenType::ERA);
+        REQUIRE(tokens[0].lexeme == "era");
+        REQUIRE(tokens[1].type == TokenType::END_OF_FILE);
+    }
+
+    
+    SECTION("structure keyword") {
+        Lexer lexer("structure");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::STRUCTURE);
+    }
+    
+    SECTION("multiple keywords") {
+        Lexer lexer("era structure unit technology");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::ERA);
+        REQUIRE(tokens[1].type == TokenType::STRUCTURE);
+        REQUIRE(tokens[2].type == TokenType::UNIT);
+        REQUIRE(tokens[3].type == TokenType::TECHNOLOGY);
+    }
+    
+    SECTION("boolean keywords") {
+        Lexer lexer("true false null");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::TRUE);
+        REQUIRE(std::holds_alternative<bool>(tokens[0].value));
+        REQUIRE(std::get<bool>(tokens[0].value) == true);
+        
+        REQUIRE(tokens[1].type == TokenType::FALSE);
+        REQUIRE(std::holds_alternative<bool>(tokens[1].value));
+        REQUIRE(std::get<bool>(tokens[1].value) == false);
+        
+        REQUIRE(tokens[2].type == TokenType::NULL_LIT);
+    }
+}
+TEST_CASE("Lexer - Identifiers") {
+    SECTION("simple identifier") {
+        Lexer lexer("hello");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::IDENTIFIER);
+        REQUIRE(tokens[0].lexeme == "hello");
+    }
+    
+    SECTION("identifier with underscore") {
+        Lexer lexer("hello_world");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::IDENTIFIER);
+        REQUIRE(tokens[0].lexeme == "hello_world");
+    }
+    
+    SECTION("identifier starting with underscore") {
+        Lexer lexer("_private");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::IDENTIFIER);
+        REQUIRE(tokens[0].lexeme == "_private");
+    }
+    
+    SECTION("identifier with numbers") {
+        Lexer lexer("var123");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::IDENTIFIER);
+        REQUIRE(tokens[0].lexeme == "var123");
+    }
+}
+TEST_CASE("Lexer - Integers") {
+    SECTION("simple integer") {
+        Lexer lexer("123");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::INTEGER);
+        REQUIRE(tokens[0].lexeme == "123");
+        REQUIRE(std::holds_alternative<int64_t>(tokens[0].value));
+        REQUIRE(std::get<int64_t>(tokens[0].value) == 123);
+    }
+    
+    SECTION("zero") {
+        Lexer lexer("0");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::INTEGER);
+        REQUIRE(std::get<int64_t>(tokens[0].value) == 0);
+    }
+    
+    SECTION("large integer") {
+        Lexer lexer("9223372036854775807");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::INTEGER);
+    }
+}
+TEST_CASE("Lexer - Floats") {
+    SECTION("simple float") {
+        Lexer lexer("3.14");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::FLOAT);
+        REQUIRE(tokens[0].lexeme == "3.14");
+        REQUIRE(std::holds_alternative<double>(tokens[0].value));
+        REQUIRE_THAT(std::get<double>(tokens[0].value), Catch::Matchers::WithinAbs(3.14, 0.001));
+    }
+    
+    SECTION("float with many decimals") {
+        Lexer lexer("45.6789");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::FLOAT);
+        REQUIRE_THAT(std::get<double>(tokens[0].value), Catch::Matchers::WithinAbs(45.6789, 0.0001));
+    }
+    
+    SECTION("integer not confused with float") {
+        Lexer lexer("42");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::INTEGER);
+    }
+}
+TEST_CASE("Lexer - Strings") {
+    SECTION("simple string") {
+        Lexer lexer("\"hello\"");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::STRING);
+        REQUIRE(tokens[0].lexeme == "hello");
+        REQUIRE(std::holds_alternative<std::string>(tokens[0].value));
+        REQUIRE(std::get<std::string>(tokens[0].value) == "hello");
+    }
+    
+    SECTION("string with spaces") {
+        Lexer lexer("\"hello world\"");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::STRING);
+        REQUIRE(tokens[0].lexeme == "hello world");
+    }
+    
+    SECTION("string with escape sequences") {
+        Lexer lexer("\"line1\\nline2\"");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::STRING);
+        REQUIRE(std::get<std::string>(tokens[0].value) == "line1\nline2");
+    }
+    
+    SECTION("string with tab escape") {
+        Lexer lexer("\"col1\\tcol2\"");
+        auto tokens = lexer.tokenize();
+        REQUIRE(std::get<std::string>(tokens[0].value) == "col1\tcol2");
+    }
+    
+    SECTION("string with quote escape") {
+        Lexer lexer("\"say \\\"hello\\\"\"");
+        auto tokens = lexer.tokenize();
+        REQUIRE(std::get<std::string>(tokens[0].value) == "say \"hello\"");
+    }
+    
+    SECTION("string with backslash escape") {
+        Lexer lexer("\"path\\\\to\\\\file\"");
+        auto tokens = lexer.tokenize();
+        REQUIRE(std::get<std::string>(tokens[0].value) == "path\\to\\file");
+    }
+    
+    SECTION("empty string") {
+        Lexer lexer("\"\"");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::STRING);
+        REQUIRE(tokens[0].lexeme.empty());
+    }
+}
+TEST_CASE("Lexer - Hex Colors") {
+    SECTION("valid hex color") {
+        Lexer lexer("#FF00FF");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::HEX_COLOR);
+        REQUIRE(tokens[0].lexeme == "#FF00FF");
+        REQUIRE(std::holds_alternative<std::string>(tokens[0].value));
+        REQUIRE(std::get<std::string>(tokens[0].value) == "#FF00FF");
+    }
+    
+    SECTION("hex color lowercase") {
+        Lexer lexer("#aabbcc");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::HEX_COLOR);
+        REQUIRE(tokens[0].lexeme == "#aabbcc");
+    }
+    
+    SECTION("hex color mixed case") {
+        Lexer lexer("#AbCdEf");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::HEX_COLOR);
+        REQUIRE(tokens[0].lexeme == "#AbCdEf");
+    }
+    
+    SECTION("hex color black") {
+        Lexer lexer("#000000");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::HEX_COLOR);
+        REQUIRE(tokens[0].lexeme == "#000000");
+    }
+    
+    SECTION("hex color white") {
+        Lexer lexer("#FFFFFF");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::HEX_COLOR);
+        REQUIRE(tokens[0].lexeme == "#FFFFFF");
+    }
+    
+    SECTION("invalid hex color - too short") {
+        Lexer lexer("#FFF");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::ERROR);
+        REQUIRE(lexer.has_errors());
+    }
+}
+TEST_CASE("Lexer - Operators") {
+    SECTION("equality") {
+        Lexer lexer("==");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::EQ);
+        REQUIRE(tokens[0].lexeme == "==");
+    }
+    
+    SECTION("inequality") {
+        Lexer lexer("!=");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::NE);
+        REQUIRE(tokens[0].lexeme == "!=");
+    }
+    
+    SECTION("greater than or equal") {
+        Lexer lexer(">=");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::GE);
+        REQUIRE(tokens[0].lexeme == ">=");
+    }
+    
+    SECTION("less than or equal") {
+        Lexer lexer("<=");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::LE);
+        REQUIRE(tokens[0].lexeme == "<=");
+    }
+    
+    SECTION("plus assign") {
+        Lexer lexer("+=");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::PLUS_ASSIGN);
+        REQUIRE(tokens[0].lexeme == "+=");
+    }
+    
+    SECTION("minus assign") {
+        Lexer lexer("-=");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::MINUS_ASSIGN);
+        REQUIRE(tokens[0].lexeme == "-=");
+    }
+    
+    SECTION("arrow") {
+        Lexer lexer("->");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::ARROW);
+        REQUIRE(tokens[0].lexeme == "->");
+    }
+    
+    SECTION("range") {
+        Lexer lexer("..");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::RANGE);
+        REQUIRE(tokens[0].lexeme == "..");
+    }
+    
+    SECTION("single char operators") {
+        Lexer lexer("+ - * / % = > <");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::PLUS);
+        REQUIRE(tokens[1].type == TokenType::MINUS);
+        REQUIRE(tokens[2].type == TokenType::STAR);
+        REQUIRE(tokens[3].type == TokenType::SLASH);
+        REQUIRE(tokens[4].type == TokenType::PERCENT);
+        REQUIRE(tokens[5].type == TokenType::ASSIGN);
+        REQUIRE(tokens[6].type == TokenType::GT);
+        REQUIRE(tokens[7].type == TokenType::LT);
+    }
+}
+TEST_CASE("Lexer - Punctuation") {
+    SECTION("braces") {
+        Lexer lexer("{ }");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::LEFT_BRACE);
+        REQUIRE(tokens[1].type == TokenType::RIGHT_BRACE);
+    }
+    
+    SECTION("brackets") {
+        Lexer lexer("[ ]");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::LEFT_BRACKET);
+        REQUIRE(tokens[1].type == TokenType::RIGHT_BRACKET);
+    }
+    
+    SECTION("parentheses") {
+        Lexer lexer("( )");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::LEFT_PAREN);
+        REQUIRE(tokens[1].type == TokenType::RIGHT_PAREN);
+    }
+    
+    SECTION("other punctuation") {
+        Lexer lexer(": , . ;");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::COLON);
+        REQUIRE(tokens[1].type == TokenType::COMMA);
+        REQUIRE(tokens[2].type == TokenType::DOT);
+        REQUIRE(tokens[3].type == TokenType::SEMICOLON);
+    }
+}
+TEST_CASE("Lexer - Comments") {
+    SECTION("single line comment") {
+        Lexer lexer("x // comment\ny");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens.size() == 3);
+        REQUIRE(tokens[0].type == TokenType::IDENTIFIER);
+        REQUIRE(tokens[0].lexeme == "x");
+        REQUIRE(tokens[1].type == TokenType::IDENTIFIER);
+        REQUIRE(tokens[1].lexeme == "y");
+    }
+    
+    SECTION("multi line comment") {
+        Lexer lexer("x /* comment */ y");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens.size() == 3);
+        REQUIRE(tokens[0].lexeme == "x");
+        REQUIRE(tokens[1].lexeme == "y");
+    }
+    
+    SECTION("multi line comment across lines") {
+        Lexer lexer("x /* line1\nline2 */ y");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens.size() == 3);
+        REQUIRE(tokens[0].lexeme == "x");
+        REQUIRE(tokens[1].lexeme == "y");
+    }
+}
+TEST_CASE("Lexer - Multiple Tokens") {
+    SECTION("simple expression") {
+        Lexer lexer("x = 42");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens.size() == 4);
+        REQUIRE(tokens[0].type == TokenType::IDENTIFIER);
+        REQUIRE(tokens[1].type == TokenType::ASSIGN);
+        REQUIRE(tokens[2].type == TokenType::INTEGER);
+        REQUIRE(tokens[3].type == TokenType::END_OF_FILE);
+    }
+    
+    SECTION("function-like syntax") {
+        Lexer lexer("name: \"Test\"");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::NAME);
+        REQUIRE(tokens[1].type == TokenType::COLON);
+        REQUIRE(tokens[2].type == TokenType::STRING);
+        REQUIRE(tokens[2].lexeme == "Test");
+    }
+    
+    SECTION("complex statement") {
+        Lexer lexer("if (x == 10) { y = y + 1 }");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::IF);
+        REQUIRE(tokens[1].type == TokenType::LEFT_PAREN);
+        REQUIRE(tokens[2].type == TokenType::IDENTIFIER);
+        REQUIRE(tokens[3].type == TokenType::EQ);
+        REQUIRE(tokens[4].type == TokenType::INTEGER);
+        REQUIRE(tokens[5].type == TokenType::RIGHT_PAREN);
+        REQUIRE(tokens[6].type == TokenType::LEFT_BRACE);
+    }
+    
+    SECTION("structure definition") {
+        Lexer lexer("structure Knight { attack: 10 }");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::STRUCTURE);
+        REQUIRE(tokens[1].type == TokenType::IDENTIFIER);
+        REQUIRE(tokens[1].lexeme == "Knight");
+        REQUIRE(tokens[2].type == TokenType::LEFT_BRACE);
+        REQUIRE(tokens[3].type == TokenType::ATTACK);
+        REQUIRE(tokens[4].type == TokenType::COLON);
+        REQUIRE(tokens[5].type == TokenType::INTEGER);
+        REQUIRE(std::get<int64_t>(tokens[5].value) == 10);
+    }
+}
+TEST_CASE("Lexer - Location Tracking") {
+    SECTION("line tracking") {
+        Lexer lexer("x\ny\nz");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].location.line == 1);
+        REQUIRE(tokens[1].location.line == 2);
+        REQUIRE(tokens[2].location.line == 3);
+    }
+    
+    SECTION("column tracking") {
+        Lexer lexer("x y z");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].location.column == 1);
+        REQUIRE(tokens[1].location.column == 3);
+        REQUIRE(tokens[2].location.column == 5);
+    }
+}
+TEST_CASE("Lexer - Edge Cases") {
+    SECTION("empty input") {
+        Lexer lexer("");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens.size() == 1);
+        REQUIRE(tokens[0].type == TokenType::END_OF_FILE);
+    }
+    
+    SECTION("only whitespace") {
+        Lexer lexer("   \t\n  ");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens.size() == 1);
+        REQUIRE(tokens[0].type == TokenType::END_OF_FILE);
+    }
+    
+    SECTION("unterminated string") {
+        Lexer lexer("\"hello");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::ERROR);
+        REQUIRE(lexer.has_errors());
+    }
+    
+    SECTION("unexpected character") {
+        Lexer lexer("@");
+        auto tokens = lexer.tokenize();
+        REQUIRE(tokens[0].type == TokenType::ERROR);
+        REQUIRE(lexer.has_errors());
+    }
+}
+TEST_CASE("Lexer - Next and Peek") {
+    SECTION("next_token advances") {
+        Lexer lexer("a b c");
+        Token t1 = lexer.next_token();
+        Token t2 = lexer.next_token();
+        REQUIRE(t1.lexeme == "a");
+        REQUIRE(t2.lexeme == "b");
+    }
+    
+    SECTION("peek_token does not advance") {
+        Lexer lexer("a b");
+        Token t1 = lexer.peek_token();
+        Token t2 = lexer.peek_token();
+        REQUIRE(t1.lexeme == "a");
+        REQUIRE(t2.lexeme == "a");
+    }
+    
+    SECTION("peek then next") {
+        Lexer lexer("a b");
+        Token t1 = lexer.peek_token();
+        Token t2 = lexer.next_token();
+        Token t3 = lexer.peek_token();
+        REQUIRE(t1.lexeme == "a");
+        REQUIRE(t2.lexeme == "a");
+        REQUIRE(t3.lexeme == "b");
+    }
+}
+
+// ============================================================================
+// Parser Tests
+// ============================================================================
+
+TEST_CASE("Parser - Basic Structure") {
+    SECTION("simple structure definition") {
+        Lexer lexer("structure Farm { era: Ancient }");
+        auto tokens = lexer.tokenize();
+        REQUIRE(!lexer.has_errors());
+        
+        Parser parser(tokens);
+        auto ast = parser.parse();
+        
+        REQUIRE(!parser.has_errors());
+        REQUIRE(ast.size() == 1);
+        REQUIRE(ast[0]->definition_type == "structure");
+        REQUIRE(ast[0]->identifier == "Farm");
+    }
+}
+
+TEST_CASE("Parser - Different Definition Types") {
+    SECTION("era definition") {
+        Lexer lexer(R"(era Ancient { period: "3000 BC" })");
+        auto tokens = lexer.tokenize();
+        
+        Parser parser(tokens);
+        auto ast = parser.parse();
+        
+        REQUIRE(!parser.has_errors());
+        REQUIRE(ast.size() == 1);
+        REQUIRE(ast[0]->definition_type == "era");
+        REQUIRE(ast[0]->identifier == "Ancient");
+    }
+    
+    SECTION("unit definition") {
+        Lexer lexer(R"(unit Knight { era: Medieval attack: 10 })");
+        auto tokens = lexer.tokenize();
+        
+        Parser parser(tokens);
+        auto ast = parser.parse();
+        
+        REQUIRE(!parser.has_errors());
+        REQUIRE(ast.size() == 1);
+        REQUIRE(ast[0]->definition_type == "unit");
+    }
+}
+
+TEST_CASE("Parser - Multiple Definitions") {
+    SECTION("two structures") {
+        Lexer lexer(R"(
+            structure Farm { era: Ancient }
+            structure Mine { era: Medieval }
+        )");
+        auto tokens = lexer.tokenize();
+        
+        Parser parser(tokens);
+        auto ast = parser.parse();
+        
+        REQUIRE(!parser.has_errors());
+        REQUIRE(ast.size() == 2);
+        REQUIRE(ast[0]->identifier == "Farm");
+        REQUIRE(ast[1]->identifier == "Mine");
+    }
+}
+
+TEST_CASE("Parser - Error Recovery") {
+    SECTION("missing brace") {
+        Lexer lexer("structure Farm { era: Ancient");
+        auto tokens = lexer.tokenize();
+        
+        Parser parser(tokens);
+        auto ast = parser.parse();
+        
+        REQUIRE(parser.has_errors());
+    }
+}
+
