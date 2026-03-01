@@ -1,0 +1,7 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "lex",
+  "version": "0.1.0",
+  "description": "Lex language transpiler for game modding",
+  "dependencies": []
+}
