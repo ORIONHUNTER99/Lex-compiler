@@ -61,7 +61,7 @@ Backend ora genera codice per tutte le definizioni, espressioni e condizioni.
 2. ~~AST tipizzato per i tipi base (structure, unit, technology, era)~~ — DONE (1206cdc)
 3. ~~Type checker base~~ — DONE (1206cdc)
 4. ~~Lua backend completo con generazione da condizioni reali~~ — DONE (1206cdc)
-5. Test end-to-end su un mod Imperium reale — DA FARE
+5. ~~Test end-to-end su un mod Imperium reale~~ — DONE (ddcfbd7) — Simulatore Python valida output Lua
 
 **Criterio di successo:** un modder può scrivere un file `.lex` con condizioni e ottenere Lua che gira in Imperium.
 
