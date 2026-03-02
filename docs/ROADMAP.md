@@ -5,19 +5,21 @@
 
 ---
 
-## Current Status: v0.2.0 (MVP Complete)
+## Current Status: v0.2.1 (Core Solido Complete)
 
 ### Completed
 | Component | Status | Notes |
 |-----------|--------|-------|
 | Lexer | Done | 50+ keywords, full literal support |
 | Parser | Done | 10 definition types, conditions, error recovery, `{}` resource maps |
-| AST | Done | Type-safe, visitor pattern |
+| Expression Parser | Done | Pratt parser with operator precedence |
+| AST | Done | Type-safe, visitor pattern, LexType enum, typed accessors |
+| Type Checker | Done | Semantic type validation in src/semantic/ |
 | Validator | Done | Semantic analysis with errors/warnings separation |
-| Lua Backend | Done | Code generation functional |
+| Lua Backend | Done | Full expression/condition code generation |
 | JSON Backend | Done | Imperium engine integration |
 | CLI | Done | Multi-target support (`-t lua,json`) |
-| Tests | Active | 17+ test cases with Catch2 |
+| Tests | Active | 257 assertions in 23 test cases with Catch2 |
 
 ### RFCs Published
 | RFC | Status | Description |
@@ -31,45 +33,35 @@
 
 ---
 
-## Problemi Critici del Core da Risolvere
+## Problemi Critici del Core — RISOLTI
 
-Prima di costruire i layer avanzati, il compilatore core ha bisogni critici.
-
-### Expression Parser (Priorità Critica)
-Il parser attuale raccoglie le condizioni come stringhe grezze:
-```cpp
-// Attuale — non funziona davvero
-while (!check(TokenType::LEFT_BRACE)) {
-    expr_stream << current().lexeme << " ";
-}
-```
-
-Serve un expression parser vero con precedenza degli operatori:
+### ~~Expression Parser (Priorità Critica)~~ — DONE (1466c3f)
+Implementato Pratt parser con precedenza operatori:
 - Confronti: `>`, `<`, `>=`, `<=`, `==`, `!=`
 - Logica: `and`, `or`, `not`
 - Aritmetica: `+`, `-`, `*`, `/`
 - Riferimenti: `civilization.population`, `city.happiness`
 - Chiamate: `has_technology(SteamEngine)`
 
-### AST Tipizzato (Priorità Alta)
-L'AST attuale è generico — ogni definizione è `Definition` con `vector<Property>`. I backend fanno ricerche lineari su ogni accesso. Serve un AST dove `StructureDefinition` ha campi tipizzati espliciti.
+### ~~AST Tipizzato (Priorità Alta)~~ — DONE (1206cdc)
+Aggiunto `LexType` enum, `Expression::infer_type()`, `Definition` typed accessors.
 
-### Type Checker (Priorità Alta)
-Nessun controllo di tipo tra proprietà. `era: 123` passa senza errori. Serve un phase di type checking che validi i tipi prima della generazione.
+### ~~Type Checker (Priorità Alta)~~ — DONE (1206cdc)
+Creato `src/semantic/type_checker.cpp` con validazione operatori e tipi.
 
-### Lua Backend Completo (Priorità Media)
-Il backend Lua attuale genera solo strutture. Non genera codice per condizioni, eventi, o logica. Serve che generi codice eseguibile da condizioni reali.
+### ~~Lua Backend Completo (Priorità Media)~~ — DONE (1206cdc)
+Backend ora genera codice per tutte le definizioni, espressioni e condizioni.
 
 ---
 
 ## Piano di Sviluppo
 
-### Fase 1 — Core Solido (Prima di tutto)
-1. Expression parser con precedenza operatori e test
-2. AST tipizzato per i tipi base (structure, unit, technology, era)
-3. Type checker base
-4. Lua backend completo con generazione da condizioni reali
-5. Test end-to-end su un mod Imperium reale
+### Fase 1 — Core Solido — COMPLETATA
+1. ~~Expression parser con precedenza operatori e test~~ — DONE (1466c3f)
+2. ~~AST tipizzato per i tipi base (structure, unit, technology, era)~~ — DONE (1206cdc)
+3. ~~Type checker base~~ — DONE (1206cdc)
+4. ~~Lua backend completo con generazione da condizioni reali~~ — DONE (1206cdc)
+5. Test end-to-end su un mod Imperium reale — DA FARE
 
 **Criterio di successo:** un modder può scrivere un file `.lex` con condizioni e ottenere Lua che gira in Imperium.
 
@@ -309,6 +301,13 @@ Separate project for AI-assisted crash analysis. Not part of Lex core, but integ
 ---
 
 ## Decision Log
+
+### 2026-03-02: Phase 1 Core Solido Complete
+**Decision:** Completati tutti gli item della Phase 1 tranne test end-to-end
+**Commits:**
+- 1466c3f: Pratt parser for expressions with operator precedence
+- 1206cdc: Typed AST (LexType enum), Type Checker, complete Lua backend
+**Result:** 257 test assertions passing, core compiler feature-complete
 
 ### 2026-03-02: Master Design Integration
 **Decision:** Integrato LEX_MASTER_DESIGN.md nei documenti esistenti
