@@ -45,8 +45,12 @@ nul
 
 # Output
 output/
+*.lua
+!tests/**/*.lua
+*.json
+!tests/**/*.json
 
 # Internal (not for public release)
-.planning/INTERNAL_ROADMAP.md
+.planning/
 .crush/
 .factory/
