@@ -1,4 +1,5 @@
 #include "parser.h"
+#include "../schema/schema.h"
 #include <sstream>
 #include <stdexcept>
 
@@ -112,6 +113,17 @@ std::unique_ptr<Definition> Parser::parse_definition() {
             return parse_event();
         case TokenType::SECRET:
             return parse_secret();
+        case TokenType::IDENTIFIER: {
+            // Support for custom definition types from schema
+            auto& schema = SchemaRegistry::instance();
+            std::string type_name = current().lexeme;
+            if (schema.is_valid_definition(type_name)) {
+                pos_++;  // Consume the identifier
+                return parse_generic_definition(type_name);
+            }
+            error("Unknown definition type: " + type_name);
+            return nullptr;
+        }
         default:
             error("Expected definition keyword");
             return nullptr;
@@ -957,6 +969,37 @@ std::unique_ptr<Condition> Parser::parse_condition() {
     consume(TokenType::RIGHT_BRACE, "Expected '}' after condition block");
 
     return cond;
+}
+
+// ============================================================================
+// Generic Definition Parsing (for custom types from --types)
+// ============================================================================
+
+std::unique_ptr<Definition> Parser::parse_generic_definition(const std::string& type_name) {
+    auto def = std::make_unique<Definition>();
+    def->definition_type = type_name;
+    
+    Token name = consume(TokenType::IDENTIFIER, "Expected definition name");
+    def->identifier = name.lexeme;
+    
+    consume(TokenType::LEFT_BRACE, "Expected '{' after definition name");
+    
+    // Parse properties (same as any definition)
+    while (!check(TokenType::RIGHT_BRACE) && !check(TokenType::END_OF_FILE)) {
+        if (is_condition_keyword(current().type)) {
+            auto cond = parse_condition();
+            if (cond) def->conditions.push_back(std::move(cond));
+        } else {
+            auto prop = parse_property();
+            if (prop) {
+                def->properties.push_back(std::move(prop));
+            }
+        }
+    }
+    
+    consume(TokenType::RIGHT_BRACE, "Expected '}' after definition");
+    
+    return def;
 }
 
 } // namespace lex

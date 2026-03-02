@@ -50,6 +50,7 @@ private:
     std::unique_ptr<EndingDefinition> parse_ending();
     std::unique_ptr<EventDefinition> parse_event();
     std::unique_ptr<SecretDefinition> parse_secret();
+    std::unique_ptr<Definition> parse_generic_definition(const std::string& type_name);
 
     // Property parsing
     std::unique_ptr<Property> parse_property();

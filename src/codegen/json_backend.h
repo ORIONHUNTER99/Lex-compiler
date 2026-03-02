@@ -2,6 +2,7 @@
 
 #include "backend.h"
 #include <sstream>
+#include <map>
 
 namespace lex {
 
@@ -14,6 +15,12 @@ public:
 
 private:
     std::string escape_string(const std::string& s);
+    
+    // Generic definition generator (works for any type)
+    std::string generate_generic(const Definition& def);
+    std::string generate_property_value(const Property& prop);
+    
+    // Legacy type-specific generators (kept for compatibility)
     std::string generate_era(const Definition& era);
     std::string generate_structure(const Definition& structure);
     std::string generate_unit(const Definition& unit);

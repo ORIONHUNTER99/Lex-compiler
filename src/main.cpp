@@ -11,15 +11,18 @@
 #include "parser/validator.h"
 #include "codegen/lua_backend.h"
 #include "codegen/json_backend.h"
+#include "schema/schema.h"
 
 namespace fs = std::filesystem;
 
 void print_usage(const char* program) {
-    std::cerr << "Lex Compiler v0.1.0\n\n";
+    std::cerr << "Lex Compiler v0.3.0\n\n";
     std::cerr << "Usage: " << program << " <input.lex> [options]\n\n";
     std::cerr << "Options:\n";
     std::cerr << "  -o, --output <dir>   Output directory (default: same as input)\n";
     std::cerr << "  -t, --target <fmt>   Output format(s): lua, json (comma-separated)\n";
+    std::cerr << "  --types <list>       Definition types (comma-separated)\n";
+    std::cerr << "                       Default: Imperium types (era,structure,unit,...)\n";
     std::cerr << "  --no-validate        Skip semantic validation\n";
     std::cerr << "  -h, --help           Show this help\n";
 }
@@ -51,6 +54,7 @@ int main(int argc, char* argv[]) {
     std::string input_file;
     std::string output_dir;
     std::string target = "lua";
+    std::string types;  // Custom definition types
     bool validate = true;
 
     // Parse arguments
@@ -71,6 +75,12 @@ int main(int argc, char* argv[]) {
                 return 1;
             }
             target = argv[++i];
+        } else if (arg == "--types") {
+            if (i + 1 >= argc) {
+                std::cerr << "Error: --types requires a list\n";
+                return 1;
+            }
+            types = argv[++i];
         } else if (arg == "--no-validate") {
             validate = false;
         } else if (arg[0] != '-') {
@@ -84,6 +94,16 @@ int main(int argc, char* argv[]) {
     if (input_file.empty()) {
         std::cerr << "Error: No input file specified\n";
         return 1;
+    }
+
+    // Initialize schema registry
+    auto& schema = lex::SchemaRegistry::instance();
+    if (types.empty()) {
+        // Use Imperium default
+        schema.load_imperium_default();
+    } else {
+        // Use custom types from CLI
+        schema.load_from_cli(types);
     }
 
     // Default output dir to input file's directory
