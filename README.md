@@ -1,8 +1,27 @@
 # Lex Compiler
 
+[![CI](https://github.com/david/lex/actions/workflows/ci.yml/badge.svg)](https://github.com/david/lex/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)](https://github.com/david/lex)
+
 A declarative, multi-target transpiler for game content.
 
-**Status:** v0.3.0 — Core Complete
+**Principle:** *Describe what, not how.*
+
+## Quick Start
+
+```bash
+# Clone and build
+git clone https://github.com/david/lex.git
+cd lex
+cmake -B build -S .
+cmake --build build --config Release
+
+# Try it!
+.\build\Release\lexc.exe examples\imperium_minimal.lex -o output -t lua,json
+```
+
+Output in `output/imperium_minimal.lua` and `output/imperium_minimal.json`.
 
 ## What is Lex?
 
@@ -40,6 +59,33 @@ structure SteamFactory {
 ```
 
 Compiles to valid Lua and JSON.
+
+### Generated Output
+
+**Lua** (`output.lua`):
+```lua
+Buildings.SteamFactory = {
+    era = "Steampunk",
+    cost = {Coal = 8, Gold = 50, Steel = 5},
+    production = {Energy = 15, Industry = 10},
+    description = [[Converts coal into energy and industrial output.]],
+}
+```
+
+**JSON** (`output.json`):
+```json
+{
+  "structures": {
+    "SteamFactory": {
+      "era": "Steampunk",
+      "cost": {"Coal": 8, "Gold": 50, "Steel": 5},
+      "production": {"Energy": 15, "Industry": 10}
+    }
+  }
+}
+```
+
+See [examples/generated/](examples/generated/) for complete generated files.
 
 ## Features
 
@@ -89,8 +135,13 @@ Lex/
 
 - [Language Specification](docs/LEX_SPECIFICATION.md)
 - [Architecture](docs/LEX_ARCHITECTURE.md)
+- [Changelog](docs/LEX_CHANGELOG.md)
 - [Roadmap](docs/ROADMAP.md)
 - [RFCs](docs/rfc/) — Future feature proposals
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## Roadmap
 

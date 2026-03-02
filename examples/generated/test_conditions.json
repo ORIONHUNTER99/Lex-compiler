@@ -1,0 +1,30 @@
+{
+  "version": "1.0",
+  "generated_by": "Lex Compiler v0.1.0",
+  "structures": {
+    "TestBuilding": {
+      "id": "TestBuilding",
+      "era": "Ancient",
+      "name": "Test Building",
+      "cost": {"Gold": 100}
+    }
+  },
+  "units": {
+    "TestUnit": {
+      "id": "TestUnit",
+      "era": "Ancient",
+      "name": "Test Unit",
+      "attack": 10,
+      "defense": 5,
+      "cost": {"Gold": 50},
+    }
+  },
+  "technologies": {
+    "TestTech": {
+      "id": "TestTech",
+      "era": "Steampunk",
+      "name": "Test Technology",
+      "research_cost": 200,
+    }
+  }
+}
