@@ -151,6 +151,10 @@ structure SteamFactory {
         Coal: 2,
         Gold: 5
     }
+    
+    // Condition with expression
+    available_if has_technology(SteamEngine) {
+    }
 }
 
 structure ResearchLab {
