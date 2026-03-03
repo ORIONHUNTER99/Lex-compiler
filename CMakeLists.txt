@@ -1,12 +1,16 @@
 cmake_minimum_required(VERSION 3.20)
-project(lex VERSION 0.1.0 LANGUAGES CXX)
+project(lex VERSION 0.3.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_executable(lexc
-    src/main.cpp
+# ============================================================================
+# Lex Library
+# ============================================================================
+
+add_library(lex STATIC
+    src/lex/lex.cpp
     src/lexer/lexer.cpp
     src/parser/parser.cpp
     src/parser/validator.cpp
@@ -17,13 +21,28 @@ add_executable(lexc
     src/schema/schema.cpp
 )
 
-target_include_directories(lexc PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_include_directories(lex
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>
+        $<INSTALL_INTERFACE:include>
+)
 
 if(MSVC)
-    target_compile_options(lexc PRIVATE /W4)
+    target_compile_options(lex PRIVATE /W4)
 else()
-    target_compile_options(lexc PRIVATE -Wall -Wextra -pedantic)
+    target_compile_options(lex PRIVATE -Wall -Wextra -pedantic)
 endif()
+
+# ============================================================================
+# Lex CLI (uses the library)
+# ============================================================================
+
+add_executable(lexc src/cli/main.cpp)
+target_link_libraries(lexc PRIVATE lex)
+
+# ============================================================================
+# Tests
+# ============================================================================
 
 option(BUILD_TESTS "Build tests" ON)
 
@@ -31,3 +50,16 @@ if(BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif()
+
+# ============================================================================
+# Installation
+# ============================================================================
+
+include(GNUInstallDirs)
+
+install(TARGETS lex
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+
+install(FILES src/lex/lex.hpp DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/lex)
