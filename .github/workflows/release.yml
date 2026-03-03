@@ -1,0 +1,96 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  build-release:
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            artifact: lexc-windows-x64
+            executable: lexc.exe
+          - os: ubuntu-latest
+            artifact: lexc-linux-x64
+            executable: lexc
+          - os: macos-latest
+            artifact: lexc-macos-x64
+            executable: lexc
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Configure CMake (Windows)
+      if: matrix.os == 'windows-latest'
+      run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
+
+    - name: Configure CMake (Unix)
+      if: matrix.os != 'windows-latest'
+      run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      run: cmake --build build --config Release -j$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)
+
+    - name: Run tests
+      shell: bash
+      run: |
+        if [ "${{ matrix.os }}" = "windows-latest" ]; then
+          ./build/tests/Release/lexer_tests.exe
+        else
+          ./build/tests/lexer_tests
+        fi
+
+    - name: Package (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        mkdir release
+        cp build/Release/lexc.exe release/
+        cp README.md release/
+        cp LICENSE release/
+        cp -r examples release/
+        cd release
+        7z a -tzip ../${{ matrix.artifact }}.zip *
+
+    - name: Package (Unix)
+      if: matrix.os != 'windows-latest'
+      run: |
+        mkdir -p release
+        cp build/lexc release/
+        chmod +x release/lexc
+        cp README.md release/
+        cp LICENSE release/
+        cp -r examples release/
+        cd release
+        tar -czvf ../${{ matrix.artifact }}.tar.gz *
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact }}
+        path: |
+          ${{ matrix.artifact }}.zip
+          ${{ matrix.artifact }}.tar.gz
+        if-no-files-found: warn
+
+  create-release:
+    needs: build-release
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+
+    - name: Upload release assets
+      uses: softprops/action-gh-release@v1
+      with:
+        files: artifacts/**/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

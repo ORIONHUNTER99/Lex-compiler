@@ -1,33 +1,51 @@
 # State
-Updated: 2026-03-02
+Updated: 2026-03-03
 
-## Current Version: v0.3.0
+## Current Version: v0.3.1
 
 ## Active
-- **Phase 1.5: Lex Base Agnostico** — Disaccoppiare da Imperium
-- Obiettivo: Pubblicabile su GitHub come tool generico per sviluppatori
-- Target: Sviluppatori di giochi, non modder finali
+- **Phase 1.5 COMPLETE** — Lex Base Agnostico + Libreria + Accessibility
+- Lex è ora una **libreria C++** con CLI come frontend
+- **Tutorial** completo per nuovi utenti
+- **VS Code extension** pronta (syntax highlighting + snippets)
+- **GitHub Actions** per binary releases su 3 piattaforme
+
+## Sessione 2026-03-03 (notte)
+- Lex refactorato come libreria (`lex.lib`)
+- Creato `src/lex/` con API pubblica (`lex.hpp`)
+- Spostato CLI in `src/cli/`
+- Aggiunto tutorial (`docs/TUTORIAL.md`)
+- Aggiunto workflow per binary releases
+- Aggiunto VS Code extension (`editors/vscode/`)
+
+## Struttura Attuale
+```
+Lex/
+├── src/
+│   ├── lex/           # Libreria
+│   ├── cli/           # CLI frontend
+│   ├── lexer/
+│   ├── parser/
+│   ├── ast/
+│   ├── semantic/
+│   ├── codegen/
+│   └── schema/
+├── docs/
+│   ├── TUTORIAL.md    # NUOVO
+│   ├── ROADMAP.md
+│   └── ...
+├── editors/
+│   └── vscode/        # NUOVO
+└── .github/workflows/
+    ├── ci.yml
+    └── release.yml    # NUOVO
+```
 
 ## Next (Internal Priority)
-1. **Lex Base Agnostico** — Sistema di schema configurabile
-2. **Config Imperium** — Schema predefinito per Imperium
-3. **Documentazione** — "Come configurare Lex per il tuo gioco"
-4. **GitHub Ready** — Pulire e pubblicare
-5. **Poi:** Lex Core (C++ backend, engine bindings)
-
-## Sessione 2026-03-02 (Serata)
-- Discussione su target utenti: sviluppatori vs modder
-- **DECISIONE:** Lex è tool per sviluppatori (Opzione A)
-- I modder usano Lex tramite il gioco che scaricano
-- Inizio lavoro su schema configurabile
-- File creati: `src/shared/layer.h`, `src/core/definitions_core.h`, `src/base/validator_base.h`
-
-## Decisioni Importanti
-| Decisione | Motivo |
-|-----------|--------|
-| Target = Sviluppatori | Modder non usano Lex da soli, serve un gioco |
-| Schema configurabile | Ogni dev definisce i tipi del suo gioco |
-| Imperium come esempio | Mostra il valore, ma non è hardcoded |
+1. **Pubblicare su GitHub** — Push tutto
+2. **Creare prima release** — v0.3.1
+3. **Pubblicare VS Code extension** — Marketplace
+4. **Poi:** TypeScript backend
 
 ## Recent Commits
 | Commit | Description |

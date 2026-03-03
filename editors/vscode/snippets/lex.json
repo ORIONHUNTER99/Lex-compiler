@@ -1,0 +1,106 @@
+{
+  "Structure Definition": {
+    "prefix": "structure",
+    "body": [
+      "structure ${1:Name} {",
+      "\tera: ${2:EraName}",
+      "\tname: \"${3:Display Name}\"",
+      "\tdescription: \"${4:Description}\"",
+      "\t",
+      "\tcost: {",
+      "\t\t${5:Resource}: ${6:100}",
+      "\t}",
+      "\t",
+      "\tproduction: {",
+      "\t\t${7:Output}: ${8:10}",
+      "\t}",
+      "}"
+    ],
+    "description": "Create a structure definition"
+  },
+  "Unit Definition": {
+    "prefix": "unit",
+    "body": [
+      "unit ${1:Name} {",
+      "\tera: ${2:EraName}",
+      "\tname: \"${3:Display Name}\"",
+      "\ttype: \"${4:military}\"",
+      "\t",
+      "\tattack: ${5:10}",
+      "\tdefense: ${6:5}",
+      "\tmovement: ${7:2}",
+      "\t",
+      "\tcost: {",
+      "\t\t${8:Gold}: ${9:50}",
+      "\t}",
+      "}"
+    ],
+    "description": "Create a unit definition"
+  },
+  "Technology Definition": {
+    "prefix": "technology",
+    "body": [
+      "technology ${1:Name} {",
+      "\tera: ${2:EraName}",
+      "\tname: \"${3:Display Name}\"",
+      "\tresearch_cost: ${4:100}",
+      "\tdescription: \"${5:Description}\"",
+      "}"
+    ],
+    "description": "Create a technology definition"
+  },
+  "Item Definition": {
+    "prefix": "item",
+    "body": [
+      "item ${1:Name} {",
+      "\tname: \"${2:Display Name}\"",
+      "\tdescription: \"${3:Description}\"",
+      "\trarity: \"${4:common}\"",
+      "\tvalue: ${5:10}",
+      "}"
+    ],
+    "description": "Create an item definition"
+  },
+  "Character Definition": {
+    "prefix": "character",
+    "body": [
+      "character ${1:Name} {",
+      "\tname: \"${2:Display Name}\"",
+      "\tlevel: ${3:1}",
+      "\thealth: ${4:100}",
+      "\tdamage: ${5:10}",
+      "}"
+    ],
+    "description": "Create a character definition"
+  },
+  "Resource Map": {
+    "prefix": "resources",
+    "body": [
+      "{",
+      "\t${1:Gold}: ${2:100},",
+      "\t${3:Wood}: ${4:50}",
+      "}"
+    ],
+    "description": "Create a resource map"
+  },
+  "Condition Block": {
+    "prefix": "available_if",
+    "body": [
+      "available_if ${1:condition} {",
+      "\t${2:// properties}",
+      "}"
+    ],
+    "description": "Create an availability condition"
+  },
+  "Era Definition": {
+    "prefix": "era",
+    "body": [
+      "era ${1:Name} {",
+      "\tname: \"${2:Display Name}\"",
+      "\tperiod: \"${3:Historical Period}\"",
+      "\tatmosphere: \"${4:Description}\"",
+      "}"
+    ],
+    "description": "Create an era definition"
+  }
+}

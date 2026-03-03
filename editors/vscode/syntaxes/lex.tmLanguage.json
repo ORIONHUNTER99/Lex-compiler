@@ -1,0 +1,144 @@
+{
+  "scopeName": "source.lex",
+  "name": "Lex",
+  "fileTypes": ["lex"],
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#numbers"
+    },
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#definition-types"
+    },
+    {
+      "include": "#properties"
+    },
+    {
+      "include": "#conditions"
+    },
+    {
+      "include": "#operators"
+    },
+    {
+      "include": "#identifiers"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.lex",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.block.lex",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.lex",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.lex",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.float.lex",
+          "match": "\\b[0-9]+\\.[0-9]+\\b"
+        },
+        {
+          "name": "constant.numeric.integer.lex",
+          "match": "\\b[0-9]+\\b"
+        },
+        {
+          "name": "constant.numeric.hex.lex",
+          "match": "#[0-9A-Fa-f]{6}"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.lex",
+          "match": "\\b(if|when|available_if|secret_if|active_if|bonus_if)\\b"
+        },
+        {
+          "name": "constant.language.boolean.lex",
+          "match": "\\b(true|false|null)\\b"
+        },
+        {
+          "name": "keyword.operator.logical.lex",
+          "match": "\\b(and|or|not)\\b"
+        }
+      ]
+    },
+    "definition-types": {
+      "patterns": [
+        {
+          "name": "storage.type.lex",
+          "match": "^\\s*(era|structure|unit|technology|resource|choice|ending|event|secret|item|character|location|weapon|armor|spell|quest|npc|enemy|boss)\\b"
+        }
+      ]
+    },
+    "properties": {
+      "patterns": [
+        {
+          "name": "entity.other.attribute-name.lex",
+          "match": "\\b(name|description|era|cost|production|maintenance|type|level|attack|defense|movement|range|health|damage|value|rarity|icon|color|tooltip|trigger|effect|text|quote)\\s*:"
+        }
+      ]
+    },
+    "conditions": {
+      "patterns": [
+        {
+          "name": "keyword.control.condition.lex",
+          "match": "\\b(has_technology|has_resource|population|happiness|stability)\\b"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.comparison.lex",
+          "match": "(==|!=|>=|<=|>|<)"
+        },
+        {
+          "name": "keyword.operator.arithmetic.lex",
+          "match": "(\\+|-|\\*|/|%)"
+        }
+      ]
+    },
+    "identifiers": {
+      "patterns": [
+        {
+          "name": "entity.name.type.lex",
+          "match": "\\b[A-Z][a-zA-Z0-9_]*\\b"
+        },
+        {
+          "name": "variable.other.lex",
+          "match": "\\b[a-z][a-zA-Z0-9_]*\\b"
+        }
+      ]
+    }
+  }
+}

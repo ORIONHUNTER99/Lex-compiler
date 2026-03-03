@@ -1,0 +1,42 @@
+{
+  "name": "lex-language",
+  "displayName": "Lex Language Support",
+  "description": "Syntax highlighting and snippets for Lex files",
+  "version": "0.3.1",
+  "publisher": "david-imperium",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "lex",
+        "aliases": ["Lex", "lex"],
+        "extensions": [".lex"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "lex",
+        "scopeName": "source.lex",
+        "path": "./syntaxes/lex.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "lex",
+        "path": "./snippets/lex.json"
+      }
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/David-Imperium/Lex-compiler.git"
+  }
+}
