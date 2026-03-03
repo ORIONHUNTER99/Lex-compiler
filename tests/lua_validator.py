@@ -37,15 +37,19 @@ class LuaValidator:
         return all(e.severity != 'error' for e in self.errors)
     
     def check_tables_exist(self):
-        """Check that required tables are defined"""
-        required_tables = ['Buildings', 'Units', 'Technologies', 'Eras', 'Resources']
-        for table in required_tables:
-            pattern = rf'^{table}\s*=\s*{table}\s*or\s*{{}}'
-            found = any(re.match(pattern, line) for line in self.lines)
-            if not found:
-                self.add_error(0, f"Missing table definition: {table}")
-            else:
-                self.tables_found[table] = True
+        """Discover and validate table definitions dynamically"""
+        # Pattern: TableName = TableName or {}
+        table_pattern = r'^(\w+)\s*=\s*\1\s*or\s*\{\}'
+
+        for line in self.lines:
+            match = re.match(table_pattern, line.strip())
+            if match:
+                table_name = match.group(1)
+                self.tables_found[table_name] = True
+
+        # Warn if no tables found at all
+        if not self.tables_found:
+            self.add_error(0, "No table definitions found (pattern: Name = Name or {})", 'warning')
     
     def check_syntax_basic(self):
         """Basic syntax validation"""

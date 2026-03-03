@@ -45,6 +45,8 @@ struct CompileError {
 enum class Target {
     Lua,
     JSON,
+    Godot,      // GDScript
+    Unity,      // C# ScriptableObject
     TypeScript  // Planned
 };
 

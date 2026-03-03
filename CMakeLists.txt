@@ -18,6 +18,8 @@ add_library(lex STATIC
     src/semantic/type_checker.cpp
     src/codegen/lua_backend.cpp
     src/codegen/json_backend.cpp
+    src/codegen/godot_backend.cpp
+    src/codegen/unity_backend.cpp
     src/schema/schema.cpp
 )
 

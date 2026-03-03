@@ -1,0 +1,122 @@
+[gd_scene load_steps=2 format=3 uid="uid://demo_main"]
+
+[ext_resource type="Script" path="res://main.gd" id="1_main"]
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_main")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Title" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+text = "Lex RPG Demo"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="HBox" type="HBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ItemsPanel" type="PanelContainer" parent="Panel/VBox/HBox"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBox" type="VBoxContainer" parent="Panel/VBox/HBox/ItemsPanel"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/VBox/HBox/ItemsPanel/VBox"]
+layout_mode = 2
+text = "Items"
+
+[node name="ItemList" type="ItemList" parent="Panel/VBox/HBox/ItemsPanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ItemDetails" type="RichTextLabel" parent="Panel/VBox/HBox/ItemsPanel/VBox"]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+bbcode_enabled = true
+text = "Select an item"
+
+[node name="LocationsPanel" type="PanelContainer" parent="Panel/VBox/HBox"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBox" type="VBoxContainer" parent="Panel/VBox/HBox/LocationsPanel"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/VBox/HBox/LocationsPanel/VBox"]
+layout_mode = 2
+text = "Locations"
+
+[node name="LocationList" type="ItemList" parent="Panel/VBox/HBox/LocationsPanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="LocationDetails" type="RichTextLabel" parent="Panel/VBox/HBox/LocationsPanel/VBox"]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+bbcode_enabled = true
+text = "Select a location"
+
+[node name="CharacterPanel" type="PanelContainer" parent="Panel/VBox/HBox"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBox" type="VBoxContainer" parent="Panel/VBox/HBox/CharacterPanel"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/VBox/HBox/CharacterPanel/VBox"]
+layout_mode = 2
+text = "Character"
+
+[node name="CharName" type="Label" parent="Panel/VBox/HBox/CharacterPanel/VBox"]
+layout_mode = 2
+text = "Warrior"
+
+[node name="Stats" type="RichTextLabel" parent="Panel/VBox/HBox/CharacterPanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "Loading..."
+
+[node name="Inventory" type="ItemList" parent="Panel/VBox/HBox/CharacterPanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HSeparator2" type="HSeparator" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="Footer" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+text = "Data loaded from Lex-generated game_data.gd"
+horizontal_alignment = 1

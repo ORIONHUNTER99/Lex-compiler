@@ -5,6 +5,8 @@
 #include "semantic/type_checker.h"
 #include "codegen/lua_backend.h"
 #include "codegen/json_backend.h"
+#include "codegen/godot_backend.h"
+#include "codegen/unity_backend.h"
 #include "schema/schema.h"
 
 #include <fstream>
@@ -25,7 +27,7 @@ std::string version() {
 // ============================================================================
 
 std::vector<std::string> available_targets() {
-    return {"lua", "json"};
+    return {"lua", "json", "gd", "cs"};
 }
 
 std::vector<std::string> default_types() {
@@ -45,6 +47,8 @@ std::string target_extension(Target target) {
 std::string target_extension(const std::string& target_name) {
     if (target_name == "lua") return ".lua";
     if (target_name == "json") return ".json";
+    if (target_name == "gd" || target_name == "godot") return ".gd";
+    if (target_name == "cs" || target_name == "unity" || target_name == "csharp") return ".cs";
     if (target_name == "ts" || target_name == "typescript") return ".ts";
     return "";
 }
@@ -167,6 +171,18 @@ CompileResult compile(const std::string& source, const CompileOptions& options) 
                 target_name = "json";
                 break;
             }
+            case Target::Godot: {
+                GodotBackend backend;
+                output = backend.generate(ast);
+                target_name = "gd";
+                break;
+            }
+            case Target::Unity: {
+                UnityBackend backend;
+                output = backend.generate(ast);
+                target_name = "cs";
+                break;
+            }
             case Target::TypeScript: {
                 // Planned - not yet implemented
                 result.warnings.push_back({
@@ -174,7 +190,7 @@ CompileResult compile(const std::string& source, const CompileOptions& options) 
                     .location = "",
                     .severity = CompileErrorSeverity::Warning,
                     .code = "W001",
-                    .suggestion = "Use Lua or JSON backend for now"
+                    .suggestion = "Use Lua, JSON, GD or CS backend for now"
                 });
                 continue;
             }

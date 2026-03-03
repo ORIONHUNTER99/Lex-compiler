@@ -1,6 +1,7 @@
 #pragma once
 
 #include "backend.h"
+#include <set>
 
 namespace lex {
 
@@ -12,13 +13,16 @@ public:
     std::string generate(const std::vector<std::unique_ptr<Definition>>& ast) override;
 
 private:
+    // Track which definition types we've seen (for dynamic table generation)
+    std::set<std::string> seen_types_;
+
     std::string generate_definition(const Definition& def);
-    std::string generate_structure(const Definition& structure);
-    std::string generate_unit(const Definition& unit);
-    std::string generate_technology(const Definition& tech);
-    std::string generate_era(const Definition& era);
+    std::string generate_generic(const Definition& def);
     std::string generate_resource_map(const ResourceMap& map);
     std::string generate_reference_list(const ReferenceList& list);
+
+    // Convert definition type to Lua table name (e.g., "structure" -> "Structures")
+    std::string type_to_table_name(const std::string& type) const;
 
     // Expression code generation
     std::string generate_expression(const Expression* expr);
@@ -39,6 +43,9 @@ private:
     // Operator mapping
     std::string binary_op_to_lua(Expression::BinaryOp op) const;
     std::string unary_op_to_lua(Expression::UnaryOp op) const;
+
+    // Generate a property value as Lua
+    std::string generate_property_value(const Property& prop);
 };
 
 }
