@@ -92,6 +92,9 @@ public:
     // Type inference
     LexType infer_type() const;
 
+    // Clone method (deep copy)
+    std::unique_ptr<Expression> clone() const;
+
     // Convenience factory methods
     static std::unique_ptr<Expression> make_integer(int64_t val);
     static std::unique_ptr<Expression> make_float(double val);

@@ -18,6 +18,8 @@ void print_usage(const char* program) {
     std::cerr << "  -t, --target <fmt>   Output format(s): lua, json, gd, cs\n";
     std::cerr << "  --types <list>       Definition types (comma-separated)\n";
     std::cerr << "                       Default: Imperium types (era,structure,unit,...)\n";
+    std::cerr << "  --mode <mode>        Visibility mode: modder (default) or developer\n";
+    std::cerr << "                       modder = internal/private hidden, developer = all visible\n";
     std::cerr << "  --no-validate        Skip semantic validation\n";
     std::cerr << "  --verbose            Show detailed output\n";
     std::cerr << "  -h, --help           Show this help\n";
@@ -41,6 +43,7 @@ int main(int argc, char* argv[]) {
     std::string output_dir;
     std::string target_str = "lua";
     std::string types_str;
+    std::string mode_str = "modder";
     bool validate = true;
     bool verbose = false;
 
@@ -68,6 +71,12 @@ int main(int argc, char* argv[]) {
                 return 1;
             }
             types_str = argv[++i];
+        } else if (arg == "--mode") {
+            if (i + 1 >= argc) {
+                std::cerr << "Error: --mode requires modder or developer\n";
+                return 1;
+            }
+            mode_str = argv[++i];
         } else if (arg == "--no-validate") {
             validate = false;
         } else if (arg == "--verbose") {
@@ -95,6 +104,16 @@ int main(int argc, char* argv[]) {
     options.validate = validate;
     options.verbose = verbose;
     options.source_name = input_file;
+
+    // Set mode (visibility filtering)
+    if (mode_str == "developer" || mode_str == "dev") {
+        options.allow_internal = true;
+    } else if (mode_str == "modder") {
+        options.allow_internal = false;
+    } else {
+        std::cerr << "Error: --mode must be 'modder' or 'developer'\n";
+        return 1;
+    }
 
     // Parse types
     if (!types_str.empty()) {
