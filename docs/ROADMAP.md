@@ -64,21 +64,30 @@
 
 Making Lex usable by everyone, not just C++ developers.
 
-### 1. Binary Releases
-| Task | Status |
-|------|--------|
-| Windows `.exe` release | 📋 Planned |
-| Linux binary | 📋 Planned |
-| macOS binary | 📋 Planned |
-| GitHub Releases workflow | 📋 Planned |
+### 1. Binary Releases ⚡ HIGH PRIORITY
+
+**Goal:** Download `lexc.exe` and run — no compilation needed.
+
+| Task | Platform | Status |
+|------|----------|--------|
+| Windows `.exe` | Windows 10+ | 📋 Planned |
+| Linux binary | Ubuntu 20.04+ | 📋 Planned |
+| macOS binary | macOS 11+ | 📋 Planned |
+| GitHub Releases workflow | CI/CD | 📋 Planned |
+
+**Implementation:**
+- GitHub Actions matrix build (3 OS)
+- Static linking for portability
+- Automatic release on version tags
 
 ### 2. Documentation
+
 | Task | Status |
 |------|--------|
 | Tutorial: "Your first mod" | 📋 Planned |
+| **Integration Guide: Existing Games** | 📋 Planned |
 | API reference | 📋 Planned |
 | Error message catalog | 📋 Planned |
-| Video walkthrough | 📋 Planned |
 
 ### 3. Error Messages
 | Task | Status |
@@ -89,19 +98,78 @@ Making Lex usable by everyone, not just C++ developers.
 | `--verbose` mode | 📋 Planned |
 
 ### 4. Editor Support
-| Task | Status |
-|------|--------|
-| VS Code extension | 📋 Planned |
-| Syntax highlighting | 📋 Planned |
-| Autocomplete | 📋 Planned |
-| Error squiggles | 📋 Planned |
+
+| Task | Priority | Status |
+|------|----------|--------|
+| VS Code extension | ⚡ High | 📋 Planned |
+| Syntax highlighting | ⚡ High | 📋 Planned |
+| Autocomplete | 🟡 Medium | 📋 Planned |
+| Error squiggles | 🟡 Medium | 📋 Planned |
 
 ### 5. Examples
+
 | Task | Status |
 |------|--------|
 | Complete mini-game example | 📋 Planned |
 | Multiple schema examples | 📋 Planned |
-| Integration examples | 📋 Planned |
+| **Integration examples (Unity, Godot, Love2D)** | 📋 Planned |
+
+---
+
+## Integration for Existing Games
+
+**Lex works with your existing game — no engine changes required.**
+
+### How It Works
+
+```
+You write:           game.lex
+Lex compiles to:     game.json / game.lua / game.cs
+Your game reads:     Standard file formats
+```
+
+Your game doesn't need to know Lex exists.
+
+### Integration Steps
+
+1. **Define your data** in `.lex` format
+2. **Compile** with `lexc game.lex -t json` (or lua, cs, gd)
+3. **Load the output** in your game like any other data file
+
+### Example: Unity Integration
+
+```csharp
+// Before: Manual data
+public class Items {
+    public static Item[] all = new Item[] {
+        new Item { name = "Sword", damage = 50 }
+    };
+}
+
+// After: Generated from .lex
+// 1. Write items.lex
+// 2. Run: lexc items.lex -t cs
+// 3. Include generated Items.cs in Unity
+// No other changes needed!
+```
+
+### Supported Outputs
+
+| Output | Game Engine | Integration |
+|--------|-------------|-------------|
+| `.json` | Any | Read via JSON parser |
+| `.lua` | Love2D, Defold, custom | `require()` or `dofile()` |
+| `.cs` | Unity | ScriptableObject |
+| `.gd` | Godot 4.x | `ResourceLoader.load()` |
+
+### For Modders
+
+Players can create mods by:
+1. Writing `.lex` files
+2. Compiling with `lexc` (needs binary release)
+3. Placing output in game's mod folder
+
+**Future:** Lex Runtime (embed in game) would allow hot-reload without restart.
 
 ---
 
