@@ -1,4 +1,5 @@
 #include "lex.hpp"
+#include "version.h"
 #include "lexer/lexer.h"
 #include "parser/parser.h"
 #include "parser/validator.h"
@@ -19,7 +20,7 @@ namespace lex {
 // ============================================================================
 
 std::string version() {
-    return "0.3.1";
+    return LEX_VERSION;
 }
 
 // ============================================================================

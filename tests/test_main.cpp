@@ -863,3 +863,147 @@ TEST_CASE("Expression Parser - Unary Negation") {
     }
 }
 
+// ============================================================================
+// Codegen Backend Tests
+// ============================================================================
+
+#include "../src/codegen/lua_backend.h"
+#include "../src/codegen/json_backend.h"
+
+TEST_CASE("Lua Backend - Basic Output") {
+    SECTION("simple structure") {
+        Lexer lexer(R"(structure Farm { era: Ancient cost: { Gold: 50 } })");
+        auto tokens = lexer.tokenize();
+        REQUIRE(!lexer.has_errors());
+
+        Parser parser(tokens);
+        auto ast = parser.parse();
+        REQUIRE(!parser.has_errors());
+
+        LuaBackend backend;
+        std::string output = backend.generate(ast);
+
+        // Check table name
+        REQUIRE(output.find("Structures") != std::string::npos);
+        REQUIRE(output.find("Structures.Farm") != std::string::npos);
+
+        // Check properties
+        REQUIRE(output.find("era = \"Ancient\"") != std::string::npos);
+        REQUIRE(output.find("Gold = 50") != std::string::npos);
+    }
+
+    SECTION("multiple definition types") {
+        Lexer lexer(R"(
+            era Ancient { period: "3000 BC" }
+            structure Farm { era: Ancient }
+        )");
+        auto tokens = lexer.tokenize();
+        REQUIRE(!lexer.has_errors());
+
+        Parser parser(tokens);
+        auto ast = parser.parse();
+        REQUIRE(!parser.has_errors());
+
+        LuaBackend backend;
+        std::string output = backend.generate(ast);
+
+        // Both tables should be generated
+        REQUIRE(output.find("Eras") != std::string::npos);
+        REQUIRE(output.find("Structures") != std::string::npos);
+        REQUIRE(output.find("Eras.Ancient") != std::string::npos);
+        REQUIRE(output.find("Structures.Farm") != std::string::npos);
+    }
+
+    SECTION("module return") {
+        Lexer lexer(R"(structure Farm { era: Ancient })");
+        auto tokens = lexer.tokenize();
+
+        Parser parser(tokens);
+        auto ast = parser.parse();
+
+        LuaBackend backend;
+        std::string output = backend.generate(ast);
+
+        // Should return module for require()
+        REQUIRE(output.find("return {") != std::string::npos);
+        REQUIRE(output.find("LexHelpers") != std::string::npos);
+    }
+}
+
+TEST_CASE("JSON Backend - Basic Output") {
+    SECTION("simple structure") {
+        Lexer lexer(R"(structure Farm { era: Ancient cost: { Gold: 50 } })");
+        auto tokens = lexer.tokenize();
+        REQUIRE(!lexer.has_errors());
+
+        Parser parser(tokens);
+        auto ast = parser.parse();
+        REQUIRE(!parser.has_errors());
+
+        JsonBackend backend;
+        std::string output = backend.generate(ast);
+
+        // Check JSON structure
+        REQUIRE(output.find("\"structures\":") != std::string::npos);
+        REQUIRE(output.find("\"Farm\":") != std::string::npos);
+        REQUIRE(output.find("\"id\": \"Farm\"") != std::string::npos);
+        REQUIRE(output.find("\"type\": \"structure\"") != std::string::npos);
+        REQUIRE(output.find("\"era\": \"Ancient\"") != std::string::npos);
+        REQUIRE(output.find("\"cost\":") != std::string::npos);
+        REQUIRE(output.find("\"Gold\": 50") != std::string::npos);
+    }
+
+    SECTION("version info") {
+        Lexer lexer(R"(structure Farm { era: Ancient })");
+        auto tokens = lexer.tokenize();
+
+        Parser parser(tokens);
+        auto ast = parser.parse();
+
+        JsonBackend backend;
+        std::string output = backend.generate(ast);
+
+        REQUIRE(output.find("\"version\": \"1.0\"") != std::string::npos);
+        REQUIRE(output.find("\"generated_by\": \"Lex Compiler") != std::string::npos);
+    }
+
+    SECTION("multiple definition types") {
+        Lexer lexer(R"(
+            era Ancient { period: "3000 BC" }
+            structure Farm { era: Ancient }
+        )");
+        auto tokens = lexer.tokenize();
+
+        Parser parser(tokens);
+        auto ast = parser.parse();
+
+        JsonBackend backend;
+        std::string output = backend.generate(ast);
+
+        // Both types should be present
+        REQUIRE(output.find("\"eras\":") != std::string::npos);
+        REQUIRE(output.find("\"structures\":") != std::string::npos);
+    }
+}
+
+TEST_CASE("Backend - Dynamic Schema") {
+    SECTION("custom type via generic") {
+        // Test that custom types work with generic generator
+        Lexer lexer(R"(structure Farm { era: Ancient custom_prop: "test" })");
+        auto tokens = lexer.tokenize();
+
+        Parser parser(tokens);
+        auto ast = parser.parse();
+        REQUIRE(!parser.has_errors());
+
+        // Both backends should handle unknown properties
+        LuaBackend lua_backend;
+        std::string lua_output = lua_backend.generate(ast);
+        REQUIRE(lua_output.find("custom_prop") != std::string::npos);
+
+        JsonBackend json_backend;
+        std::string json_output = json_backend.generate(ast);
+        REQUIRE(json_output.find("custom_prop") != std::string::npos);
+    }
+}
+
