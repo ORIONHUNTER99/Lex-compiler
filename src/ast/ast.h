@@ -132,16 +132,20 @@ class PropertyValue : public ASTNode {
 public:
     enum class Type { EXPRESSION, RESOURCE_MAP, REFERENCE_LIST };
     Type type = Type::EXPRESSION;
-    
+
     std::unique_ptr<Expression> expression;
     std::unique_ptr<ResourceMap> resource_map;
     std::unique_ptr<ReferenceList> reference_list;
+
+    std::unique_ptr<PropertyValue> clone() const;
 };
 
 class Property : public ASTNode {
 public:
     std::string name;
     std::unique_ptr<PropertyValue> value;
+
+    std::unique_ptr<Property> clone() const;
 };
 
 // ============================================================================

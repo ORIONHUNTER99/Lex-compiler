@@ -53,21 +53,26 @@ enum class Target {
 struct CompileOptions {
     // Schema configuration
     std::vector<std::string> types;     // Custom definition types (empty = default)
-    
+
     // Output targets
     std::vector<Target> targets = {Target::Lua, Target::JSON};
-    
+
     // Validation
     bool validate = true;
     bool verbose = false;
-    
+
+    // Module system
+    bool allow_internal = true;         // If false, internal definitions are errors (for modders)
+    std::string base_path;              // Base path for resolving imports
+
     // Source info (for error messages)
     std::string source_name = "input.lex";
-    
+
     // Convenience factory methods
     static CompileOptions defaults() { return {}; }
     static CompileOptions lua_only() { return {.targets = {Target::Lua}}; }
     static CompileOptions json_only() { return {.targets = {Target::JSON}}; }
+    static CompileOptions for_modder() { return {.allow_internal = false}; }
 };
 
 // ============================================================================
@@ -104,8 +109,11 @@ struct CompileResult {
 // Compile from string (main entry point)
 CompileResult compile(const std::string& source, const CompileOptions& options = {});
 
-// Compile from file
+// Compile from file (with module support)
 CompileResult compile_file(const std::string& filepath, const CompileOptions& options = {});
+
+// Compile multiple files as a module tree
+CompileResult compile_modules(const std::string& entry_file, const CompileOptions& options = {});
 
 // ============================================================================
 // Low-Level API (for advanced use)

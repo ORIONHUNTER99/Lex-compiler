@@ -3,6 +3,41 @@
 namespace lex {
 
 // ============================================================================
+// Property Clone Methods
+// ============================================================================
+
+std::unique_ptr<PropertyValue> PropertyValue::clone() const {
+    auto cloned = std::make_unique<PropertyValue>();
+    cloned->type = type;
+
+    if (expression) {
+        // Clone expression (simple deep copy)
+        cloned->expression = std::make_unique<Expression>(*expression);
+    }
+    if (resource_map) {
+        auto new_map = std::make_unique<ResourceMap>();
+        new_map->resources = resource_map->resources;
+        cloned->resource_map = std::move(new_map);
+    }
+    if (reference_list) {
+        auto new_list = std::make_unique<ReferenceList>();
+        new_list->references = reference_list->references;
+        cloned->reference_list = std::move(new_list);
+    }
+
+    return cloned;
+}
+
+std::unique_ptr<Property> Property::clone() const {
+    auto cloned = std::make_unique<Property>();
+    cloned->name = name;
+    if (value) {
+        cloned->value = value->clone();
+    }
+    return cloned;
+}
+
+// ============================================================================
 // Type System Helpers
 // ============================================================================
 
