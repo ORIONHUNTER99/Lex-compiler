@@ -1,6 +1,6 @@
 # Specifica del Linguaggio Lex
 
-**Versione:** 0.3.2
+**Versione:** 0.3.4
 
 ---
 
@@ -405,5 +405,93 @@ unit SteamTank {
     }
     
     cost: { Steel: 15, Coal: 8, Gold: 150 }
+}
+```
+
+---
+
+## 8. Sistema Moduli
+
+Lex supporta compilazione multi-file con modificatori di visibilità per separare gli internals dell'engine dal contenuto accessibile ai modder.
+
+### 8.1 Modificatori di Visibilità
+
+| Modificatore | Chi lo vede |
+|--------------|------------|
+| `public` | Tutti (modder + sviluppatori) |
+| `internal` | Solo sviluppatori |
+| `private` | Solo stesso modulo |
+
+La visibilità predefinita è `public` se non specificata.
+
+### 8.2 Dichiarazione Modulo
+
+```lex
+// engine_internal.lex
+module engine.internal
+
+internal GameState {
+    turn: 1
+    difficulty: "normal"
+}
+```
+
+### 8.3 Importare Moduli
+
+```lex
+// game_public.lex
+module game.public
+
+use "engine_internal.lex"  // Importa un altro modulo
+
+public structure Hero {
+    era: Ancient
+    health: 100
+}
+```
+
+### 8.4 Modalità di Compilazione
+
+```bash
+# Modalità modder - vede solo definizioni public
+lexc game.lex --mode modder -t lua
+
+# Modalità sviluppatore - vede tutto
+lexc game.lex --mode developer -t lua
+```
+
+**Modalità modder** filtra le definizioni `internal` e `private` dall'output.
+
+### 8.5 Esempio Completo Modulo
+
+```lex
+// === engine/core.lex ===
+module engine.core
+
+// Stato interno engine - nascosto ai modder
+internal EngineConfig {
+    debug_mode: false
+    max_entities: 10000
+}
+
+// API pubblica - visibile ai modder
+public structure BaseBuilding {
+    era: Ancient
+    cost: { Gold: 100 }
+}
+```
+
+```lex
+// === game/mod.lex ===
+module game.mod
+
+use "engine/core.lex"
+
+// Questo può referenziare BaseBuilding (public)
+// Ma NON EngineConfig (internal)
+structure ModBuilding {
+    era: Ancient
+    cost: { Gold: 50 }
+    requires: { structures: [BaseBuilding] }
 }
 ```

@@ -11,8 +11,7 @@ std::unique_ptr<PropertyValue> PropertyValue::clone() const {
     cloned->type = type;
 
     if (expression) {
-        // Clone expression (simple deep copy)
-        cloned->expression = std::make_unique<Expression>(*expression);
+        cloned->expression = expression->clone();
     }
     if (resource_map) {
         auto new_map = std::make_unique<ResourceMap>();
@@ -110,6 +109,37 @@ LexType Expression::infer_type() const {
         default:
             return LexType::UNKNOWN;
     }
+}
+
+// ============================================================================
+// Expression Clone
+// ============================================================================
+
+std::unique_ptr<Expression> Expression::clone() const {
+    auto cloned = std::make_unique<Expression>();
+    cloned->type = type;
+    cloned->inferred_type = inferred_type;
+    cloned->value = value;
+    cloned->reference = reference;
+    cloned->binary_op = binary_op;
+    cloned->unary_op = unary_op;
+    cloned->function_name = function_name;
+    cloned->member_name = member_name;
+
+    // Clone sub-expressions
+    if (left) cloned->left = left->clone();
+    if (right) cloned->right = right->clone();
+    if (operand) cloned->operand = operand->clone();
+    if (object) cloned->object = object->clone();
+
+    // Clone arguments vector
+    for (const auto& arg : arguments) {
+        if (arg) {
+            cloned->arguments.push_back(arg->clone());
+        }
+    }
+
+    return cloned;
 }
 
 // ============================================================================

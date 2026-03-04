@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.3.4] - 2026-03-04
+
+### Added
+- **Module System** — Multi-file compilation with visibility modifiers
+  - `use` keyword for importing modules
+  - `module` keyword for declaring module namespaces
+  - `public`, `internal`, `private` visibility modifiers
+  - `--mode modder|developer` CLI flag for output filtering
+  - Modders see only `public` definitions, developers see everything
+
+### Changed
+- **Visibility Filtering** — Phase 3.5 in compilation pipeline
+  - Internal/private definitions hidden in modder mode
+  - Warnings emitted when definitions are skipped
+
 ## [0.3.3] - 2026-03-04
 
 ### Changed

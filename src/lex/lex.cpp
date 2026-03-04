@@ -153,6 +153,29 @@ CompileResult compile(const std::string& source, const CompileOptions& options) 
         }
     }
 
+    // Phase 3.5: Visibility Filtering (for modder mode)
+    if (!options.allow_internal) {
+        auto it = ast.begin();
+        while (it != ast.end()) {
+            if ((*it)->visibility == Visibility::INTERNAL ||
+                (*it)->visibility == Visibility::PRIVATE) {
+                if (options.verbose) {
+                    std::string vis_str = (*it)->visibility == Visibility::INTERNAL ? "internal" : "private";
+                    result.warnings.push_back({
+                        .message = "Skipped " + vis_str + " definition: " + (*it)->identifier,
+                        .location = options.source_name,
+                        .severity = CompileErrorSeverity::Info,
+                        .code = "M002",
+                        .suggestion = ""
+                    });
+                }
+                it = ast.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
+
     // Phase 4: Code Generation
     for (const auto& target : options.targets) {
         std::string output;

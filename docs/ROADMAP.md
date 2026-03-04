@@ -1,11 +1,11 @@
 # Lex Development Roadmap
 
-**Version:** 0.3.2
-**Last Updated:** 2026-03-03
+**Version:** 0.3.4
+**Last Updated:** 2026-03-04
 
 ---
 
-## Current Status: v0.3.2 (Agnostic Core)
+## Current Status: v0.3.4 (Module System)
 
 ### Completed Components
 | Component | Status | Notes |
@@ -18,13 +18,16 @@
 | Validator | ✅ Done | Errors/warnings separation |
 | Lua Backend | ✅ Done | Full expression/condition generation |
 | JSON Backend | ✅ Done | Dynamic output for any type |
-| CLI | ✅ Done | `--types` flag for custom schemas |
-| Tests | ✅ Active | 257 assertions in 23 test cases |
+| Godot Backend | ✅ Done | GDScript Resource generation |
+| Unity Backend | ✅ Done | C# ScriptableObject generation |
+| CLI | ✅ Done | `--types`, `--mode` flags |
+| Module System | ✅ Done | `use`, `module`, visibility modifiers |
+| Tests | ✅ Active | 325 assertions |
 
-### New in v0.3.2
-- **`--types` CLI flag** — Define custom definition types
-- **Agnostic core** — Not tied to any specific game
-- **Dynamic JSON output** — Works with any schema
+### New in v0.3.4
+- **Module System** — Multi-file compilation with `use` and `module` keywords
+- **Visibility Modifiers** — `public`, `internal`, `private`
+- **`--mode` CLI flag** — `modder` (filtered) vs `developer` (full access)
 
 ---
 
