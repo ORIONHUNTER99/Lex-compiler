@@ -116,10 +116,16 @@ struct ContextResult {
     bool has_entities() const { return !entities.empty(); }
     size_t entity_count() const { return entities.size(); }
     
-    // Find entity by ID
+    // Find entity by ID (case-insensitive)
     const EntityContext* find_entity(const std::string& id) const {
+        std::string lower_id;
+        for (char c : id) lower_id += std::tolower(static_cast<unsigned char>(c));
+        
         for (const auto& e : entities) {
-            if (e.id == id) return &e;
+            std::string lower_eid;
+            for (char c : e.id) lower_eid += std::tolower(static_cast<unsigned char>(c));
+            
+            if (lower_eid == lower_id) return &e;
         }
         return nullptr;
     }

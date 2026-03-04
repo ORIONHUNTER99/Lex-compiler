@@ -8,6 +8,7 @@
 
 // Include context API
 #include "../context/context.hpp"
+#include "../context/query.hpp"
 
 namespace lex {
 
@@ -157,6 +158,23 @@ ContextResult generate_context_from_source(
 // Generate context from file
 ContextResult generate_context_from_file(
     const std::string& filepath,
+    const ContextOptions& options = {}
+);
+
+// ============================================================================
+// Query API
+// ============================================================================
+
+// Execute a natural language query against generated context
+QueryResult query_context(
+    const std::string& query_str,
+    const ContextResult& context
+);
+
+// Convenience: compile file and execute query in one step
+QueryResult query_file(
+    const std::string& filepath,
+    const std::string& query_str,
     const ContextOptions& options = {}
 );
 

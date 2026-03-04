@@ -24,6 +24,7 @@ add_library(lex STATIC
     src/codegen/defold_backend.cpp
     src/schema/schema.cpp
     src/context/context_generator.cpp
+    src/context/query.cpp
 )
 
 target_include_directories(lex

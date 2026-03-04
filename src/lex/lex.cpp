@@ -588,4 +588,31 @@ ContextResult generate_context_from_file(
     return generate_context_from_source(buffer.str(), options);
 }
 
+// ============================================================================
+// Query API
+// ============================================================================
+
+QueryResult query_context(
+    const std::string& query_str,
+    const ContextResult& context
+) {
+    return query(query_str, context);
+}
+
+QueryResult query_file(
+    const std::string& filepath,
+    const std::string& query_str,
+    const ContextOptions& options
+) {
+    auto context = generate_context_from_file(filepath, options);
+    if (!context.success) {
+        QueryResult result;
+        result.success = false;
+        result.error = context.error;
+        return result;
+    }
+    
+    return query_context(query_str, context);
+}
+
 } // namespace lex

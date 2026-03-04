@@ -12,6 +12,7 @@
 
 #include "../lex/lex.hpp"
 #include "../context/context.hpp"
+#include "../context/query.hpp"
 
 namespace fs = std::filesystem;
 
@@ -25,6 +26,7 @@ void print_usage(const char* program) {
     std::cerr << "  -o, --output <dir>   Output directory (default: same as input)\n";
     std::cerr << "  -t, --target <fmt>   Output format(s): lua, json, gd, cs, love2d, defold\n";
     std::cerr << "  --context <fmt>     Generate AI context: json, md, minimal, all\n";
+    std::cerr << "  --query <question>   Query game data (e.g., \"What does Farm require?\")\n";
     std::cerr << "  --types <list>       Definition types (comma-separated)\n";
     std::cerr << "                       Default: Imperium types (era,structure,unit,...)\n";
     std::cerr << "  --mode <mode>        Visibility mode: modder (default) or developer\n";
@@ -222,6 +224,7 @@ int main(int argc, char* argv[]) {
     std::string types_str;
     std::string mode_str = "modder";
     std::string context_str;  // AI context format
+    std::string query_str;    // Query string
     bool validate = true;
     bool verbose = false;
     bool watch_mode_enabled = false;
@@ -250,6 +253,12 @@ int main(int argc, char* argv[]) {
                 return 1;
             }
             context_str = argv[++i];
+        } else if (arg == "--query") {
+            if (i + 1 >= argc) {
+                std::cerr << "Error: --query requires a question\n";
+                return 1;
+            }
+            query_str = argv[++i];
         } else if (arg == "--types") {
             if (i + 1 >= argc) {
                 std::cerr << "Error: --types requires a list\n";
@@ -435,6 +444,24 @@ int main(int argc, char* argv[]) {
             std::cerr << "Error: --context must be json, md, minimal, or all\n";
             return 1;
         }
+    }
+
+    // Execute query if requested
+    if (!query_str.empty()) {
+        lex::ContextOptions ctx_options;
+        ctx_options.include_graph = true;
+        ctx_options.include_statistics = true;
+        ctx_options.include_summaries = true;
+
+        auto query_result = lex::query_file(input_file, query_str, ctx_options);
+        
+        if (!query_result.success) {
+            std::cerr << "Error: " << query_result.error << "\n";
+            return 1;
+        }
+        
+        std::cout << query_result.answer << "\n";
+        return 0;
     }
 
     if (verbose) {
