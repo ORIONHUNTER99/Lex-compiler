@@ -15,7 +15,7 @@ void print_usage(const char* program) {
     std::cerr << "Usage: " << program << " <input.lex> [options]\n\n";
     std::cerr << "Options:\n";
     std::cerr << "  -o, --output <dir>   Output directory (default: same as input)\n";
-    std::cerr << "  -t, --target <fmt>   Output format(s): lua, json, gd, cs\n";
+    std::cerr << "  -t, --target <fmt>   Output format(s): lua, json, gd, cs, love2d, defold\n";
     std::cerr << "  --types <list>       Definition types (comma-separated)\n";
     std::cerr << "                       Default: Imperium types (era,structure,unit,...)\n";
     std::cerr << "  --mode <mode>        Visibility mode: modder (default) or developer\n";
@@ -142,6 +142,8 @@ int main(int argc, char* argv[]) {
                 else if (t == "json") options.targets.push_back(lex::Target::JSON);
                 else if (t == "gd" || t == "godot") options.targets.push_back(lex::Target::Godot);
                 else if (t == "cs" || t == "unity" || t == "csharp") options.targets.push_back(lex::Target::Unity);
+                else if (t == "love2d" || t == "love") options.targets.push_back(lex::Target::Love2D);
+                else if (t == "defold") options.targets.push_back(lex::Target::Defold);
             }
         }
     }

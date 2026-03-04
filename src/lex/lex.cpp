@@ -8,6 +8,8 @@
 #include "codegen/json_backend.h"
 #include "codegen/godot_backend.h"
 #include "codegen/unity_backend.h"
+#include "codegen/love2d_backend.h"
+#include "codegen/defold_backend.h"
 #include "schema/schema.h"
 
 #include "ast/ast.h"
@@ -44,6 +46,10 @@ std::string target_extension(Target target) {
     switch (target) {
         case Target::Lua: return ".lua";
         case Target::JSON: return ".json";
+        case Target::Godot: return ".gd";
+        case Target::Unity: return ".cs";
+        case Target::Love2D: return ".lua";
+        case Target::Defold: return ".lua";
         case Target::TypeScript: return ".ts";
         default: return "";
     }
@@ -53,6 +59,8 @@ std::string target_extension(const std::string& target_name) {
     if (target_name == "json") return ".json";
     if (target_name == "gd" || target_name == "godot") return ".gd";
     if (target_name == "cs" || target_name == "unity" || target_name == "csharp") return ".cs";
+    if (target_name == "love2d" || target_name == "love") return ".lua";
+    if (target_name == "defold") return ".lua";
     if (target_name == "ts" || target_name == "typescript") return ".ts";
     return "";
 }
@@ -204,6 +212,18 @@ CompileResult compile(const std::string& source, const CompileOptions& options) 
                 UnityBackend backend;
                 output = backend.generate(ast);
                 target_name = "cs";
+                break;
+            }
+            case Target::Love2D: {
+                Love2DBackend backend;
+                output = backend.generate(ast);
+                target_name = "lua";
+                break;
+            }
+            case Target::Defold: {
+                DefoldBackend backend;
+                output = backend.generate(ast);
+                target_name = "lua";
                 break;
             }
             case Target::TypeScript: {
@@ -473,6 +493,18 @@ CompileResult compile_modules(const std::string& entry_file, const CompileOption
                 UnityBackend backend;
                 output = backend.generate(merged_definitions);
                 target_name = "cs";
+                break;
+            }
+            case Target::Love2D: {
+                Love2DBackend backend;
+                output = backend.generate(merged_definitions);
+                target_name = "lua";
+                break;
+            }
+            case Target::Defold: {
+                DefoldBackend backend;
+                output = backend.generate(merged_definitions);
+                target_name = "lua";
                 break;
             }
             case Target::TypeScript: {

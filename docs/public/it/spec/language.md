@@ -1,6 +1,6 @@
 # Specifica del Linguaggio Lex
 
-**Versione:** 0.3.4
+**Versione:** 0.4.0
 
 ---
 

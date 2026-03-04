@@ -47,6 +47,8 @@ enum class Target {
     JSON,
     Godot,      // GDScript
     Unity,      // C# ScriptableObject
+    Love2D,     // LÖVE2D framework
+    Defold,     // Defold engine
     TypeScript  // Planned
 };
 

@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/David-Imperium/Lex-compiler/actions/workflows/ci.yml/badge.svg)](https://github.com/David-Imperium/Lex-compiler/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.3.2-blue.svg)](https://github.com/David-Imperium/Lex-compiler)
+[![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)](https://github.com/David-Imperium/Lex-compiler)
 
 Un transpiler dichiarativo e multi-target per contenuti di gioco.
 
@@ -31,15 +31,27 @@ lexc input.lex -t lua,json
 lexc input.lex --types item,character,location -t json
 
 # Output multipli
-lexc input.lex -o output/ -t lua,json
+lexc input.lex -o output/ -t lua,json,gd,cs,love2d,defold
 ```
 
 Opzioni:
 - `-o, --output <dir>` — Directory di output
-- `-t, --target <fmt>` — Formato/i di output: lua, json
+- `-t, --target <fmt>` — Formato/i di output: lua, json, gd, cs, love2d, defold
 - `--types <list>` — Tipi di definizione personalizzati (separati da virgola)
+- `--mode <mode>` — Modalità visibilità: modder (default) o developer
 - `--no-validate` — Salta la validazione semantica
 - `-h, --help` — Mostra l'aiuto
+
+## Backend di Output
+
+| Backend | Target | Caso d'uso |
+|---------|--------|------------|
+| `lua` | Lua generico | Qualsiasi gioco basato su Lua |
+| `json` | JSON universale | Scambio dati |
+| `gd` / `godot` | GDScript Resource | Godot 4.x |
+| `cs` / `unity` | C# ScriptableObject | Unity |
+| `love2d` / `love` | Modulo LÖVE2D | Framework LÖVE |
+| `defold` | Modulo Defold | Engine Defold |
 
 ## Schemi Personalizzati
 

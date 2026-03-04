@@ -1,11 +1,11 @@
 # Lex Development Roadmap
 
-**Version:** 0.3.4
+**Version:** 0.4.0
 **Last Updated:** 2026-03-04
 
 ---
 
-## Current Status: v0.3.4 (Module System)
+## Current Status: v0.4.0 (Free Tier Complete)
 
 ### Completed Components
 | Component | Status | Notes |
@@ -16,22 +16,51 @@
 | AST | ✅ Done | Type-safe, visitor pattern, typed accessors |
 | Type Checker | ✅ Done | Semantic type validation |
 | Validator | ✅ Done | Errors/warnings separation |
-| Lua Backend | ✅ Done | Full expression/condition generation |
-| JSON Backend | ✅ Done | Dynamic output for any type |
-| Godot Backend | ✅ Done | GDScript Resource generation |
-| Unity Backend | ✅ Done | C# ScriptableObject generation |
+| **6 Backends** | ✅ Done | **Free Tier Complete** |
+| ↳ Lua Backend | ✅ Done | Full expression/condition generation |
+| ↳ JSON Backend | ✅ Done | Dynamic output for any type |
+| ↳ Godot Backend | ✅ Done | GDScript Resource generation |
+| ↳ Unity Backend | ✅ Done | C# ScriptableObject generation |
+| ↳ Love2D Backend | ✅ Done | LÖVE2D framework with hot reload |
+| ↳ Defold Backend | ✅ Done | Defold engine with collection factory |
 | CLI | ✅ Done | `--types`, `--mode` flags |
 | Module System | ✅ Done | `use`, `module`, visibility modifiers |
 | Tests | ✅ Active | 325 assertions |
 
-### New in v0.3.4
-- **Module System** — Multi-file compilation with `use` and `module` keywords
-- **Visibility Modifiers** — `public`, `internal`, `private`
-- **`--mode` CLI flag** — `modder` (filtered) vs `developer` (full access)
+### New in v0.4.0
+- **Love2D Backend** — LÖVE2D framework code generation with `love.filesystem` integration
+- **Defold Backend** — Defold engine code generation with collection factory support
+- **Free Tier Complete** — All 6 backends available for free (MIT License)
 
 ---
 
-## Roadmap: Accessibility (v0.4.0)
+## Roadmap: Core Tier (v0.5.0)
+
+### 1. Core Language Features
+| Feature | Description | Status |
+|---------|-------------|--------|
+| `state` | Global variables with serialization | 📋 Planned |
+| `fn` | Functions (pure + side effects) | 📋 Planned |
+| `on`/`event` | Event-driven system | 📋 Planned |
+| `@serialize` | Auto save/load | 📋 Planned |
+| `@hot_reload` | Development mode | 📋 Planned |
+
+### 2. Core Tier Backends
+| Backend | Difficulty | Status |
+|---------|------------|--------|
+| Pygame | 🟢 Easy | 📋 Planned |
+| Python | 🟢 Easy | 📋 Planned |
+| Construct 3 | 🟢 Easy | 📋 Planned |
+| GameMaker | 🟡 Medium | 📋 Planned |
+| Bevy | 🟡 Medium | 📋 Planned |
+| Raylib | 🟡 Medium | 📋 Planned |
+| C++ Header | 🟡 Medium | 📋 Planned |
+| Rust | 🟡 Medium | 📋 Planned |
+| Unreal | 🔴 Hard | 📋 Planned |
+
+---
+
+## Roadmap: Accessibility (v0.4.x)
 
 Making Lex usable by everyone, not just C++ developers.
 

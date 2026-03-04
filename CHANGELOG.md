@@ -4,6 +4,34 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.4.0] - 2026-03-04
+
+### Added
+- **Love2D Backend** — LÖVE2D framework code generation
+  - Generates `GameData` module with helper functions
+  - `love.filesystem` integration for hot reload
+  - State serialization for save/load
+  - Condition helpers for game logic
+
+- **Defold Backend** — Defold engine code generation
+  - Generates `M` module (Defold convention)
+  - Collection factory URL integration
+  - `get_all()` and `get()` helper functions
+  - Type name converter for dynamic lookups
+
+### Changed
+- **Free Tier Complete** — All 6 backends now available:
+  - Lua (generic)
+  - JSON (universal)
+  - GDScript (Godot 4.x)
+  - C# (Unity ScriptableObject)
+  - LÖVE2D (Love2D framework)
+  - Defold (Defold engine)
+
+- **CLI Updated** — New target options:
+  - `-t love2d` or `-t love` for LÖVE2D
+  - `-t defold` for Defold engine
+
 ## [0.3.4] - 2026-03-04
 
 ### Added

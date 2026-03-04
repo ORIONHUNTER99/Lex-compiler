@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(lex VERSION 0.3.3 LANGUAGES CXX)
+project(lex VERSION 0.4.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -20,6 +20,8 @@ add_library(lex STATIC
     src/codegen/json_backend.cpp
     src/codegen/godot_backend.cpp
     src/codegen/unity_backend.cpp
+    src/codegen/love2d_backend.cpp
+    src/codegen/defold_backend.cpp
     src/schema/schema.cpp
 )
 
