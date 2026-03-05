@@ -656,6 +656,122 @@
             color: var(--neon-cyan);
         }
 
+        /* Tier Section */
+        .core-tier-section {
+            padding: 80px 0;
+            background: linear-gradient(180deg, var(--bg-base) 0%, #0f0f14 100%);
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .core-tier-section h2 {
+            font-size: 1.8rem;
+            color: var(--neon-purple);
+            margin-bottom: 8px;
+        }
+
+        .core-tier-section .subtitle {
+            color: var(--text-muted);
+            margin-bottom: 40px;
+        }
+
+        .tier-comparison {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .tier-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 32px;
+            width: 280px;
+            text-align: center;
+        }
+
+        .tier-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+            color: var(--text-main);
+        }
+
+        .tier-price {
+            display: block;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--neon-green);
+            margin-bottom: 4px;
+        }
+
+        .tier-license {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .tier-card ul {
+            list-style: none;
+            text-align: left;
+            margin-bottom: 16px;
+        }
+
+        .tier-card li {
+            padding: 6px 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .tier-card li::before {
+            content: ">";
+            position: absolute;
+            left: 0;
+            color: var(--neon-cyan);
+            font-family: var(--font-code);
+        }
+
+        .tier-target {
+            font-size: 0.8rem;
+            color: var(--text-dark);
+            margin-top: 12px;
+        }
+
+        .tier-highlight {
+            border-color: var(--border-glow-purple);
+            box-shadow: 0 0 30px rgba(177, 34, 229, 0.15);
+        }
+
+        .tier-highlight h3 {
+            color: var(--neon-purple);
+        }
+
+        .tier-coming {
+            display: inline-block;
+            background: var(--neon-purple);
+            color: var(--bg-base);
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+
+        .cta-note {
+            margin-top: 32px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .cta-note code {
+            background: var(--bg-card);
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: var(--neon-cyan);
+        }
+
         /* Responsive */
         @media (max-width: 1024px) {
             .backends-grid { grid-template-columns: repeat(2, 1fr); }
@@ -683,7 +799,7 @@
                 <h1>Lex</h1>
             </div>
             <p class="tagline">// Write content once, compile everywhere</p>
-            <span class="version">v0.4.1 :: SYSTEM.ONLINE</span>
+            <span class="version">v1.0.0 :: STABLE.RELEASE</span>
         </div>
     </header>
 
@@ -865,7 +981,7 @@
                     [ // INIT _ GITHUB ]
                 </a>
                 <a href="https://github.com/David-Imperium/Lex-compiler/releases" class="btn btn-secondary">
-                    [ DOWNLOAD_V0.4.1 ]
+                    [ DOWNLOAD_V1.0.0 ]
                 </a>
             </div>
             <div class="links-row animate-on-scroll">
@@ -877,9 +993,47 @@
         </div>
     </section>
 
+    <section class="core-tier-section">
+        <div class="container">
+            <h2 class="animate-on-scroll">For_Developers</h2>
+            <p class="subtitle animate-on-scroll">Lex Core — Professional Tier</p>
+            <div class="tier-comparison animate-on-scroll">
+                <div class="tier-card">
+                    <h3>Lex Base</h3>
+                    <span class="tier-price">FREE</span>
+                    <span class="tier-license">MIT License</span>
+                    <ul>
+                        <li>6 engine backends</li>
+                        <li>Custom schemas</li>
+                        <li>AI Context Generator</li>
+                        <li>Query System</li>
+                        <li>VS Code extension</li>
+                    </ul>
+                    <p class="tier-target">Perfect for: modders, hobbyists, prototypes</p>
+                </div>
+                <div class="tier-card tier-highlight">
+                    <h3>Lex Core</h3>
+                    <span class="tier-price">$49</span>
+                    <span class="tier-license">Early Bird · Lifetime</span>
+                    <ul>
+                        <li>Everything in Base</li>
+                        <li>10+ engine backends</li>
+                        <li>Expression parser</li>
+                        <li>Module system</li>
+                        <li>Hot reload</li>
+                        <li>LSP integration</li>
+                    </ul>
+                    <p class="tier-target">Perfect for: indie devs, studios</p>
+                    <span class="tier-coming">COMING SOON</span>
+                </div>
+            </div>
+            <p class="cta-note animate-on-scroll">Star the repo or email <code>lex@imperium.dev</code> to join the waitlist</p>
+        </div>
+    </section>
+
     <footer>
         <div class="container">
-            <p>LEX_COMPILER // VERSION 0.4.1 // LICENSED UNDER MIT</p>
+            <p>LEX_COMPILER // VERSION 1.0.0 // LICENSED UNDER MIT</p>
             <p style="margin-top:8px;">MAINTAINED BY <a href="https://github.com/David-Imperium">DAVID [IMPERIUM]</a></p>
         </div>
     </footer>

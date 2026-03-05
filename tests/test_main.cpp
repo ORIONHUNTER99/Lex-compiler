@@ -1139,6 +1139,8 @@ TEST_CASE("Module System - Visibility") {
 #include "../src/codegen/json_backend.h"
 #include "../src/codegen/godot_backend.h"
 #include "../src/codegen/unity_backend.h"
+#include "../src/codegen/love2d_backend.h"
+#include "../src/codegen/defold_backend.h"
 
 TEST_CASE("Backend - Lua generates valid output") {
     auto& schema = SchemaRegistry::instance();
@@ -1262,5 +1264,124 @@ TEST_CASE("Backend - Unity generates valid C#") {
     REQUIRE(cs.find("public string era") != std::string::npos);
     REQUIRE(cs.find("public string name") != std::string::npos);
     REQUIRE(cs.find("public int cost") != std::string::npos);
+}
+
+TEST_CASE("Backend - Love2D generates valid Lua module") {
+    auto& schema = SchemaRegistry::instance();
+    schema.load_imperium_default();
+    
+    Lexer lexer(R"(
+        structure Farm {
+            era: Ancient
+            name: "Farm"
+            cost: { Gold: 50, Wood: 20 }
+            production: { Food: 5 }
+        }
+        
+        unit Warrior {
+            era: Ancient
+            name: "Warrior"
+            attack: 5
+            defense: 3
+        }
+    )");
+    auto tokens = lexer.tokenize();
+    REQUIRE(!lexer.has_errors());
+    
+    Parser parser(tokens);
+    auto ast = parser.parse();
+    REQUIRE(!parser.has_errors());
+    
+    Love2DBackend backend;
+    std::string lua = backend.generate(ast);
+    
+    // Check Love2D module structure
+    REQUIRE(lua.find("local GameData = {}") != std::string::npos);
+    REQUIRE(lua.find("return GameData") != std::string::npos);
+    REQUIRE(lua.find("GameData.structures") != std::string::npos);
+    REQUIRE(lua.find("GameData.units") != std::string::npos);
+    
+    // Check data
+    REQUIRE(lua.find("Farm") != std::string::npos);
+    REQUIRE(lua.find("Warrior") != std::string::npos);
+}
+
+TEST_CASE("Backend - Defold generates valid Lua module") {
+    auto& schema = SchemaRegistry::instance();
+    schema.load_imperium_default();
+    
+    Lexer lexer(R"(
+        structure Mine {
+            era: Ancient
+            name: "Mine"
+            cost: { Gold: 100 }
+            production: { Iron: 10 }
+        }
+        
+        technology Mining {
+            era: Ancient
+            name: "Mining"
+            research_cost: 50
+        }
+    )");
+    auto tokens = lexer.tokenize();
+    REQUIRE(!lexer.has_errors());
+    
+    Parser parser(tokens);
+    auto ast = parser.parse();
+    REQUIRE(!parser.has_errors());
+    
+    DefoldBackend backend;
+    std::string lua = backend.generate(ast);
+    
+    // Check Defold module structure
+    REQUIRE(lua.find("local M = {}") != std::string::npos);
+    REQUIRE(lua.find("return M") != std::string::npos);
+    // Should have at least structures or technologies
+    bool has_structures = lua.find("M.structures") != std::string::npos;
+    bool has_technologies = lua.find("M.technologies") != std::string::npos;
+    REQUIRE((has_structures || has_technologies));
+    
+    // Check data
+    REQUIRE(lua.find("Mine") != std::string::npos);
+    REQUIRE(lua.find("Mining") != std::string::npos);
+}
+
+TEST_CASE("Backend - All backends handle empty AST") {
+    auto& schema = SchemaRegistry::instance();
+    schema.load_imperium_default();
+    
+    Lexer lexer("");
+    auto tokens = lexer.tokenize();
+    REQUIRE(!lexer.has_errors());
+    
+    Parser parser(tokens);
+    auto ast = parser.parse();
+    REQUIRE(!parser.has_errors());
+    
+    // All backends should handle empty AST gracefully
+    LuaBackend lua_backend;
+    std::string lua = lua_backend.generate(ast);
+    REQUIRE(!lua.empty());
+    
+    JsonBackend json_backend;
+    std::string json = json_backend.generate(ast);
+    REQUIRE(!json.empty());
+    
+    GodotBackend godot_backend;
+    std::string gd = godot_backend.generate(ast);
+    REQUIRE(!gd.empty());
+    
+    UnityBackend unity_backend;
+    std::string cs = unity_backend.generate(ast);
+    REQUIRE(!cs.empty());
+    
+    Love2DBackend love2d_backend;
+    std::string love = love2d_backend.generate(ast);
+    REQUIRE(!love.empty());
+    
+    DefoldBackend defold_backend;
+    std::string defold = defold_backend.generate(ast);
+    REQUIRE(!defold.empty());
 }
 

@@ -1,11 +1,33 @@
 # Lex Compiler Roadmap
 
-**Current Version:** 0.4.1  
-**License:** MIT (Free Tier Complete)
+**Current Version:** 1.0.0  
+**License:** MIT
 
 ---
 
 ## Released Versions
+
+### v1.0.0 — First Stable Release (2026-03-05)
+
+**Status:** ✅ Released
+
+**Architecture:**
+- Modular Pass system (Lexer → Parser → Validation → Visibility → Codegen)
+- BackendRegistry for extensible backends
+- CompilerPipeline orchestrator
+
+**Features:**
+- 6 production backends: Lua, JSON, Godot, Unity, Love2D, Defold
+- AI Context Generator for LLM integration
+- Natural language Query System
+- VS Code extension with syntax highlighting
+
+**Quality:**
+- 35/35 tests passing
+- Clear error messages with codes and positions
+- Complete documentation (Tutorial, API Reference, Integration Guides)
+
+---
 
 ### v0.4.1 — Accessibility & Documentation (2026-03-05)
 
@@ -89,7 +111,7 @@
 
 ## Planned Versions
 
-### v0.5.0 — TypeScript Backend
+### v1.1.0 — TypeScript Backend
 
 **Status:** 📋 Planned
 
@@ -99,48 +121,47 @@
 - Node.js module format
 - Web game support (Phaser, PixiJS, etc.)
 
-**Stretch:**
-- Source maps for debugging
-
 ---
 
-### v0.6.0 — Developer Experience
+### v1.2.0 — Developer Experience
 
 **Status:** 📋 Planned
 
 **Goals:**
-- Improved error messages with source context
-- VS Code extension improvements (diagnostics, hover)
 - Watch mode (`--watch` for live recompilation)
 - Incremental compilation
-
-**Stretch:**
 - Language Server Protocol (LSP)
+- VS Code diagnostics (real-time error checking)
 
 ---
 
-### v0.7.0 — Python Backend
-
-**Status:** 📋 Planned
-
-**Goals:**
-- Python code generation
-- Dataclass-based output
-- Pydantic models for validation
-- Godot 4.x Python (GDExtension) support
-
 ---
 
-### v1.0.0 — Stable Release
+## Commercial Tiers
 
-**Status:** 🔮 Future
+Lex is available in multiple tiers for different audiences:
 
-**Requirements:**
-- All backends production-tested
-- Complete documentation
-- Stable CLI API (no breaking changes)
-- Community feedback integrated
-- Real-world projects using Lex
+| Tier | Target | License |
+|------|--------|---------|
+| **Lex Base** | Modders, Hobbyists | MIT (Free) |
+| **Lex Core** | Indie Developers | Commercial ($49 early bird) |
+
+### Lex Base (Current)
+- All 6 engine backends: Lua, JSON, Godot, Unity, Love2D, Defold
+- Custom schemas via `--types`
+- AI Context Generator
+- Query System
+- VS Code extension
+
+### Lex Core (Coming Soon)
+Advanced features for professional game developers:
+- Advanced backends: Unreal, Bevy, Raylib, C++ Headers
+- Expression parser (complex conditions, variables)
+- Multi-file compilation with modules
+- Hot reload support
+- LSP integration
+
+**Early Bird Pricing:** $49 lifetime license (locks in before subscription model)
 
 ---
 

@@ -1,8 +1,34 @@
 #include "godot_backend.h"
 #include <sstream>
 #include <algorithm>
+#include <filesystem>
 
 namespace lex {
+
+void GodotBackend::configure(const std::string& source_name) {
+    if (source_name.empty()) {
+        return;  // Keep default "GameData"
+    }
+    
+    // Extract base name and convert to PascalCase
+    std::filesystem::path src_path(source_name);
+    std::string base = src_path.stem().string();
+    
+    std::string pascal;
+    bool next_upper = true;
+    for (char c : base) {
+        if (c == '_' || c == '-') {
+            next_upper = true;
+        } else {
+            pascal += next_upper ? (char)std::toupper(c) : (char)std::tolower(c);
+            next_upper = false;
+        }
+    }
+    
+    if (!pascal.empty()) {
+        class_name_ = pascal + "Data";
+    }
+}
 
 std::string GodotBackend::type_to_var_name(const std::string& type) const {
     if (type.empty()) return "items";

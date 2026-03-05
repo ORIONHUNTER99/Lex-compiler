@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/David-Imperium/Lex-compiler/actions/workflows/ci.yml/badge.svg)](https://github.com/David-Imperium/Lex-compiler/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)](https://github.com/David-Imperium/Lex-compiler)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/David-Imperium/Lex-compiler)
 
 Un transpiler dichiarativo e multi-target per contenuti di gioco.
 
@@ -139,9 +139,9 @@ structure SteamFactory {
 
 | Versione | Stato | Funzionalità |
 |----------|-------|--------------|
-| v0.3.1 | ✅ Corrente | Core agnostico, flag `--types` |
-| v0.4.0 | 🔜 Prossima | Release binarie, tutorial, estensione VS Code |
-| v0.5.0 | 📋 Pianificata | Backend TypeScript |
+| v1.0.0 | ✅ Corrente | Release stabile, 6 backend, architettura Pass |
+| v1.1.0 | 📋 Pianificata | Backend TypeScript |
+| v1.2.0 | 📋 Pianificata | Watch mode, LSP |
 
 Vedi [ROADMAP.md](docs/ROADMAP.md) per dettagli.
 

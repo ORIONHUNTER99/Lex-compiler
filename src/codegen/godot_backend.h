@@ -7,8 +7,11 @@ namespace lex {
 
 class GodotBackend : public Backend {
 public:
-    std::string name() const override { return "gd"; }
+    std::string name() const override { return "godot"; }
     std::string file_extension() const override { return ".gd"; }
+
+    // Configure from source name (derive class name)
+    void configure(const std::string& source_name) override;
 
     // Set custom class name (default: "GameData")
     void set_class_name(const std::string& name) { class_name_ = name; }

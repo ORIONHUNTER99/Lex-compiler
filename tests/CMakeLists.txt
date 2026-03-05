@@ -17,13 +17,19 @@ add_executable(lexer_tests
     test_main.cpp
     ${CMAKE_SOURCE_DIR}/src/lexer/lexer.cpp
     ${CMAKE_SOURCE_DIR}/src/parser/parser.cpp
+    ${CMAKE_SOURCE_DIR}/src/parser/validator.cpp
     ${CMAKE_SOURCE_DIR}/src/ast/ast.cpp
     ${CMAKE_SOURCE_DIR}/src/semantic/type_checker.cpp
     ${CMAKE_SOURCE_DIR}/src/codegen/lua_backend.cpp
     ${CMAKE_SOURCE_DIR}/src/codegen/json_backend.cpp
     ${CMAKE_SOURCE_DIR}/src/codegen/godot_backend.cpp
     ${CMAKE_SOURCE_DIR}/src/codegen/unity_backend.cpp
+    ${CMAKE_SOURCE_DIR}/src/codegen/love2d_backend.cpp
+    ${CMAKE_SOURCE_DIR}/src/codegen/defold_backend.cpp
     ${CMAKE_SOURCE_DIR}/src/schema/schema.cpp
+    ${CMAKE_SOURCE_DIR}/src/codegen/backend_registry.cpp
+    ${CMAKE_SOURCE_DIR}/src/compiler/pass.cpp
+    ${CMAKE_SOURCE_DIR}/src/compiler/pipeline.cpp
 )
 
 target_include_directories(lexer_tests PRIVATE ${CMAKE_SOURCE_DIR}/src)

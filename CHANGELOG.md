@@ -4,6 +4,38 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.0] - 2026-03-05
+
+### Added
+- **Modular Architecture** — Pass-based compilation pipeline
+  - LexerPass: Tokenization
+  - ParserPass: AST construction
+  - ValidationPass: Semantic validation
+  - VisibilityPass: Modder/developer filtering
+  - CodegenPass: Multi-target code generation
+  - CompilerPipeline: Orchestrator for all passes
+
+- **Backend Registry** — Extensible backend system
+  - Factory pattern for backend creation
+  - Runtime backend registration
+  - Easy to add new targets
+
+- **Documentation** — Complete guides
+  - Tutorial: "Your First Mod" (docs/TUTORIAL.md)
+  - API Reference for C++ library (docs/API_REFERENCE.md)
+  - Integration guides for Godot, Unity, LÖVE2D
+  - VS Code extension with syntax highlighting
+
+### Changed
+- **Version bump to 1.0.0** — First stable release
+- **35/35 tests passing** — Full test coverage
+- **Clear error messages** — Error codes and positions
+
+### Quality
+- Error messages include `[CODE]` prefix for easy reference
+- Position tracking in all error messages
+- Consistent output across all 6 backends
+
 ## [0.4.0] - 2026-03-04
 
 ### Added

@@ -2,6 +2,39 @@
 
 ---
 
+## v1.0.0 — First Stable Release (2026-03-05)
+
+### Highlights
+
+**Production Ready**
+- 35/35 tests passing
+- 6 backends: Lua, JSON, Godot, Unity, Love2D, Defold
+- Clear error messages with codes and positions
+- CLI stable and documented
+
+**Architecture**
+- Modular Pass system (Lexer → Parser → Validation → Visibility → Codegen)
+- BackendRegistry for extensible backends
+- CompilerPipeline orchestrator
+
+**AI Integration**
+- Context generator for LLM integration
+- Natural language query system
+
+### Installation
+
+**Windows:**
+```powershell
+irm https://raw.githubusercontent.com/David-Imperium/Lex-compiler/main/install.ps1 | iex
+```
+
+**Linux/macOS:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/David-Imperium/Lex-compiler/main/install.sh | bash
+```
+
+---
+
 ## v0.4.1 — Accessibility & Documentation (2026-03-05)
 
 ### New Features

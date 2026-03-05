@@ -1,19 +1,12 @@
 #include "lex.hpp"
 #include "version.h"
+#include "compiler/pipeline.hpp"
+#include "schema/schema.h"
+#include "context/context.hpp"
 #include "lexer/lexer.h"
 #include "parser/parser.h"
 #include "parser/validator.h"
-#include "semantic/type_checker.h"
-#include "codegen/lua_backend.h"
-#include "codegen/json_backend.h"
-#include "codegen/godot_backend.h"
-#include "codegen/unity_backend.h"
-#include "codegen/love2d_backend.h"
-#include "codegen/defold_backend.h"
-#include "schema/schema.h"
-#include "context/context.hpp"
-
-#include "ast/ast.h"
+#include "codegen/backend.h"
 
 #include <fstream>
 #include <sstream>
@@ -65,56 +58,12 @@ std::string target_extension(const std::string& target_name) {
     if (target_name == "ts" || target_name == "typescript") return ".ts";
     return "";
 }
-// ============================================================================
-// Helper: Convert internal errors to public API format
-// ============================================================================
 
-static std::vector<CompileError> convert_lexer_errors(const std::vector<std::string>& errors) {
-    std::vector<CompileError> result;
-    for (const auto& err : errors) {
-        result.push_back({
-            .message = err,
-            .location = "",
-            .severity = CompileErrorSeverity::Error,
-            .code = "L001",
-            .suggestion = ""
-        });
-    }
-    return result;
-}
-static std::vector<CompileError> convert_parser_errors(const std::vector<std::string>& errors) {
-    std::vector<CompileError> result;
-    for (const auto& err : errors) {
-        result.push_back({
-            .message = err,
-            .location = "",
-            .severity = CompileErrorSeverity::Error,
-            .code = "P001",
-            .suggestion = ""
-        });
-    }
-    return result;
-}
-static std::vector<CompileError> convert_validation_errors(const std::vector<SemanticError>& errors) {
-    std::vector<CompileError> result;
-    for (const auto& err : errors) {
-        result.push_back({
-            .message = err.message,
-            .location = err.location,
-            .severity = err.severity == ErrorSeverity::ERROR ? CompileErrorSeverity::Error : CompileErrorSeverity::Warning,
-            .code = err.code,
-            .suggestion = ""
-        });
-    }
-    return result;
-}
 // ============================================================================
-// Main Compile Function (single file, no modules)
+// Main Compile Function (uses Pipeline)
 // ============================================================================
 
 CompileResult compile(const std::string& source, const CompileOptions& options) {
-    CompileResult result;
-
     // Initialize schema registry
     auto& schema = SchemaRegistry::instance();
     if (options.types.empty()) {
@@ -128,144 +77,14 @@ CompileResult compile(const std::string& source, const CompileOptions& options) 
         schema.load_from_cli(types_str);
     }
 
-    // Phase 1: Lexical Analysis
-    Lexer lexer(source, options.source_name);
-    auto tokens = lexer.tokenize();
-    if (lexer.has_errors()) {
-        result.errors = convert_lexer_errors(lexer.errors());
-        result.success = false;
-        return result;
-    }
-
-    // Phase 2: Parsing (simple parse, not parse_file)
-    Parser parser(tokens);
-    auto ast = parser.parse();
-    if (parser.has_errors()) {
-        result.errors = convert_parser_errors(parser.errors());
-        result.success = false;
-        return result;
-    }
-
-    // Phase 3: Semantic Validation (optional)
-    if (options.validate) {
-        Validator validator;
-        validator.validate(ast);
-
-        if (validator.has_warnings()) {
-            result.warnings = convert_validation_errors(validator.warnings());
-        }
-
-        if (validator.has_errors()) {
-            result.errors = convert_validation_errors(validator.errors());
-            result.success = false;
-            return result;
-        }
-    }
-
-    // Phase 3.5: Visibility Filtering (for modder mode)
-    if (!options.allow_internal) {
-        auto it = ast.begin();
-        while (it != ast.end()) {
-            if ((*it)->visibility == Visibility::INTERNAL ||
-                (*it)->visibility == Visibility::PRIVATE) {
-                if (options.verbose) {
-                    std::string vis_str = (*it)->visibility == Visibility::INTERNAL ? "internal" : "private";
-                    result.warnings.push_back({
-                        .message = "Skipped " + vis_str + " definition: " + (*it)->identifier,
-                        .location = options.source_name,
-                        .severity = CompileErrorSeverity::Info,
-                        .code = "M002",
-                        .suggestion = ""
-                    });
-                }
-                it = ast.erase(it);
-            } else {
-                ++it;
-            }
-        }
-    }
-
-    // Phase 4: Code Generation
-    for (const auto& target : options.targets) {
-        std::string output;
-        std::string target_name;
-
-        switch (target) {
-            case Target::Lua: {
-                LuaBackend backend;
-                output = backend.generate(ast);
-                target_name = "lua";
-                break;
-            }
-            case Target::JSON: {
-                JsonBackend backend;
-                output = backend.generate(ast);
-                target_name = "json";
-                break;
-            }
-            case Target::Godot: {
-                GodotBackend backend;
-                // Generate class name from source file or types
-                std::string gd_class_name = "GameData";
-                if (!options.source_name.empty()) {
-                    // Extract base name from source file
-                    std::filesystem::path src_path(options.source_name);
-                    std::string base = src_path.stem().string();
-                    // Convert to PascalCase (remove underscores, capitalize words)
-                    std::string pascal;
-                    bool next_upper = true;
-                    for (char c : base) {
-                        if (c == '_' || c == '-') {
-                            next_upper = true;
-                        } else {
-                            pascal += next_upper ? (char)std::toupper(c) : (char)std::tolower(c);
-                            next_upper = false;
-                        }
-                    }
-                    if (!pascal.empty()) {
-                        gd_class_name = pascal + "Data";
-                    }
-                }
-                backend.set_class_name(gd_class_name);
-                output = backend.generate(ast);
-                target_name = "gd";
-                break;
-            }
-            case Target::Unity: {
-                UnityBackend backend;
-                output = backend.generate(ast);
-                target_name = "cs";
-                break;
-            }
-            case Target::Love2D: {
-                Love2DBackend backend;
-                output = backend.generate(ast);
-                target_name = "lua";
-                break;
-            }
-            case Target::Defold: {
-                DefoldBackend backend;
-                output = backend.generate(ast);
-                target_name = "lua";
-                break;
-            }
-            case Target::TypeScript: {
-                result.warnings.push_back({
-                    .message = "TypeScript backend not yet implemented",
-                    .location = "",
-                    .severity = CompileErrorSeverity::Warning,
-                    .code = "W001",
-                    .suggestion = "Use Lua, JSON, GD or CS backend for now"
-                });
-                continue;
-            }
-        }
-
-        result.outputs[target_name] = output;
-    }
-
-    result.success = true;
-    return result;
+    // Create context and pipeline
+    PassContext ctx;
+    ctx.source = source;
+    ctx.source_name = options.source_name;
+    ctx.options = options;
+    
+    auto pipeline = CompilerPipeline::create_default(options);
+    return pipeline.run(ctx);
 }
 // ============================================================================
 // Compile from File (single file)
@@ -293,6 +112,45 @@ CompileResult compile_file(const std::string& filepath, const CompileOptions& op
 
     return compile(buffer.str(), new_options);
 }
+
+// ============================================================================
+// Helper functions for legacy compile_modules
+// ============================================================================
+
+namespace {
+
+std::vector<CompileError> convert_parser_errors(const std::vector<std::string>& errors) {
+    std::vector<CompileError> result;
+    for (const auto& err : errors) {
+        result.push_back({
+            .message = err,
+            .location = "",
+            .severity = CompileErrorSeverity::Error,
+            .code = "P001",
+            .suggestion = ""
+        });
+    }
+    return result;
+}
+
+std::vector<CompileError> convert_validation_errors(const std::vector<SemanticError>& errors) {
+    std::vector<CompileError> result;
+    for (const auto& err : errors) {
+        result.push_back({
+            .message = err.message,
+            .location = err.location,
+            .severity = err.severity == ErrorSeverity::ERROR 
+                ? CompileErrorSeverity::Error 
+                : CompileErrorSeverity::Warning,
+            .code = err.code,
+            .suggestion = ""
+        });
+    }
+    return result;
+}
+
+} // anonymous namespace
+
 // ============================================================================
 // Multi-File Compilation with Module System
 // ============================================================================
@@ -488,82 +346,35 @@ CompileResult compile_modules(const std::string& entry_file, const CompileOption
             return result;
         }
     }
-    // Generate code for all merged definitions
+    // Generate code using BackendRegistry
+    auto& registry = BackendRegistry::instance();
     for (const auto& target : options.targets) {
-        std::string output;
         std::string target_name;
-
         switch (target) {
-            case Target::Lua: {
-                LuaBackend backend;
-                output = backend.generate(merged_definitions);
-                target_name = "lua";
-                break;
-            }
-            case Target::JSON: {
-                JsonBackend backend;
-                output = backend.generate(merged_definitions);
-                target_name = "json";
-                break;
-            }
-            case Target::Godot: {
-                GodotBackend backend;
-                // Generate class name from source file or types
-                std::string gd_class_name = "GameData";
-                if (!options.source_name.empty()) {
-                    // Extract base name from source file
-                    std::filesystem::path src_path(options.source_name);
-                    std::string base = src_path.stem().string();
-                    // Convert to PascalCase (remove underscores, capitalize words)
-                    std::string pascal;
-                    bool next_upper = true;
-                    for (char c : base) {
-                        if (c == '_' || c == '-') {
-                            next_upper = true;
-                        } else {
-                            pascal += next_upper ? (char)std::toupper(c) : (char)std::tolower(c);
-                            next_upper = false;
-                        }
-                    }
-                    if (!pascal.empty()) {
-                        gd_class_name = pascal + "Data";
-                    }
-                }
-                backend.set_class_name(gd_class_name);
-                output = backend.generate(merged_definitions);
-                target_name = "gd";
-                break;
-            }
-            case Target::Unity: {
-                UnityBackend backend;
-                output = backend.generate(merged_definitions);
-                target_name = "cs";
-                break;
-            }
-            case Target::Love2D: {
-                Love2DBackend backend;
-                output = backend.generate(merged_definitions);
-                target_name = "lua";
-                break;
-            }
-            case Target::Defold: {
-                DefoldBackend backend;
-                output = backend.generate(merged_definitions);
-                target_name = "lua";
-                break;
-            }
-            case Target::TypeScript: {
-                result.warnings.push_back({
-                    .message = "TypeScript backend not yet implemented",
-                    .location = "",
-                    .severity = CompileErrorSeverity::Warning,
-                    .code = "W001",
-                    .suggestion = "Use Lua, JSON, GD or CS backend for now"
-                });
-                continue;
-            }
+            case Target::Lua: target_name = "lua"; break;
+            case Target::JSON: target_name = "json"; break;
+            case Target::Godot: target_name = "godot"; break;
+            case Target::Unity: target_name = "unity"; break;
+            case Target::Love2D: target_name = "love2d"; break;
+            case Target::Defold: target_name = "defold"; break;
+            case Target::TypeScript: target_name = "typescript"; break;
+            default: continue;
         }
-        result.outputs[target_name] = output;
+        
+        auto backend = registry.create(target_name);
+        if (!backend) {
+            result.warnings.push_back({
+                .message = "Unknown target: " + target_name,
+                .location = "",
+                .severity = CompileErrorSeverity::Warning,
+                .code = "W001",
+                .suggestion = ""
+            });
+            continue;
+        }
+        
+        backend->configure(options.source_name);
+        result.outputs[target_name] = backend->generate(merged_definitions);
     }
     result.success = true;
     return result;

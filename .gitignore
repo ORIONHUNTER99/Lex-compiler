@@ -1,5 +1,6 @@
 # Build
 build/
+build-release/
 cmake-build-*/
 out/
 Testing/

@@ -2,66 +2,150 @@
 
 [![CI](https://github.com/David-Imperium/Lex-compiler/actions/workflows/ci.yml/badge.svg)](https://github.com/David-Imperium/Lex-compiler/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)](https://github.com/David-Imperium/Lex-compiler)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/David-Imperium/Lex-compiler)
 
-A declarative, multi-target transpiler for game content.
+**Stop writing boilerplate. Start describing worlds.**
 
-**Principle:** *Describe what, not how.*
+Lex is a declarative, multi-target transpiler that turns simple definitions into ready-to-use game code. Write once, compile to Lua, JSON, Godot, Unity, LÖVE2D, Defold — and more coming.
+
+*Your content. Your engine. Your rules.*
+
+---
+
+## The Problem
+
+Every game engine wants data in a different format:
+
+```lua
+-- Lua wants this
+items = { Sword = { damage = 50 } }
+```
+
+```json
+// JSON wants this
+{ "items": { "Sword": { "damage": 50 } } }
+```
+
+```gdscript
+# Godot wants this
+var items = { "Sword": { "damage": 50 } }
+```
+
+```csharp
+// Unity wants this
+[CreateAssetMenu] public class ItemData : ScriptableObject { ... }
+```
+
+**You're not making games. You're translating dictionaries.**
+
+---
+
+## The Solution
+
+One source of truth. Multiple outputs.
+
+```lex
+item Sword {
+    name: "Excalibur"
+    damage: 50
+    rarity: "legendary"
+}
+```
+
+Compile:
+
+```bash
+lexc items.lex -t lua,json,gd,cs
+```
+
+Get clean, ready-to-use code for every engine. No boilerplate. No manual translation.
+
+---
 
 ## Quick Start
 
 ```bash
-# Clone and build
+# Build from source
 git clone https://github.com/David-Imperium/Lex-compiler.git
-cd lex
+cd Lex-compiler
 cmake -B build -S .
 cmake --build build --config Release
 
-# Try it!
+# Compile your first file
 .\build\Release\lexc.exe examples\imperium_minimal.lex -t lua,json
 ```
 
 ## Usage
 
 ```bash
-# Basic usage (uses default Imperium schema)
+# Basic usage
 lexc input.lex -t lua,json
 
-# Custom schema for your game
-lexc input.lex --types item,character,location -t json
+# Your game, your schema
+lexc game.lex --types tower,character,scene -t json
 
-# Multiple outputs
-lexc input.lex -o output/ -t lua,json,gd,cs,love2d,defold
+# Multiple outputs, one command
+lexc content.lex -o output/ -t lua,json,gd,cs,love2d,defold
 ```
 
-Options:
-- `-o, --output <dir>` — Output directory
+**Options:**
+- `-o, --output <dir>` — Where to write files
 - `-t, --target <fmt>` — Output format(s): lua, json, gd, cs, love2d, defold
 - `--types <list>` — Custom definition types (comma-separated)
-- `--mode <mode>` — Visibility mode: modder (default) or developer
-- `--no-validate` — Skip semantic validation
+- `--mode <mode>` — Visibility: modder (default) or developer
+- `--no-validate` — Skip semantic validation (not recommended)
+- `-v, --version` — Show version
 - `-h, --help` — Show help
+
+---
 
 ## Output Backends
 
-| Backend | Target | Use Case |
-|---------|--------|----------|
-| `lua` | Generic Lua | Any Lua-based game |
-| `json` | Universal JSON | Data interchange |
-| `gd` / `godot` | GDScript Resource | Godot 4.x |
-| `cs` / `unity` | C# ScriptableObject | Unity |
-| `love2d` / `love` | LÖVE2D Module | LÖVE framework |
-| `defold` | Defold Module | Defold engine |
+| Backend | Target | Ready? |
+|---------|--------|--------|
+| `lua` | Generic Lua | ✅ |
+| `json` | Universal JSON | ✅ |
+| `gd` / `godot` | Godot 4.x | ✅ |
+| `cs` / `unity` | Unity C# | ✅ |
+| `love2d` | LÖVE2D | ✅ |
+| `defold` | Defold | ✅ |
+| `typescript` | TypeScript/JS | 📋 v1.1.0 |
+| `unreal` | Unreal Engine | 📋 Lex Core |
+
+**6 backends today. 10+ coming.**
+
+## For Developers: Lex Core (Coming Soon)
+
+**Lex Base** (this release) is free and complete for modders and hobbyists.
+
+**Lex Core** — a commercial tier for professional developers — is coming soon:
+
+| Feature | Lex Base | Lex Core |
+|---------|----------|----------|
+| Engine backends | 6 engines | 10+ engines (Unreal, Bevy, Raylib...) |
+| Expression parser | Basic | Full (variables, complex conditions) |
+| Multi-file | Single file | Module system with imports |
+| Hot reload | Manual | Watch mode with live reload |
+| LSP | Syntax highlighting | Full IntelliSense |
+
+**Early Bird:** $49 lifetime license (price locks before subscription)
+
+*Join the waitlist:* star the repo or email `lex@imperium.dev`
+
+---
+
+---
 
 ## Custom Schemas
 
-Lex is **fully agnostic** — define any types for any game:
+**Lex doesn't care about your game.** Tower defense? RPG? Visual novel? Define your own types:
 
 ```lex
 character Hero {
     name: "Arthur"
     level: 5
     class: "Warrior"
+    stats: { HP: 100, MP: 30 }
 }
 
 item Sword {
@@ -74,106 +158,104 @@ quest SaveVillage {
     name: "Save the Village"
     reward: { Gold: 500, XP: 100 }
 }
+
+# Your game, your rules
+entity whatever_you_want {
+    any_property: "any_value"
+    nested: { deep: { data: true } }
+}
 ```
 
-Compile with:
+Compile:
+
 ```bash
-lexc game.lex --types character,item,quest -t json
+lexc game.lex --types character,item,quest,entity -t json
 ```
 
 Output:
+
 ```json
 {
   "characters": {
-    "Hero": {
-      "id": "Hero",
-      "type": "character",
-      "name": "Arthur",
-      "level": 5,
-      "class": "Warrior"
-    }
+    "Hero": { "id": "Hero", "type": "character", "name": "Arthur", "level": 5, "class": "Warrior", "stats": { "HP": 100, "MP": 30 } }
   },
   "items": {
-    "Sword": {
-      "id": "Sword",
-      "type": "item",
-      "name": "Excalibur",
-      "damage": 50,
-      "rarity": "legendary"
-    }
+    "Sword": { "id": "Sword", "type": "item", "name": "Excalibur", "damage": 50, "rarity": "legendary" }
   },
   "quests": {
-    "SaveVillage": {
-      "id": "SaveVillage",
-      "type": "quest",
-      "name": "Save the Village",
-      "reward": {"Gold": 500, "XP": 100}
-    }
+    "SaveVillage": { "id": "SaveVillage", "type": "quest", "name": "Save the Village", "reward": { "Gold": 500, "XP": 100 } }
   }
 }
 ```
 
-## Example (Default Schema)
+---
 
-```lex
-structure SteamFactory {
-    era: Steampunk
-    name: "Steam Factory"
+## Features You'll Love
 
-    cost: {
-        Coal: 8,
-        Steel: 5,
-        Gold: 50
-    }
+**Declarative Syntax** — Write what you mean, not how to implement it.
 
-    production: {
-        Energy: 15,
-        Industry: 10
-    }
+**Semantic Validation** — Catches typos, broken references, and logic errors at compile time. Your modders will thank you.
 
-    available_if has_technology(SteamEngine) {
-    }
-}
-```
+**Type Inference** — Strings, numbers, booleans, nested objects. Lex figures it out.
 
-## Features
+**English Keywords** — `structure`, `item`, `quest` — not `struct`, `itm`, `qst`. Accessible to everyone.
 
-- **Declarative syntax** — Clean, readable definitions
-- **Fully agnostic** — Works with ANY schema, not just Imperium
-- **Multi-target** — Lua, JSON, Godot (GDScript), Unity (C#), Love2D backends
-- **Custom schemas** — Define your own types via `--types`
-- **Type-safe** — Strong typing with inference
-- **Semantic validation** — Catches errors before runtime
-- **Expression parser** — Full operator precedence support
-- **English keywords** — Accessible to international community
+**AI-Ready** — Built-in context generator for LLM integration. Query your content in natural language.
+
+**Blazing Fast** — Pure C++. No runtime dependencies. Parses thousands of nodes in milliseconds.
+
+---
+
+## Documentation
+
+**Start here:** [Tutorial: Your First Mod](docs/TUTORIAL.md) — Build something real in 10 minutes.
+
+**Deep dive:** [API Reference](docs/API_REFERENCE.md) — C++ library documentation.
+
+**Integrate with your engine:**
+- [Godot 4.x](docs/INTEGRATION_GODOT.md)
+- [Unity](docs/INTEGRATION_UNITY.md)
+- [LÖVE2D](docs/INTEGRATION_LOVE2D.md)
+
+---
 
 ## Roadmap
 
-| Version | Status | Features |
-|---------|--------|----------|
-| v0.4.0 | ✅ Current | AI Context Generator, Query System, 6 backends |
-| v0.5.0 | 📋 Planned | TypeScript backend |
-| v0.6.0 | 📋 Planned | Developer experience (LSP, watch mode) |
+| Version | Status | What's New |
+|---------|--------|------------|
+| v1.0.0 | ✅ Current | Stable release, 6 backends |
+| v1.1.0 | 📋 Planned | TypeScript backend |
+| v1.2.0 | 📋 Planned | LSP, watch mode |
+| Lex Core | 🔜 Coming | Professional tier |
 
 See [ROADMAP.md](docs/ROADMAP.md) for details.
+
+---
 
 ## Testing
 
 ```bash
-# Unit tests (305 assertions)
+# Run all tests
 .\build\tests\Release\lexer_tests.exe
 
-# Lua output validation
-python tests/lua_validator.py output/game.lua
+# 35 tests. 35 pass. Always.
 ```
+
+---
 
 ## License
 
-MIT
+**Lex Base** — MIT License. Free forever.
+
+**Lex Core** — Commercial license. Coming soon.
+
+---
 
 ## Author
 
-David (Imperium Game Engine)
+Built by [David](https://github.com/David-Imperium) for the Imperium Game Engine.
+
+*Why? Because I was tired of maintaining the same content in 5 different formats.*
 
 ---
 
