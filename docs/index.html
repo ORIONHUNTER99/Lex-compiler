@@ -4,417 +4,932 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lex Compiler - Declarative Multi-Target Transpiler</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --accent: #06b6d4;
+            --bg-light: #f8fafc;
+            --bg-dark: #0f172a;
+            --card-light: #ffffff;
+            --card-dark: #1e293b;
+            --text-light: #334155;
+            --text-dark: #e2e8f0;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        [data-theme="dark"] {
+            --bg: var(--bg-dark);
+            --card: var(--card-dark);
+            --text: var(--text-dark);
+        }
+
+        [data-theme="light"] {
+            --bg: var(--bg-light);
+            --card: var(--card-light);
+            --text: var(--text-light);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: #f8fafc;
+
+        html {
+            scroll-behavior: smooth;
         }
-        
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background: var(--bg);
+            transition: background 0.3s, color 0.3s;
+            overflow-x: hidden;
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 24px;
         }
-        
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes countUp {
+            from { opacity: 0; transform: scale(0.5); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--card);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1) rotate(15deg);
+            box-shadow: 0 6px 30px rgba(0,0,0,0.2);
+        }
+
         /* Header */
         header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            background: var(--gradient-1);
+            background-size: 200% 200%;
+            animation: gradient 15s ease infinite;
             color: white;
-            padding: 80px 0;
+            padding: 120px 0 100px;
             text-align: center;
+            overflow: hidden;
         }
-        
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        header .container {
+            position: relative;
+            z-index: 1;
+        }
+
         header h1 {
-            font-size: 3.5rem;
-            margin-bottom: 10px;
+            font-size: 4.5rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            letter-spacing: -2px;
+            animation: fadeInUp 0.8s ease;
         }
-        
+
         header .tagline {
-            font-size: 1.4rem;
-            opacity: 0.9;
-            margin-bottom: 30px;
+            font-size: 1.5rem;
+            font-weight: 500;
+            opacity: 0.95;
+            margin-bottom: 32px;
+            animation: fadeInUp 0.8s ease 0.1s backwards;
         }
-        
+
         header .version {
-            display: inline-block;
-            background: rgba(255,255,255,0.2);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.2);
+            animation: fadeInUp 0.8s ease 0.2s backwards;
         }
-        
+
+        header .version::before {
+            content: '✦';
+            color: #fbbf24;
+        }
+
+        /* Floating Elements */
+        .floating-icons {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .floating-icon {
+            position: absolute;
+            font-size: 3rem;
+            opacity: 0.15;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-icon:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+        .floating-icon:nth-child(2) { top: 60%; left: 5%; animation-delay: 1s; }
+        .floating-icon:nth-child(3) { top: 30%; right: 10%; animation-delay: 2s; }
+        .floating-icon:nth-child(4) { top: 70%; right: 8%; animation-delay: 0.5s; }
+        .floating-icon:nth-child(5) { top: 40%; left: 85%; animation-delay: 1.5s; }
+
+        /* Stats Section */
+        .stats {
+            background: var(--bg);
+            padding: 0;
+            margin-top: -40px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .stat-card {
+            background: var(--card);
+            padding: 32px 24px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #64748b;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
         /* Install Banner */
         .install-banner {
-            background: #1e293b;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-        
-        .install-banner code {
-            background: #334155;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 1rem;
-            display: inline-block;
-        }
-        
-        .install-banner .tabs {
-            margin-bottom: 15px;
-        }
-        
-        .install-banner .tab {
-            background: transparent;
-            border: 1px solid #475569;
-            color: #94a3b8;
-            padding: 8px 16px;
-            cursor: pointer;
-            margin: 0 5px;
-            border-radius: 5px;
-        }
-        
-        .install-banner .tab.active {
-            background: #334155;
-            color: white;
-        }
-        
-        /* Sections */
-        section {
+            background: var(--card);
             padding: 60px 0;
+            text-align: center;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
         }
-        
-        section h2 {
+
+        .install-banner h2 {
             font-size: 2rem;
-            margin-bottom: 30px;
-            text-align: center;
+            margin-bottom: 24px;
+            color: var(--text);
         }
-        
-        /* Features Grid */
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-        }
-        
-        .feature {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-        
-        .feature h3 {
-            color: #667eea;
-            margin-bottom: 15px;
-            font-size: 1.3rem;
-        }
-        
-        .feature p {
-            color: #64748b;
-        }
-        
-        /* Backends */
-        .backends {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-        
-        .backend {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
-        }
-        
-        .backend:hover {
-            transform: translateY(-5px);
-        }
-        
-        .backend .name {
-            font-weight: bold;
-            font-size: 1.2rem;
-            margin-bottom: 5px;
-        }
-        
-        .backend .target {
-            color: #64748b;
-            font-size: 0.9rem;
-        }
-        
-        /* Code Example */
-        .code-example {
-            background: #1e293b;
-            border-radius: 12px;
-            overflow: hidden;
-            margin: 30px 0;
-        }
-        
-        .code-example .header {
-            background: #334155;
-            padding: 10px 20px;
-            color: #94a3b8;
-            font-size: 0.9rem;
-        }
-        
-        .code-example pre {
-            padding: 20px;
-            color: #e2e8f0;
-            font-family: 'Consolas', 'Monaco', monospace;
-            overflow-x: auto;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-        
-        .code-example .keyword { color: #c084fc; }
-        .code-example .string { color: #86efac; }
-        .code-example .number { color: #fcd34d; }
-        .code-example .comment { color: #64748b; }
-        
-        /* CTA Buttons */
-        .cta {
-            text-align: center;
-            margin: 40px 0;
-        }
-        
-        .btn {
-            display: inline-block;
-            padding: 15px 30px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            margin: 0 10px;
-            transition: transform 0.2s;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-        
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
-        
-        .btn-secondary {
-            background: white;
-            color: #667eea;
-            border: 2px solid #667eea;
-        }
-        
-        /* Links */
-        .links {
+
+        .install-tabs {
             display: flex;
             justify-content: center;
-            gap: 30px;
-            margin-top: 30px;
-            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
         }
-        
-        .links a {
-            color: #667eea;
-            text-decoration: none;
+
+        .install-tabs button {
+            background: transparent;
+            border: 2px solid #e2e8f0;
+            color: #64748b;
+            padding: 10px 24px;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        [data-theme="dark"] .install-tabs button {
+            border-color: #334155;
+            color: #94a3b8;
+        }
+
+        .install-tabs button.active {
+            background: var(--gradient-1);
+            border-color: transparent;
+            color: white;
+        }
+
+        .install-tabs button:hover:not(.active) {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .install-code {
+            background: var(--bg-dark);
+            padding: 20px 32px;
+            border-radius: 12px;
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            color: #e2e8f0;
+            max-width: 100%;
+            overflow-x: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        /* Backends */
+        .backends-section {
+            padding: 100px 0;
+        }
+
+        .backends-section h2 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .backends-section .subtitle {
+            text-align: center;
+            color: #64748b;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto 48px;
+        }
+
+        .backends-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .backend-card {
+            background: var(--card);
+            padding: 40px 32px;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .backend-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-1);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .backend-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .backend-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .backend-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+
+        .backend-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .backend-target {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        /* Code Example */
+        .code-section {
+            background: var(--bg);
+            padding: 100px 0;
+        }
+
+        .code-section h2 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .code-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            align-items: stretch;
+        }
+
+        .code-block {
+            background: var(--bg-dark);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .code-header {
+            background: #1e293b;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .code-header span {
+            color: #94a3b8;
+            font-size: 0.9rem;
             font-weight: 500;
         }
-        
-        .links a:hover {
-            text-decoration: underline;
+
+        .code-dots {
+            display: flex;
+            gap: 8px;
         }
-        
-        /* Footer */
-        footer {
-            background: #1e293b;
-            color: #94a3b8;
-            padding: 40px 0;
+
+        .code-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .code-dot:nth-child(1) { background: #ef4444; }
+        .code-dot:nth-child(2) { background: #fbbf24; }
+        .code-dot:nth-child(3) { background: #22c55e; }
+
+        .code-block pre {
+            padding: 24px;
+            color: #e2e8f0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            overflow-x: auto;
+        }
+
+        .code-block .k { color: #c084fc; font-weight: 500; }
+        .code-block .s { color: #86efac; }
+        .code-block .n { color: #fbbf24; }
+        .code-block .c { color: #64748b; font-style: italic; }
+
+        /* Features */
+        .features-section {
+            padding: 100px 0;
+            background: var(--card);
+        }
+
+        .features-section h2 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+        }
+
+        .feature-card {
+            padding: 40px 32px;
+            border-radius: 16px;
+            background: var(--bg);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .feature-card p {
+            color: #64748b;
+            line-height: 1.7;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 100px 0;
             text-align: center;
         }
-        
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+        }
+
+        .cta-section .subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 32px;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--gradient-1);
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn-secondary {
+            background: var(--card);
+            color: var(--text);
+            border: 2px solid #e2e8f0;
+        }
+
+        [data-theme="dark"] .btn-secondary {
+            border-color: #334155;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .links-row {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            flex-wrap: wrap;
+        }
+
+        .links-row a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .links-row a:hover {
+            color: var(--secondary);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-dark);
+            color: #94a3b8;
+            padding: 48px 0;
+            text-align: center;
+        }
+
         footer a {
             color: #e2e8f0;
+            text-decoration: none;
         }
-        
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
         /* Responsive */
+        @media (max-width: 1024px) {
+            .backends-grid { grid-template-columns: repeat(2, 1fr); }
+            .features-grid { grid-template-columns: repeat(2, 1fr); }
+            .code-container { grid-template-columns: 1fr; }
+        }
+
         @media (max-width: 768px) {
-            header h1 { font-size: 2.5rem; }
-            header .tagline { font-size: 1.1rem; }
-            .install-banner code { font-size: 0.85rem; padding: 8px 12px; }
+            header h1 { font-size: 3rem; }
+            header .tagline { font-size: 1.2rem; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .backends-grid { grid-template-columns: 1fr; }
+            .features-grid { grid-template-columns: 1fr; }
+            .install-code { font-size: 0.85rem; padding: 16px 20px; }
+            .theme-toggle { width: 40px; height: 40px; font-size: 1.2rem; }
         }
     </style>
 </head>
-<body>
+<body data-theme="light">
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <span id="theme-icon">🌙</span>
+    </button>
+
     <header>
+        <div class="floating-icons">
+            <span class="floating-icon">🎮</span>
+            <span class="floating-icon">⚡</span>
+            <span class="floating-icon">🚀</span>
+            <span class="floating-icon">💎</span>
+            <span class="floating-icon">✨</span>
+        </div>
         <div class="container">
             <h1>Lex</h1>
-            <p class="tagline">Declarative, Multi-Target Transpiler for Game Content</p>
+            <p class="tagline">Write game content once, compile everywhere</p>
             <span class="version">v0.4.1</span>
         </div>
     </header>
-    
-    <div class="install-banner">
-        <div class="container">
-            <div class="tabs">
-                <button class="tab active" onclick="showInstall('windows')">Windows</button>
-                <button class="tab" onclick="showInstall('unix')">Linux/macOS</button>
-                <button class="tab" onclick="showInstall('source')">From Source</button>
+
+    <section class="stats">
+        <div class="stats-grid">
+            <div class="stat-card animate-on-scroll">
+                <div class="stat-number" data-count="6">0</div>
+                <div class="stat-label">Backends</div>
             </div>
-            <div id="install-windows">
-                <code>irm https://raw.githubusercontent.com/David-Imperium/Lex-compiler/main/install.ps1 | iex</code>
+            <div class="stat-card animate-on-scroll">
+                <div class="stat-number" data-count="325">0</div>
+                <div class="stat-label">Test Assertions</div>
             </div>
-            <div id="install-unix" style="display:none">
-                <code>curl -fsSL https://raw.githubusercontent.com/David-Imperium/Lex-compiler/main/install.sh | bash</code>
+            <div class="stat-card animate-on-scroll">
+                <div class="stat-number" data-count="2">0</div>
+                <div class="stat-label">AI Features</div>
             </div>
-            <div id="install-source" style="display:none">
-                <code>git clone https://github.com/David-Imperium/Lex-compiler.git && cd Lex-compiler && cmake -B build && cmake --build build --config Release</code>
-            </div>
-        </div>
-    </div>
-    
-    <section class="container">
-        <h2>Write Once, Target Any Engine</h2>
-        <p style="text-align:center; color:#64748b; max-width:700px; margin:0 auto 30px;">
-            Define your game content in a clean, declarative format. Compile to Lua, JSON, GDScript, C#, or framework-specific modules.
-        </p>
-        
-        <div class="backends">
-            <div class="backend">
-                <div class="name">Lua</div>
-                <div class="target">Any Lua Game</div>
-            </div>
-            <div class="backend">
-                <div class="name">JSON</div>
-                <div class="target">Universal Data</div>
-            </div>
-            <div class="backend">
-                <div class="name">GDScript</div>
-                <div class="target">Godot 4.x</div>
-            </div>
-            <div class="backend">
-                <div class="name">C#</div>
-                <div class="target">Unity</div>
-            </div>
-            <div class="backend">
-                <div class="name">LÖVE2D</div>
-                <div class="target">LÖVE Framework</div>
-            </div>
-            <div class="backend">
-                <div class="name">Defold</div>
-                <div class="target">Defold Engine</div>
+            <div class="stat-card animate-on-scroll">
+                <div class="stat-number" data-count="100">0</div>
+                <div class="stat-label">% Open Source</div>
             </div>
         </div>
     </section>
-    
-    <section style="background:white;">
+
+    <section class="install-banner">
         <div class="container">
-            <h2>Simple, Readable Syntax</h2>
-            
-            <div class="code-example">
-                <div class="header">game.lex</div>
-                <pre><span class="keyword">structure</span> Turret {
-    <span class="keyword">name</span>: <span class="string">"Basic Turret"</span>
-    <span class="keyword">cost</span>: { Gold: <span class="number">50</span> }
-    <span class="keyword">damage</span>: <span class="number">10</span>
-    <span class="keyword">range</span>: <span class="number">2</span>
+            <h2>Quick Install</h2>
+            <div class="install-tabs">
+                <button class="active" onclick="showInstall('windows', this)">Windows</button>
+                <button onclick="showInstall('unix', this)">Linux/macOS</button>
+                <button onclick="showInstall('source', this)">From Source</button>
+            </div>
+            <div id="install-windows" class="install-code">
+                irm https://raw.githubusercontent.com/David-Imperium/Lex-compiler/main/install.ps1 | iex
+            </div>
+            <div id="install-unix" class="install-code" style="display:none">
+                curl -fsSL https://raw.githubusercontent.com/David-Imperium/Lex-compiler/main/install.sh | bash
+            </div>
+            <div id="install-source" class="install-code" style="display:none">
+                git clone https://github.com/David-Imperium/Lex-compiler.git && cmake -B build && cmake --build build
+            </div>
+        </div>
+    </section>
+
+    <section class="backends-section">
+        <div class="container">
+            <h2 class="animate-on-scroll">6 Backends, One Source</h2>
+            <p class="subtitle animate-on-scroll">Write your content in .lex format and compile to any target engine or framework</p>
+            <div class="backends-grid">
+                <div class="backend-card animate-on-scroll">
+                    <div class="backend-icon">🌙</div>
+                    <div class="backend-name">Lua</div>
+                    <div class="backend-target">Any Lua-based game</div>
+                </div>
+                <div class="backend-card animate-on-scroll">
+                    <div class="backend-icon">📄</div>
+                    <div class="backend-name">JSON</div>
+                    <div class="backend-target">Universal data format</div>
+                </div>
+                <div class="backend-card animate-on-scroll">
+                    <div class="backend-icon">🎮</div>
+                    <div class="backend-name">GDScript</div>
+                    <div class="backend-target">Godot 4.x Resources</div>
+                </div>
+                <div class="backend-card animate-on-scroll">
+                    <div class="backend-icon">🔷</div>
+                    <div class="backend-name">C#</div>
+                    <div class="backend-target">Unity ScriptableObjects</div>
+                </div>
+                <div class="backend-card animate-on-scroll">
+                    <div class="backend-icon">💕</div>
+                    <div class="backend-name">LÖVE2D</div>
+                    <div class="backend-target">LÖVE Framework</div>
+                </div>
+                <div class="backend-card animate-on-scroll">
+                    <div class="backend-icon">👑</div>
+                    <div class="backend-name">Defold</div>
+                    <div class="backend-target">Defold Engine</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="code-section">
+        <div class="container">
+            <h2 class="animate-on-scroll">Clean, Declarative Syntax</h2>
+            <div class="code-container">
+                <div class="code-block animate-on-scroll">
+                    <div class="code-header">
+                        <div class="code-dots">
+                            <div class="code-dot"></div>
+                            <div class="code-dot"></div>
+                            <div class="code-dot"></div>
+                        </div>
+                        <span>game.lex</span>
+                    </div>
+                    <pre><span class="k">structure</span> Turret {
+    <span class="k">name</span>: <span class="s">"Basic Turret"</span>
+    <span class="k">cost</span>: { Gold: <span class="n">50</span> }
+    <span class="k">damage</span>: <span class="n">10</span>
+    <span class="k">range</span>: <span class="n">2</span>
 }
 
-<span class="keyword">structure</span> Cannon {
-    <span class="keyword">name</span>: <span class="string">"Heavy Cannon"</span>
-    <span class="keyword">cost</span>: { Gold: <span class="number">100</span>, Steel: <span class="number">20</span> }
-    <span class="keyword">damage</span>: <span class="number">25</span>
-    <span class="keyword">range</span>: <span class="number">3</span>
+<span class="k">structure</span> Cannon {
+    <span class="k">name</span>: <span class="s">"Heavy Cannon"</span>
+    <span class="k">cost</span>: { Gold: <span class="n">100</span> }
+    <span class="k">damage</span>: <span class="n">25</span>
     
-    <span class="keyword">available_if</span> has_technology(Gunpowder) {}
+    <span class="k">available_if</span> has_tech(Gunpowder) {}
 }</pre>
-            </div>
-            
-            <div class="cta">
-                <code style="background:#f1f5f9; padding:15px 25px; border-radius:8px; font-size:1.1rem;">
-                    lexc game.lex -t lua,json,gd,cs
-                </code>
-            </div>
-        </div>
-    </section>
-    
-    <section class="container">
-        <h2>Features</h2>
-        <div class="features">
-            <div class="feature">
-                <h3>🎯 Declarative Syntax</h3>
-                <p>Describe what, not how. Clean, readable definitions that anyone can understand.</p>
-            </div>
-            <div class="feature">
-                <h3>🔄 Multi-Target Output</h3>
-                <p>Write once, compile to Lua, JSON, GDScript, C#, LÖVE2D, or Defold with one command.</p>
-            </div>
-            <div class="feature">
-                <h3>🎮 Engine Agnostic</h3>
-                <p>Use built-in Imperium schema or define your own types for any game genre.</p>
-            </div>
-            <div class="feature">
-                <h3>✅ Semantic Validation</h3>
-                <p>Catch errors before runtime with type checking and cross-reference validation.</p>
-            </div>
-            <div class="feature">
-                <h3>🤖 AI-Ready</h3>
-                <p>Generate context for LLMs with --context flag. Query your data in natural language.</p>
-            </div>
-            <div class="feature">
-                <h3>⚡ Fast & Lightweight</h3>
-                <p>Native C++ compiler. No dependencies. Compiles in milliseconds.</p>
+                </div>
+                <div class="code-block animate-on-scroll">
+                    <div class="code-header">
+                        <div class="code-dots">
+                            <div class="code-dot"></div>
+                            <div class="code-dot"></div>
+                            <div class="code-dot"></div>
+                        </div>
+                        <span>terminal</span>
+                    </div>
+                    <pre><span class="c"># Compile to all targets</span>
+$ lexc game.lex -t lua,json,gd,cs
+
+<span class="c"># Or just what you need</span>
+$ lexc game.lex -t gd -o godot/content/
+
+<span class="c"># With AI context</span>
+$ lexc game.lex --context md
+
+<span class="c"># Query your data</span>
+$ lexc game.lex --query <span class="s">"What costs the most?"</span></pre>
+                </div>
             </div>
         </div>
     </section>
-    
-    <section style="background:white;">
+
+    <section class="features-section">
         <div class="container">
-            <h2>Integration Guides</h2>
-            <div class="links">
-                <a href="INTEGRATION_GODOT.md">🎮 Godot 4.x</a>
-                <a href="INTEGRATION_UNITY.md">🔷 Unity</a>
-                <a href="INTEGRATION_LOVE2D.md">💕 LÖVE2D</a>
+            <h2 class="animate-on-scroll">Built for Game Developers</h2>
+            <div class="features-grid">
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Declarative by Design</h3>
+                    <p>Describe your game content, not the implementation. Clean syntax that designers and developers both love.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Blazing Fast</h3>
+                    <p>Native C++ compiler with zero runtime dependencies. Compiles thousands of definitions in milliseconds.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">✅</div>
+                    <h3>Smart Validation</h3>
+                    <p>Catch typos and broken references before runtime. Semantic analysis built into the compiler.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">🤖</div>
+                    <h3>AI-Ready Output</h3>
+                    <p>Generate LLM-friendly context with --context. Query your game data in natural language.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">🔧</div>
+                    <h3>Custom Schemas</h3>
+                    <p>Not just tower defense! Define your own types for RPGs, platformers, simulations, anything.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">📦</div>
+                    <h3>Zero Dependencies</h3>
+                    <p>Single binary, no runtime. Drop it in your project and start compiling. That's it.</p>
+                </div>
             </div>
         </div>
     </section>
-    
-    <section class="container">
-        <div class="cta">
-            <a href="https://github.com/David-Imperium/Lex-compiler" class="btn btn-primary">View on GitHub</a>
-            <a href="https://github.com/David-Imperium/Lex-compiler/releases" class="btn btn-secondary">Download</a>
-        </div>
-        <div class="links">
-            <a href="https://github.com/David-Imperium/Lex-compiler/blob/main/README.md">Documentation</a>
-            <a href="https://github.com/David-Imperium/Lex-compiler/blob/main/docs/ROADMAP.md">Roadmap</a>
-            <a href="https://github.com/David-Imperium/Lex-compiler/issues">Issues</a>
+
+    <section class="cta-section">
+        <div class="container">
+            <h2 class="animate-on-scroll">Ready to Try Lex?</h2>
+            <p class="subtitle animate-on-scroll">MIT licensed, open source, free forever</p>
+            <div class="cta-buttons animate-on-scroll">
+                <a href="https://github.com/David-Imperium/Lex-compiler" class="btn btn-primary">
+                    <span>📦</span> View on GitHub
+                </a>
+                <a href="https://github.com/David-Imperium/Lex-compiler/releases" class="btn btn-secondary">
+                    <span>⬇️</span> Download v0.4.1
+                </a>
+            </div>
+            <div class="links-row animate-on-scroll">
+                <a href="INTEGRATION_GODOT.md">🎮 Godot Guide</a>
+                <a href="INTEGRATION_UNITY.md">🔷 Unity Guide</a>
+                <a href="INTEGRATION_LOVE2D.md">💕 LÖVE2D Guide</a>
+                <a href="https://github.com/David-Imperium/Lex-compiler/blob/main/docs/ROADMAP.md">📋 Roadmap</a>
+            </div>
         </div>
     </section>
-    
+
     <footer>
         <div class="container">
-            <p>Lex Compiler &copy; 2026 — MIT License</p>
-            <p style="margin-top:10px;">Built with ❤️ by <a href="https://github.com/David-Imperium">David (Imperium Game Engine)</a></p>
+            <p>Lex Compiler © 2026 — MIT License</p>
+            <p style="margin-top:12px;opacity:0.7">Built with ❤️ by <a href="https://github.com/David-Imperium">David (Imperium Game Engine)</a></p>
         </div>
     </footer>
-    
+
     <script>
-        function showInstall(type) {
-            document.querySelectorAll('.install-banner .tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            
+        // Theme toggle
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            const current = body.getAttribute('data-theme');
+            const next = current === 'light' ? 'dark' : 'light';
+            body.setAttribute('data-theme', next);
+            icon.textContent = next === 'light' ? '🌙' : '☀️';
+            localStorage.setItem('theme', next);
+        }
+
+        // Load saved theme
+        const saved = localStorage.getItem('theme');
+        if (saved) {
+            document.body.setAttribute('data-theme', saved);
+            document.getElementById('theme-icon').textContent = saved === 'light' ? '🌙' : '☀️';
+        }
+
+        // Install tabs
+        function showInstall(type, btn) {
+            document.querySelectorAll('.install-tabs button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
             document.getElementById('install-windows').style.display = type === 'windows' ? 'block' : 'none';
             document.getElementById('install-unix').style.display = type === 'unix' ? 'block' : 'none';
             document.getElementById('install-source').style.display = type === 'source' ? 'block' : 'none';
         }
+
+        // Scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('visible');
+                    }, index * 100);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+
+        // Count up animation
+        function animateCounters() {
+            document.querySelectorAll('.stat-number[data-count]').forEach(el => {
+                const target = parseInt(el.getAttribute('data-count'));
+                const duration = 1500;
+                const start = performance.now();
+                
+                function update(now) {
+                    const elapsed = now - start;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const eased = 1 - Math.pow(1 - progress, 3);
+                    el.textContent = Math.floor(target * eased);
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(update);
+                    } else {
+                        el.textContent = target;
+                    }
+                }
+                
+                requestAnimationFrame(update);
+            });
+        }
+
+        // Trigger counter animation when stats section is visible
+        const statsObserver = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                animateCounters();
+                statsObserver.disconnect();
+            }
+        }, { threshold: 0.5 });
+
+        statsObserver.observe(document.querySelector('.stats'));
     </script>
 </body>
 </html>
