@@ -138,6 +138,12 @@
 - Package registry (share `.lex` modules)
 - VS Code debugger integration
 
+**Distribution:**
+- Homebrew (macOS): `brew install lexc`
+- Chocolatey (Windows): `choco install lexc`
+- AUR (Arch Linux): `lexc-bin`
+- npm (Node.js wrapper): `npm install -g lexc`
+
 **Performance:**
 - Parallel compilation for large projects
 - Binary intermediate format for faster loads

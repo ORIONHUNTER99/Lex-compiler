@@ -20,21 +20,44 @@ namespace fs = std::filesystem;
 std::map<std::string, std::filesystem::file_time_type> file_mtimes;
 
 void print_usage(const char* program) {
-    std::cerr << "Lex Compiler v" << lex::version() << "\n\n";
+    std::cerr << "Lex Compiler v" << lex::version() << "\n";
+    std::cerr << "A declarative, multi-target transpiler for game content\n\n";
     std::cerr << "Usage: " << program << " <input.lex> [options]\n\n";
     std::cerr << "Options:\n";
     std::cerr << "  -o, --output <dir>   Output directory (default: same as input)\n";
     std::cerr << "  -t, --target <fmt>   Output format(s): lua, json, gd, cs, love2d, defold\n";
-    std::cerr << "  --context <fmt>     Generate AI context: json, md, minimal, all\n";
+    std::cerr << "                       Multiple: -t lua,json,gd\n";
+    std::cerr << "  --context <fmt>      Generate AI context: json, md, minimal, all\n";
     std::cerr << "  --query <question>   Query game data (e.g., \"What does Farm require?\")\n";
-    std::cerr << "  --types <list>       Definition types (comma-separated)\n";
-    std::cerr << "                       Default: Imperium types (era,structure,unit,...)\n";
+    std::cerr << "  --types <list>       Custom definition types (comma-separated)\n";
+    std::cerr << "                       Default: Imperium schema (era,structure,unit,technology,...)\n";
     std::cerr << "  --mode <mode>        Visibility mode: modder (default) or developer\n";
-    std::cerr << "                       modder = internal/private hidden, developer = all visible\n";
-    std::cerr << "  --watch              Watch for file changes and recompile automatically\n";
+    std::cerr << "  --watch              Watch for file changes and recompile\n";
     std::cerr << "  --no-validate        Skip semantic validation\n";
     std::cerr << "  --verbose            Show detailed output\n";
     std::cerr << "  -h, --help           Show this help\n";
+    std::cerr << "  -v, --version        Show version\n\n";
+    std::cerr << "Examples:\n";
+    std::cerr << "  # Basic compilation to Lua\n";
+    std::cerr << "  " << program << " game.lex -t lua\n\n";
+    std::cerr << "  # Multi-target output to specific directory\n";
+    std::cerr << "  " << program << " game.lex -o output/ -t lua,json,gd\n\n";
+    std::cerr << "  # Custom schema for RPG game\n";
+    std::cerr << "  " << program << " characters.lex --types character,item,quest -t json\n\n";
+    std::cerr << "  # Generate AI context for LLM integration\n";
+    std::cerr << "  " << program << " game.lex --context md -o docs/\n\n";
+    std::cerr << "  # Query your game data\n";
+    std::cerr << "  " << program << " game.lex --query \"What costs the most?\"\n\n";
+    std::cerr << "  # Watch mode for live development\n";
+    std::cerr << "  " << program << " game.lex -t lua --watch\n\n";
+    std::cerr << "Backends:\n";
+    std::cerr << "  lua      Generic Lua tables (any Lua game)\n";
+    std::cerr << "  json     Universal JSON (data interchange)\n";
+    std::cerr << "  gd       GDScript Resource (Godot 4.x)\n";
+    std::cerr << "  cs       C# ScriptableObject (Unity)\n";
+    std::cerr << "  love2d   LÖVE2D module\n";
+    std::cerr << "  defold   Defold module\n\n";
+    std::cerr << "Documentation: https://github.com/David-Imperium/Lex-compiler\n";
 }
 
 void write_file(const std::string& path, const std::string& content) {
@@ -234,6 +257,9 @@ int main(int argc, char* argv[]) {
         std::string arg = argv[i];
         if (arg == "-h" || arg == "--help") {
             print_usage(argv[0]);
+            return 0;
+        } else if (arg == "-v" || arg == "--version") {
+            std::cout << "Lex Compiler v" << lex::version() << "\n";
             return 0;
         } else if (arg == "-o" || arg == "--output") {
             if (i + 1 >= argc) {

@@ -1,0 +1,142 @@
+.TH LEXC 1 "2026-03-05" "Lex Compiler v0.4.0" "User Commands"
+.SH NAME
+lexc \- declarative multi-target transpiler for game content
+.SH SYNOPSIS
+.B lexc
+.I INPUT
+.RI [ OPTIONS ]
+.SH DESCRIPTION
+Lex is a declarative, multi-target transpiler that compiles .lex files into game-ready code for multiple engines and frameworks. Write your game content once in a clean, readable format and generate output for Lua, JSON, Godot (GDScript), Unity (C#), LÖVE2D, and Defold.
+.SH OPTIONS
+.TP
+.BR \-o ", " \-\-output \ \fIDIR\fR
+Output directory for generated files. Default: same directory as input file.
+.TP
+.BR \-t ", " \-\-target \ \fIFORMAT\fR
+Output format(s). Multiple formats can be specified comma-separated:
+.RS
+.TP
+.B lua
+Generic Lua tables (any Lua-based game)
+.TP
+.B json
+Universal JSON format (data interchange)
+.TP
+.B gd
+GDScript Resource class (Godot 4.x)
+.TP
+.B cs
+C# ScriptableObject class (Unity)
+.TP
+.B love2d
+LÖVE2D module format
+.TP
+.B defold
+Defold module format
+.RE
+.TP
+.B \-\-context \ \fIFORMAT\fR
+Generate AI context for LLM integration:
+.RS
+.TP
+.B json
+Structured JSON context
+.TP
+.B md
+Markdown documentation
+.TP
+.B minimal
+Compact format for prompts
+.TP
+.B all
+Generate all context formats
+.RE
+.TP
+.B \-\-query \ \fIQUESTION\fR
+Query game data in natural language. Examples:
+.RS
+.IP
+"What does Farm require?"
+.br
+"What unlocks SteamFactory?"
+.br
+"What costs the most?"
+.RE
+.TP
+.B \-\-types \ \fILIST\fR
+Custom definition types (comma-separated). Default: Imperium schema (era, structure, unit, technology, resource, choice, event, ending, secret).
+.TP
+.B \-\-mode \ \fIMODE\fR
+Visibility mode:
+.RS
+.TP
+.B modder
+Show only public definitions (default)
+.TP
+.B developer
+Show all definitions including internal/private
+.RE
+.TP
+.B \-\-watch
+Watch for file changes and automatically recompile.
+.TP
+.B \-\-no\-validate
+Skip semantic validation.
+.TP
+.B \-\-verbose
+Show detailed output during compilation.
+.TP
+.BR \-h ", " \-\-help
+Show help message.
+.TP
+.BR \-v ", " \-\-version
+Show version information.
+.SH EXAMPLES
+.TP
+Basic compilation to Lua:
+.B lexc game.lex \-t lua
+.TP
+Multi-target output to specific directory:
+.B lexc game.lex \-o output/ \-t lua,json,gd
+.TP
+Custom schema for an RPG game:
+.B lexc characters.lex \-\-types character,item,quest \-t json
+.TP
+Generate AI context for LLM integration:
+.B lexc game.lex \-\-context md \-o docs/
+.TP
+Query game data:
+.B lexc game.lex \-\-query "What costs the most?"
+.TP
+Watch mode for live development:
+.B lexc game.lex \-t lua \-\-watch
+.SH FILE FORMAT
+Lex files use a declarative syntax:
+.PP
+.nf
+.RS
+\fBdefinition_type\fR \fIIdentifier\fR {
+    \fBproperty\fR: \fIvalue\fR
+    \fBnested\fR: { \fIkey\fR: \fIvalue\fR }
+    \fBcondition\fR if \fIexpression\fR { }
+}
+.RE
+.fi
+.PP
+See the full language specification at:
+.UR https://github.com/David-Imperium/Lex-compiler
+.UE
+.SH EXIT STATUS
+.TP
+.B 0
+Successful compilation
+.TP
+.B 1
+Compilation error or invalid arguments
+.SH AUTHOR
+David (Imperium Game Engine)
+.SH "SEE ALSO"
+.BR gcc (1),
+.BR lua (1)
+.SH LICENSE
+MIT License
