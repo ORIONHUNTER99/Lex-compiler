@@ -5,34 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lex Compiler - Declarative Multi-Target Transpiler</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --secondary: #8b5cf6;
-            --accent: #06b6d4;
-            --bg-light: #f8fafc;
-            --bg-dark: #0f172a;
-            --card-light: #ffffff;
-            --card-dark: #1e293b;
-            --text-light: #334155;
-            --text-dark: #e2e8f0;
-            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        }
+            --bg-base: #09090b;
+            --bg-card: #121217;
+            --bg-terminal: #000000;
+            
+            --neon-cyan: #00f2fe;
+            --neon-purple: #b122e5;
+            --neon-green: #22c55e;
+            --neon-red: #ef4444;
+            --neon-yellow: #fbbf24;
+            
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --text-dark: #334155;
+            
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-glow-cyan: rgba(0, 242, 254, 0.3);
+            --border-glow-purple: rgba(177, 34, 229, 0.3);
 
-        [data-theme="dark"] {
-            --bg: var(--bg-dark);
-            --card: var(--card-dark);
-            --text: var(--text-dark);
-        }
-
-        [data-theme="light"] {
-            --bg: var(--bg-light);
-            --card: var(--card-light);
-            --text: var(--text-light);
+            --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
         }
 
         * {
@@ -43,65 +38,78 @@
 
         html {
             scroll-behavior: smooth;
+            background: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-ui);
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             line-height: 1.7;
-            color: var(--text);
-            background: var(--bg);
-            transition: background 0.3s, color 0.3s;
             overflow-x: hidden;
+            position: relative;
         }
 
+        ::selection {
+            background: var(--neon-cyan);
+            color: var(--bg-base);
+        }
+
+        /* Generic Layout container */
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 24px;
         }
 
+        /* Scanline Overlay */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 9999;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
         /* Animations */
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+        @keyframes scan {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100vh); }
         }
 
-        @keyframes pulse {
+        @keyframes glitch-anim {
+            0% { clip-path: polygon(0 2%, 100% 2%, 100% 5%, 0 5%); transform: translate(0); }
+            20% { clip-path: polygon(0 15%, 100% 15%, 100% 15%, 0 15%); transform: translate(-2px, 2px); }
+            40% { clip-path: polygon(0 10%, 100% 10%, 100% 20%, 0 20%); transform: translate(2px, -2px); }
+            60% { clip-path: polygon(0 40%, 100% 40%, 100% 45%, 0 45%); transform: translate(-2px, 2px); }
+            80% { clip-path: polygon(0 80%, 100% 80%, 100% 85%, 0 85%); transform: translate(2px, -2px); }
+            100% { clip-path: polygon(0 15%, 100% 15%, 100% 20%, 0 20%); transform: translate(0); }
+        }
+
+        @keyframes flicker {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            5% { opacity: 0.8; }
+            10% { opacity: 0.9; }
+            15% { opacity: 1; text-shadow: 0 0 8px var(--neon-cyan); }
+            16% { opacity: 0.3; text-shadow: none; }
+            20% { opacity: 1; }
         }
 
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes countUp {
-            from { opacity: 0; transform: scale(0.5); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .animate-on-scroll {
             opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
+            transform: translateY(20px);
+            transition: opacity 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         .animate-on-scroll.visible {
@@ -109,123 +117,108 @@
             transform: translateY(0);
         }
 
-        /* Theme Toggle */
-        .theme-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            background: var(--card);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 50%;
-            width: 48px;
-            height: 48px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            transition: transform 0.3s, box-shadow 0.3s;
+        /* Technical Background Grid */
+        .tech-grid {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(var(--border-subtle) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
+            background-size: 30px 30px;
+            background-position: center bottom;
+            transform: perspective(500px) rotateX(60deg) translateY(-100px) translateZ(-200px);
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: 0;
         }
 
-        .theme-toggle:hover {
-            transform: scale(1.1) rotate(15deg);
-            box-shadow: 0 6px 30px rgba(0,0,0,0.2);
-        }
-
-        /* Header */
+        /* Header Section */
         header {
             position: relative;
-            background: var(--gradient-1);
-            background-size: 200% 200%;
-            animation: gradient 15s ease infinite;
-            color: white;
-            padding: 120px 0 100px;
+            padding: 140px 0 100px;
             text-align: center;
             overflow: hidden;
-        }
-
-        header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-            opacity: 0.5;
+            border-bottom: 1px solid var(--border-subtle);
+            box-shadow: 0 0 50px rgba(0, 242, 254, 0.05) inset;
         }
 
         header .container {
             position: relative;
-            z-index: 1;
+            z-index: 2;
+        }
+
+        .glitch-wrapper {
+            position: relative;
+            display: inline-block;
         }
 
         header h1 {
-            font-size: 4.5rem;
+            font-size: 5rem;
             font-weight: 800;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             letter-spacing: -2px;
-            animation: fadeInUp 0.8s ease;
+            color: #fff;
+            text-transform: uppercase;
+            position: relative;
+            animation: flicker 4s infinite;
+        }
+
+        header h1::before, header h1::after {
+            content: "LEX";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.8;
+        }
+
+        header h1::before {
+            color: var(--neon-cyan);
+            z-index: -1;
+            animation: glitch-anim 3s infinite linear alternate-reverse;
+            transform: translate(-2px, 1px);
+        }
+
+        header h1::after {
+            color: var(--neon-purple);
+            z-index: -2;
+            animation: glitch-anim 2.5s infinite linear alternate-reverse;
+            transform: translate(2px, -1px);
         }
 
         header .tagline {
-            font-size: 1.5rem;
-            font-weight: 500;
-            opacity: 0.95;
+            font-family: var(--font-code);
+            font-size: 1.1rem;
+            color: var(--neon-cyan);
             margin-bottom: 32px;
-            animation: fadeInUp 0.8s ease 0.1s backwards;
+            opacity: 0.9;
         }
 
         header .version {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(10px);
-            padding: 10px 20px;
-            border-radius: 50px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            border: 1px solid rgba(255,255,255,0.2);
-            animation: fadeInUp 0.8s ease 0.2s backwards;
+            gap: 12px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 8px 16px;
+            border: 1px solid var(--border-subtle);
+            font-family: var(--font-code);
+            font-size: 0.9rem;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.1);
         }
 
         header .version::before {
-            content: '✦';
-            color: #fbbf24;
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--neon-green);
+            box-shadow: 0 0 8px var(--neon-green);
         }
-
-        /* Floating Elements */
-        .floating-icons {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            pointer-events: none;
-            overflow: hidden;
-        }
-
-        .floating-icon {
-            position: absolute;
-            font-size: 3rem;
-            opacity: 0.15;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        .floating-icon:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
-        .floating-icon:nth-child(2) { top: 60%; left: 5%; animation-delay: 1s; }
-        .floating-icon:nth-child(3) { top: 30%; right: 10%; animation-delay: 2s; }
-        .floating-icon:nth-child(4) { top: 70%; right: 8%; animation-delay: 0.5s; }
-        .floating-icon:nth-child(5) { top: 40%; left: 85%; animation-delay: 1.5s; }
 
         /* Stats Section */
         .stats {
-            background: var(--bg);
-            padding: 0;
-            margin-top: -40px;
+            margin-top: -30px;
             position: relative;
             z-index: 10;
         }
@@ -233,292 +226,315 @@
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 24px;
+            gap: 16px;
             max-width: 900px;
             margin: 0 auto;
             padding: 0 24px;
         }
 
         .stat-card {
-            background: var(--card);
-            padding: 32px 24px;
-            border-radius: 16px;
+            background: var(--bg-card);
+            padding: 24px 16px;
             text-align: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            border: 1px solid rgba(0,0,0,0.05);
-            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid var(--border-subtle);
+            position: relative;
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.15), inset 0 0 15px rgba(0, 242, 254, 0.05);
+            transform: translateY(-4px);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--text-dark);
+            transition: background 0.2s;
+        }
+
+        .stat-card:hover::before {
+            background: var(--neon-cyan);
+            box-shadow: 0 0 10px var(--neon-cyan);
         }
 
         .stat-number {
-            font-size: 2.5rem;
-            font-weight: 800;
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-family: var(--font-code);
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #fff;
         }
 
         .stat-label {
-            font-size: 0.9rem;
-            color: #64748b;
-            font-weight: 500;
-            margin-top: 4px;
+            font-family: var(--font-code);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 8px;
         }
 
         /* Install Banner */
         .install-banner {
-            background: var(--card);
-            padding: 60px 0;
+            padding: 80px 0;
             text-align: center;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
         }
 
         .install-banner h2 {
             font-size: 2rem;
-            margin-bottom: 24px;
-            color: var(--text);
+            margin-bottom: 32px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .install-tabs {
             display: flex;
             justify-content: center;
-            gap: 8px;
+            gap: 12px;
             margin-bottom: 24px;
         }
 
         .install-tabs button {
             background: transparent;
-            border: 2px solid #e2e8f0;
-            color: #64748b;
-            padding: 10px 24px;
+            border: 1px solid var(--text-dark);
+            color: var(--text-muted);
+            padding: 8px 24px;
             cursor: pointer;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.95rem;
+            font-family: var(--font-code);
+            font-size: 0.9rem;
             transition: all 0.2s;
-        }
-
-        [data-theme="dark"] .install-tabs button {
-            border-color: #334155;
-            color: #94a3b8;
+            text-transform: uppercase;
         }
 
         .install-tabs button.active {
-            background: var(--gradient-1);
-            border-color: transparent;
-            color: white;
+            background: rgba(0, 242, 254, 0.1);
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
         }
 
         .install-tabs button:hover:not(.active) {
-            border-color: var(--primary);
-            color: var(--primary);
+            border-color: var(--text-muted);
+            color: #fff;
         }
 
         .install-code {
-            background: var(--bg-dark);
+            background: var(--bg-terminal);
             padding: 20px 32px;
-            border-radius: 12px;
             display: inline-block;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1rem;
-            color: #e2e8f0;
+            font-family: var(--font-code);
+            font-size: 0.95rem;
+            color: var(--neon-green);
+            border: 1px solid var(--border-subtle);
+            border-left: 4px solid var(--neon-green);
             max-width: 100%;
             overflow-x: auto;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            position: relative;
         }
 
-        /* Backends */
+        .install-code::before {
+            content: '>';
+            margin-right: 12px;
+            opacity: 0.7;
+        }
+
+        /* Backends Section */
         .backends-section {
-            padding: 100px 0;
+            padding: 80px 0;
+            background: radial-gradient(circle at center, rgba(177, 34, 229, 0.05) 0%, transparent 60%);
         }
 
         .backends-section h2 {
-            font-size: 2.5rem;
+            font-size: 2rem;
             text-align: center;
             margin-bottom: 16px;
+            text-transform: uppercase;
         }
 
         .backends-section .subtitle {
             text-align: center;
-            color: #64748b;
-            font-size: 1.1rem;
-            max-width: 600px;
-            margin: 0 auto 48px;
+            color: var(--text-muted);
+            font-family: var(--font-code);
+            font-size: 0.95rem;
+            margin-bottom: 48px;
         }
 
         .backends-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
+            gap: 16px;
         }
 
         .backend-card {
-            background: var(--card);
-            padding: 40px 32px;
-            border-radius: 20px;
+            background: var(--bg-card);
+            padding: 32px;
             text-align: center;
-            border: 1px solid rgba(0,0,0,0.05);
-            transition: all 0.3s;
+            border: 1px solid var(--border-subtle);
+            transition: all 0.2s;
             position: relative;
-            overflow: hidden;
-        }
-
-        .backend-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: var(--gradient-1);
-            transform: scaleX(0);
-            transition: transform 0.3s;
         }
 
         .backend-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        }
-
-        .backend-card:hover::before {
-            transform: scaleX(1);
+            border-color: var(--neon-purple);
+            box-shadow: inset 0 0 20px rgba(177, 34, 229, 0.1), 0 0 20px rgba(177, 34, 229, 0.15);
+            transform: translateY(-4px);
         }
 
         .backend-icon {
-            font-size: 3rem;
+            font-family: var(--font-code);
+            font-size: 1.5rem;
+            color: var(--neon-purple);
             margin-bottom: 16px;
+            font-weight: 700;
         }
 
         .backend-name {
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             font-weight: 700;
             margin-bottom: 8px;
+            text-transform: uppercase;
         }
 
         .backend-target {
-            color: #64748b;
-            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-family: var(--font-code);
         }
 
-        /* Code Example */
+        /* Code & Terminal Simulation */
         .code-section {
-            background: var(--bg);
-            padding: 100px 0;
+            padding: 80px 0;
         }
 
         .code-section h2 {
-            font-size: 2.5rem;
+            font-size: 2rem;
             text-align: center;
             margin-bottom: 48px;
+            text-transform: uppercase;
         }
 
         .code-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 32px;
-            align-items: stretch;
+            gap: 24px;
         }
 
         .code-block {
-            background: var(--bg-dark);
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            background: var(--bg-terminal);
+            border: 1px solid var(--text-dark);
+            display: flex;
+            flex-direction: column;
         }
 
         .code-header {
-            background: #1e293b;
-            padding: 16px 24px;
+            background: var(--bg-card);
+            padding: 12px 16px;
             display: flex;
             align-items: center;
             gap: 12px;
-            border-bottom: 1px solid #334155;
-        }
-
-        .code-header span {
-            color: #94a3b8;
-            font-size: 0.9rem;
-            font-weight: 500;
+            border-bottom: 1px solid var(--text-dark);
         }
 
         .code-dots {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
 
         .code-dot {
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
         }
 
-        .code-dot:nth-child(1) { background: #ef4444; }
-        .code-dot:nth-child(2) { background: #fbbf24; }
-        .code-dot:nth-child(3) { background: #22c55e; }
+        .code-dot:nth-child(1) { background: var(--text-dark); }
+        .code-dot:nth-child(2) { background: var(--text-dark); }
+        .code-dot:nth-child(3) { background: var(--text-dark); }
+
+        .code-block:hover .code-dot:nth-child(1) { background: var(--neon-red); box-shadow: 0 0 5px var(--neon-red); }
+        .code-block:hover .code-dot:nth-child(2) { background: var(--neon-yellow); box-shadow: 0 0 5px var(--neon-yellow); }
+        .code-block:hover .code-dot:nth-child(3) { background: var(--neon-green); box-shadow: 0 0 5px var(--neon-green); }
+
+        .code-header span {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-family: var(--font-code);
+        }
 
         .code-block pre {
             padding: 24px;
-            color: #e2e8f0;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
+            color: var(--text-main);
+            font-family: var(--font-code);
+            font-size: 0.85rem;
             line-height: 1.7;
             overflow-x: auto;
+            flex-grow: 1;
         }
 
-        .code-block .k { color: #c084fc; font-weight: 500; }
-        .code-block .s { color: #86efac; }
-        .code-block .n { color: #fbbf24; }
-        .code-block .c { color: #64748b; font-style: italic; }
+        /* Syntax highlighting tweaks for cyberpunk feel */
+        .code-block .k { color: var(--neon-purple); font-weight: 700; }
+        .code-block .s { color: var(--neon-green); }
+        .code-block .n { color: var(--neon-cyan); }
+        .code-block .c { color: var(--text-dark); font-style: italic; }
 
-        /* Features */
+        .terminal-block pre {
+            color: var(--neon-cyan);
+        }
+
+        /* Features Section */
         .features-section {
-            padding: 100px 0;
-            background: var(--card);
+            padding: 80px 0;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border-subtle);
         }
 
         .features-section h2 {
-            font-size: 2.5rem;
+            font-size: 2rem;
             text-align: center;
             margin-bottom: 48px;
+            text-transform: uppercase;
         }
 
         .features-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 32px;
+            gap: 24px;
         }
 
         .feature-card {
-            padding: 40px 32px;
-            border-radius: 16px;
-            background: var(--bg);
-            transition: all 0.3s;
+            padding: 32px 24px;
+            background: var(--bg-base);
+            border: 1px solid var(--text-dark);
+            transition: all 0.2s;
         }
 
         .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border-color: var(--neon-cyan);
+            box-shadow: 4px 4px 0 rgba(0, 242, 254, 0.2);
+            transform: translate(-2px, -2px);
         }
 
         .feature-icon {
-            font-size: 2.5rem;
+            font-family: var(--font-code);
+            font-size: 1.2rem;
+            color: var(--neon-cyan);
             margin-bottom: 16px;
+            font-weight: 700;
         }
 
         .feature-card h3 {
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             font-weight: 700;
             margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .feature-card p {
-            color: #64748b;
-            line-height: 1.7;
+            color: var(--text-muted);
+            font-size: 0.95rem;
         }
 
         /* CTA Section */
@@ -528,60 +544,63 @@
         }
 
         .cta-section h2 {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             margin-bottom: 16px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
         }
 
         .cta-section .subtitle {
-            color: #64748b;
-            font-size: 1.1rem;
+            color: var(--neon-green);
+            font-family: var(--font-code);
+            font-size: 1rem;
             margin-bottom: 40px;
         }
 
         .cta-buttons {
             display: flex;
             justify-content: center;
-            gap: 16px;
+            gap: 20px;
             flex-wrap: wrap;
-            margin-bottom: 32px;
+            margin-bottom: 40px;
         }
 
         .btn {
-            padding: 16px 32px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 1rem;
+            padding: 12px 32px;
+            font-family: var(--font-code);
+            font-weight: 700;
+            font-size: 0.9rem;
             text-decoration: none;
-            transition: all 0.3s;
+            text-transform: uppercase;
+            transition: all 0.2s;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
+            border: 1px solid transparent;
         }
 
         .btn-primary {
-            background: var(--gradient-1);
-            color: white;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            background: rgba(0, 242, 254, 0.1);
+            color: var(--neon-cyan);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2), inset 0 0 10px rgba(0, 242, 254, 0.1);
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+            background: var(--neon-cyan);
+            color: var(--bg-base);
+            box-shadow: 0 0 30px rgba(0, 242, 254, 0.4);
         }
 
         .btn-secondary {
-            background: var(--card);
-            color: var(--text);
-            border: 2px solid #e2e8f0;
-        }
-
-        [data-theme="dark"] .btn-secondary {
-            border-color: #334155;
+            background: transparent;
+            color: var(--text-main);
+            border-color: var(--text-dark);
         }
 
         .btn-secondary:hover {
-            border-color: var(--primary);
-            color: var(--primary);
+            border-color: var(--text-main);
+            background: rgba(255, 255, 255, 0.05);
         }
 
         .links-row {
@@ -589,34 +608,52 @@
             justify-content: center;
             gap: 32px;
             flex-wrap: wrap;
+            font-family: var(--font-code);
+            font-size: 0.85rem;
         }
 
         .links-row a {
-            color: var(--primary);
+            color: var(--text-muted);
             text-decoration: none;
-            font-weight: 500;
+            position: relative;
             transition: color 0.2s;
         }
 
+        .links-row a::before {
+            content: '>';
+            color: var(--neon-purple);
+            margin-right: 6px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
         .links-row a:hover {
-            color: var(--secondary);
+            color: var(--text-main);
+        }
+
+        .links-row a:hover::before {
+            opacity: 1;
         }
 
         /* Footer */
         footer {
-            background: var(--bg-dark);
-            color: #94a3b8;
-            padding: 48px 0;
+            background: var(--bg-terminal);
+            border-top: 1px solid var(--border-subtle);
+            padding: 40px 0;
             text-align: center;
+            font-family: var(--font-code);
+            font-size: 0.8rem;
+            color: var(--text-dark);
         }
 
         footer a {
-            color: #e2e8f0;
+            color: var(--text-muted);
             text-decoration: none;
+            transition: color 0.2s;
         }
 
         footer a:hover {
-            text-decoration: underline;
+            color: var(--neon-cyan);
         }
 
         /* Responsive */
@@ -628,32 +665,25 @@
 
         @media (max-width: 768px) {
             header h1 { font-size: 3rem; }
-            header .tagline { font-size: 1.2rem; }
+            header .tagline { font-size: 0.9rem; }
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .backends-grid { grid-template-columns: 1fr; }
             .features-grid { grid-template-columns: 1fr; }
             .install-code { font-size: 0.85rem; padding: 16px 20px; }
-            .theme-toggle { width: 40px; height: 40px; font-size: 1.2rem; }
+            .container { padding: 0 16px; }
         }
     </style>
 </head>
-<body data-theme="light">
-    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
-        <span id="theme-icon">🌙</span>
-    </button>
+<body>
 
     <header>
-        <div class="floating-icons">
-            <span class="floating-icon">🎮</span>
-            <span class="floating-icon">⚡</span>
-            <span class="floating-icon">🚀</span>
-            <span class="floating-icon">💎</span>
-            <span class="floating-icon">✨</span>
-        </div>
+        <div class="tech-grid"></div>
         <div class="container">
-            <h1>Lex</h1>
-            <p class="tagline">Write game content once, compile everywhere</p>
-            <span class="version">v0.4.1</span>
+            <div class="glitch-wrapper">
+                <h1>Lex</h1>
+            </div>
+            <p class="tagline">// Write content once, compile everywhere</p>
+            <span class="version">v0.4.1 :: SYSTEM.ONLINE</span>
         </div>
     </header>
 
@@ -665,28 +695,28 @@
             </div>
             <div class="stat-card animate-on-scroll">
                 <div class="stat-number" data-count="325">0</div>
-                <div class="stat-label">Test Assertions</div>
+                <div class="stat-label">Assertions</div>
             </div>
             <div class="stat-card animate-on-scroll">
                 <div class="stat-number" data-count="2">0</div>
-                <div class="stat-label">AI Features</div>
+                <div class="stat-label">AI Hooks</div>
             </div>
             <div class="stat-card animate-on-scroll">
                 <div class="stat-number" data-count="100">0</div>
-                <div class="stat-label">% Open Source</div>
+                <div class="stat-label">% FOSS</div>
             </div>
         </div>
     </section>
 
     <section class="install-banner">
         <div class="container">
-            <h2>Quick Install</h2>
-            <div class="install-tabs">
-                <button class="active" onclick="showInstall('windows', this)">Windows</button>
-                <button onclick="showInstall('unix', this)">Linux/macOS</button>
-                <button onclick="showInstall('source', this)">From Source</button>
+            <h2 class="animate-on-scroll">System_Install</h2>
+            <div class="install-tabs animate-on-scroll">
+                <button class="active" onclick="showInstall('windows', this)">WIN32</button>
+                <button onclick="showInstall('unix', this)">UNIX</button>
+                <button onclick="showInstall('source', this)">SRC_BUILD</button>
             </div>
-            <div id="install-windows" class="install-code">
+            <div id="install-windows" class="install-code animate-on-scroll">
                 irm https://raw.githubusercontent.com/David-Imperium/Lex-compiler/main/install.ps1 | iex
             </div>
             <div id="install-unix" class="install-code" style="display:none">
@@ -700,38 +730,38 @@
 
     <section class="backends-section">
         <div class="container">
-            <h2 class="animate-on-scroll">6 Backends, One Source</h2>
-            <p class="subtitle animate-on-scroll">Write your content in .lex format and compile to any target engine or framework</p>
+            <h2 class="animate-on-scroll">Module_Targets</h2>
+            <p class="subtitle animate-on-scroll">Compile architecture -> output mapping</p>
             <div class="backends-grid">
                 <div class="backend-card animate-on-scroll">
-                    <div class="backend-icon">🌙</div>
+                    <div class="backend-icon">[ LUA ]</div>
                     <div class="backend-name">Lua</div>
-                    <div class="backend-target">Any Lua-based game</div>
+                    <div class="backend-target">Any Lua native host</div>
                 </div>
                 <div class="backend-card animate-on-scroll">
-                    <div class="backend-icon">📄</div>
+                    <div class="backend-icon">[ JSN ]</div>
                     <div class="backend-name">JSON</div>
-                    <div class="backend-target">Universal data format</div>
+                    <div class="backend-target">Universal abstract DB</div>
                 </div>
                 <div class="backend-card animate-on-scroll">
-                    <div class="backend-icon">🎮</div>
+                    <div class="backend-icon">[ GDS ]</div>
                     <div class="backend-name">GDScript</div>
                     <div class="backend-target">Godot 4.x Resources</div>
                 </div>
                 <div class="backend-card animate-on-scroll">
-                    <div class="backend-icon">🔷</div>
+                    <div class="backend-icon">[ C#_ ]</div>
                     <div class="backend-name">C#</div>
-                    <div class="backend-target">Unity ScriptableObjects</div>
+                    <div class="backend-target">Unity ScriptableObject</div>
                 </div>
                 <div class="backend-card animate-on-scroll">
-                    <div class="backend-icon">💕</div>
+                    <div class="backend-icon">[ LV2 ]</div>
                     <div class="backend-name">LÖVE2D</div>
                     <div class="backend-target">LÖVE Framework</div>
                 </div>
                 <div class="backend-card animate-on-scroll">
-                    <div class="backend-icon">👑</div>
+                    <div class="backend-icon">[ DFL ]</div>
                     <div class="backend-name">Defold</div>
-                    <div class="backend-target">Defold Engine</div>
+                    <div class="backend-target">Defold Engine scripts</div>
                 </div>
             </div>
         </div>
@@ -739,7 +769,7 @@
 
     <section class="code-section">
         <div class="container">
-            <h2 class="animate-on-scroll">Clean, Declarative Syntax</h2>
+            <h2 class="animate-on-scroll">Syntax_Overview</h2>
             <div class="code-container">
                 <div class="code-block animate-on-scroll">
                     <div class="code-header">
@@ -765,26 +795,24 @@
     <span class="k">available_if</span> has_tech(Gunpowder) {}
 }</pre>
                 </div>
-                <div class="code-block animate-on-scroll">
+                <div class="code-block terminal-block animate-on-scroll">
                     <div class="code-header">
                         <div class="code-dots">
                             <div class="code-dot"></div>
                             <div class="code-dot"></div>
                             <div class="code-dot"></div>
                         </div>
-                        <span>terminal</span>
+                        <span>lexc_output.log</span>
                     </div>
-                    <pre><span class="c"># Compile to all targets</span>
-$ lexc game.lex -t lua,json,gd,cs
-
-<span class="c"># Or just what you need</span>
-$ lexc game.lex -t gd -o godot/content/
-
-<span class="c"># With AI context</span>
-$ lexc game.lex --context md
-
-<span class="c"># Query your data</span>
-$ lexc game.lex --query <span class="s">"What costs the most?"</span></pre>
+                    <pre><span class="c"># Build pipeline initialized</span>
+<span class="text-muted">>></span> lexc game.lex -t lua,json,gd,cs
+<span class="text-muted">[INFO]</span> Parsing game.lex... OK!
+<span class="text-muted">[INFO]</span> Validating semantics... OK!
+<span class="text-muted">[INFO]</span> Emitting Lua -> output/game.lua
+<span class="text-muted">[INFO]</span> Emitting JSON -> output/game.json
+<span class="text-muted">[INFO]</span> Emitting GDScript -> output/game.gd
+<span class="text-muted">[INFO]</span> Emitting C# -> output/game.cs
+<span class="text-muted">>></span> PROCESS COMPLETED in 14ms.</pre>
                 </div>
             </div>
         </div>
@@ -792,37 +820,37 @@ $ lexc game.lex --query <span class="s">"What costs the most?"</span></pre>
 
     <section class="features-section">
         <div class="container">
-            <h2 class="animate-on-scroll">Built for Game Developers</h2>
+            <h2 class="animate-on-scroll">Core_Features</h2>
             <div class="features-grid">
                 <div class="feature-card animate-on-scroll">
-                    <div class="feature-icon">🎯</div>
-                    <h3>Declarative by Design</h3>
-                    <p>Describe your game content, not the implementation. Clean syntax that designers and developers both love.</p>
+                    <div class="feature-icon">[Declarative]</div>
+                    <h3>Syntax_Agnostic</h3>
+                    <p>Describe game content logically. Say goodbye to boilerplate code and unreadable dictionaries.</p>
                 </div>
                 <div class="feature-card animate-on-scroll">
-                    <div class="feature-icon">⚡</div>
-                    <h3>Blazing Fast</h3>
-                    <p>Native C++ compiler with zero runtime dependencies. Compiles thousands of definitions in milliseconds.</p>
+                    <div class="feature-icon">[Speed]</div>
+                    <h3>Native_execution</h3>
+                    <p>Compiled in pure C++. Zero runtime deps. It parses thousands of nodes before you can blink.</p>
                 </div>
                 <div class="feature-card animate-on-scroll">
-                    <div class="feature-icon">✅</div>
-                    <h3>Smart Validation</h3>
-                    <p>Catch typos and broken references before runtime. Semantic analysis built into the compiler.</p>
+                    <div class="feature-icon">[Safe]</div>
+                    <h3>Strict_validation</h3>
+                    <p>Catches typos, broken references, and logic errors at compile time, not at play time.</p>
                 </div>
                 <div class="feature-card animate-on-scroll">
-                    <div class="feature-icon">🤖</div>
-                    <h3>AI-Ready Output</h3>
-                    <p>Generate LLM-friendly context with --context. Query your game data in natural language.</p>
+                    <div class="feature-icon">[AI_Hooks]</div>
+                    <h3>LLM_ready</h3>
+                    <p>Built-in utilities to translate `.lex` files into agentic memory representations via queries.</p>
                 </div>
                 <div class="feature-card animate-on-scroll">
-                    <div class="feature-icon">🔧</div>
-                    <h3>Custom Schemas</h3>
-                    <p>Not just tower defense! Define your own types for RPGs, platformers, simulations, anything.</p>
+                    <div class="feature-icon">[Custom]</div>
+                    <h3>Schema_freedom</h3>
+                    <p>Tower defense, RPG, visual novels. Use `--types` to define exactly the node types you need.</p>
                 </div>
                 <div class="feature-card animate-on-scroll">
-                    <div class="feature-icon">📦</div>
-                    <h3>Zero Dependencies</h3>
-                    <p>Single binary, no runtime. Drop it in your project and start compiling. That's it.</p>
+                    <div class="feature-icon">[Raw]</div>
+                    <h3>Single_Binary</h3>
+                    <p>No pip, no npm, no nightmare setups. One executable to rule your entire content pipeline.</p>
                 </div>
             </div>
         </div>
@@ -830,51 +858,33 @@ $ lexc game.lex --query <span class="s">"What costs the most?"</span></pre>
 
     <section class="cta-section">
         <div class="container">
-            <h2 class="animate-on-scroll">Ready to Try Lex?</h2>
-            <p class="subtitle animate-on-scroll">MIT licensed, open source, free forever</p>
+            <h2 class="animate-on-scroll">Initialize Connection?</h2>
+            <p class="subtitle animate-on-scroll">status = "awaiting command"</p>
             <div class="cta-buttons animate-on-scroll">
                 <a href="https://github.com/David-Imperium/Lex-compiler" class="btn btn-primary">
-                    <span>📦</span> View on GitHub
+                    [ // INIT _ GITHUB ]
                 </a>
                 <a href="https://github.com/David-Imperium/Lex-compiler/releases" class="btn btn-secondary">
-                    <span>⬇️</span> Download v0.4.1
+                    [ DOWNLOAD_V0.4.1 ]
                 </a>
             </div>
             <div class="links-row animate-on-scroll">
-                <a href="INTEGRATION_GODOT.md">🎮 Godot Guide</a>
-                <a href="INTEGRATION_UNITY.md">🔷 Unity Guide</a>
-                <a href="INTEGRATION_LOVE2D.md">💕 LÖVE2D Guide</a>
-                <a href="https://github.com/David-Imperium/Lex-compiler/blob/main/docs/ROADMAP.md">📋 Roadmap</a>
+                <a href="INTEGRATION_GODOT.md">Link::Godot</a>
+                <a href="INTEGRATION_UNITY.md">Link::Unity</a>
+                <a href="INTEGRATION_LOVE2D.md">Link::Love2D</a>
+                <a href="https://github.com/David-Imperium/Lex-compiler/blob/main/docs/ROADMAP.md">sys.roadmap()</a>
             </div>
         </div>
     </section>
 
     <footer>
         <div class="container">
-            <p>Lex Compiler © 2026 — MIT License</p>
-            <p style="margin-top:12px;opacity:0.7">Built with ❤️ by <a href="https://github.com/David-Imperium">David (Imperium Game Engine)</a></p>
+            <p>LEX_COMPILER // VERSION 0.4.1 // LICENSED UNDER MIT</p>
+            <p style="margin-top:8px;">MAINTAINED BY <a href="https://github.com/David-Imperium">DAVID [IMPERIUM]</a></p>
         </div>
     </footer>
 
     <script>
-        // Theme toggle
-        function toggleTheme() {
-            const body = document.body;
-            const icon = document.getElementById('theme-icon');
-            const current = body.getAttribute('data-theme');
-            const next = current === 'light' ? 'dark' : 'light';
-            body.setAttribute('data-theme', next);
-            icon.textContent = next === 'light' ? '🌙' : '☀️';
-            localStorage.setItem('theme', next);
-        }
-
-        // Load saved theme
-        const saved = localStorage.getItem('theme');
-        if (saved) {
-            document.body.setAttribute('data-theme', saved);
-            document.getElementById('theme-icon').textContent = saved === 'light' ? '🌙' : '☀️';
-        }
-
         // Install tabs
         function showInstall(type, btn) {
             document.querySelectorAll('.install-tabs button').forEach(b => b.classList.remove('active'));
@@ -897,7 +907,7 @@ $ lexc game.lex --query <span class="s">"What costs the most?"</span></pre>
 
         document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
 
-        // Count up animation
+        // Count up animation with glitch effect for tech vibe
         function animateCounters() {
             document.querySelectorAll('.stat-number[data-count]').forEach(el => {
                 const target = parseInt(el.getAttribute('data-count'));
@@ -908,12 +918,18 @@ $ lexc game.lex --query <span class="s">"What costs the most?"</span></pre>
                     const elapsed = now - start;
                     const progress = Math.min(elapsed / duration, 1);
                     const eased = 1 - Math.pow(1 - progress, 3);
-                    el.textContent = Math.floor(target * eased);
+                    
+                    // Add glitchy random numbers if not finished
+                    if (progress < 1 && Math.random() > 0.5) {
+                        el.textContent = Math.floor(Math.random() * target * 2);
+                    } else {
+                        el.textContent = Math.floor(target * eased);
+                    }
                     
                     if (progress < 1) {
                         requestAnimationFrame(update);
                     } else {
-                        el.textContent = target;
+                        el.textContent = target; // Ensure exact final value
                     }
                 }
                 
