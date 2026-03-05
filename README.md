@@ -151,9 +151,9 @@ structure SteamFactory {
 
 | Version | Status | Features |
 |---------|--------|----------|
-| v0.3.3 | ✅ Current | Fully agnostic core, schema-driven validation |
-| v0.4.0 | 🔜 Next | Module system (import/use), binary releases |
+| v0.4.0 | ✅ Current | AI Context Generator, Query System, 6 backends |
 | v0.5.0 | 📋 Planned | TypeScript backend |
+| v0.6.0 | 📋 Planned | Developer experience (LSP, watch mode) |
 
 See [ROADMAP.md](docs/ROADMAP.md) for details.
 
