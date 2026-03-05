@@ -205,6 +205,28 @@ CompileResult compile(const std::string& source, const CompileOptions& options) 
             }
             case Target::Godot: {
                 GodotBackend backend;
+                // Generate class name from source file or types
+                std::string gd_class_name = "GameData";
+                if (!options.source_name.empty()) {
+                    // Extract base name from source file
+                    std::filesystem::path src_path(options.source_name);
+                    std::string base = src_path.stem().string();
+                    // Convert to PascalCase (remove underscores, capitalize words)
+                    std::string pascal;
+                    bool next_upper = true;
+                    for (char c : base) {
+                        if (c == '_' || c == '-') {
+                            next_upper = true;
+                        } else {
+                            pascal += next_upper ? (char)std::toupper(c) : (char)std::tolower(c);
+                            next_upper = false;
+                        }
+                    }
+                    if (!pascal.empty()) {
+                        gd_class_name = pascal + "Data";
+                    }
+                }
+                backend.set_class_name(gd_class_name);
                 output = backend.generate(ast);
                 target_name = "gd";
                 break;
@@ -486,6 +508,28 @@ CompileResult compile_modules(const std::string& entry_file, const CompileOption
             }
             case Target::Godot: {
                 GodotBackend backend;
+                // Generate class name from source file or types
+                std::string gd_class_name = "GameData";
+                if (!options.source_name.empty()) {
+                    // Extract base name from source file
+                    std::filesystem::path src_path(options.source_name);
+                    std::string base = src_path.stem().string();
+                    // Convert to PascalCase (remove underscores, capitalize words)
+                    std::string pascal;
+                    bool next_upper = true;
+                    for (char c : base) {
+                        if (c == '_' || c == '-') {
+                            next_upper = true;
+                        } else {
+                            pascal += next_upper ? (char)std::toupper(c) : (char)std::tolower(c);
+                            next_upper = false;
+                        }
+                    }
+                    if (!pascal.empty()) {
+                        gd_class_name = pascal + "Data";
+                    }
+                }
+                backend.set_class_name(gd_class_name);
                 output = backend.generate(merged_definitions);
                 target_name = "gd";
                 break;

@@ -346,6 +346,9 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    // Set targets in options
+    options.targets = targets;
+
     // Watch mode
     if (watch_mode_enabled) {
         return watch_mode(input_file, output_dir, targets, target_names, options);

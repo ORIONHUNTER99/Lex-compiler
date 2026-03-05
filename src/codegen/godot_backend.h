@@ -10,10 +10,14 @@ public:
     std::string name() const override { return "gd"; }
     std::string file_extension() const override { return ".gd"; }
 
+    // Set custom class name (default: "GameData")
+    void set_class_name(const std::string& name) { class_name_ = name; }
+
     std::string generate(const std::vector<std::unique_ptr<Definition>>& ast) override;
 
 private:
     std::set<std::string> seen_types_;
+    std::string class_name_ = "GameData";
 
     std::string type_to_var_name(const std::string& type) const;
 

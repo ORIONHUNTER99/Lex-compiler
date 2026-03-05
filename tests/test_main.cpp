@@ -1131,3 +1131,136 @@ TEST_CASE("Module System - Visibility") {
     }
 }
 
+// ============================================================================
+// Backend Code Generation Tests
+// ============================================================================
+
+#include "../src/codegen/lua_backend.h"
+#include "../src/codegen/json_backend.h"
+#include "../src/codegen/godot_backend.h"
+#include "../src/codegen/unity_backend.h"
+
+TEST_CASE("Backend - Lua generates valid output") {
+    auto& schema = SchemaRegistry::instance();
+    schema.load_imperium_default();
+    
+    Lexer lexer(R"(
+        structure Turret {
+            era: Ancient
+            name: "Torretta"
+            cost: 50
+            damage: 10
+        }
+    )");
+    auto tokens = lexer.tokenize();
+    REQUIRE(!lexer.has_errors());
+    
+    Parser parser(tokens);
+    auto ast = parser.parse();
+    REQUIRE(!parser.has_errors());
+    
+    LuaBackend backend;
+    std::string lua = backend.generate(ast);
+    
+    // Check structure - LexHelpers and data
+    REQUIRE(lua.find("LexHelpers") != std::string::npos);
+    REQUIRE(lua.find("Turret") != std::string::npos);
+}
+
+TEST_CASE("Backend - JSON generates valid output") {
+    auto& schema = SchemaRegistry::instance();
+    schema.load_imperium_default();
+    
+    Lexer lexer(R"(
+        structure Turret {
+            era: Ancient
+            name: "Torretta"
+            cost: 50
+        }
+    )");
+    auto tokens = lexer.tokenize();
+    REQUIRE(!lexer.has_errors());
+    
+    Parser parser(tokens);
+    auto ast = parser.parse();
+    REQUIRE(!parser.has_errors());
+    
+    JsonBackend backend;
+    std::string json = backend.generate(ast);
+    
+    REQUIRE(json.find("\"structures\"") != std::string::npos);
+    REQUIRE(json.find("\"Turret\"") != std::string::npos);
+}
+
+TEST_CASE("Backend - Godot generates valid GDScript") {
+    auto& schema = SchemaRegistry::instance();
+    schema.load_imperium_default();
+    
+    Lexer lexer(R"(
+        structure Turret {
+            era: Ancient
+            name: "Torretta"
+            cost: 50
+            damage: 10
+            range: 2
+        }
+        
+        unit Goblin {
+            era: Ancient
+            name: "Goblin"
+            hp: 30
+            speed: 100
+        }
+    )");
+    auto tokens = lexer.tokenize();
+    REQUIRE(!lexer.has_errors());
+    
+    Parser parser(tokens);
+    auto ast = parser.parse();
+    REQUIRE(!parser.has_errors());
+    
+    GodotBackend backend;
+    backend.set_class_name("TestData");
+    std::string gd = backend.generate(ast);
+    
+    // Check structure
+    REQUIRE(gd.find("class_name TestData extends Resource") != std::string::npos);
+    REQUIRE(gd.find("var structures = {}") != std::string::npos);
+    REQUIRE(gd.find("var units = {}") != std::string::npos);
+    REQUIRE(gd.find("func _init()") != std::string::npos);
+    
+    // Check data
+    REQUIRE(gd.find("structures[\"Turret\"]") != std::string::npos);
+    REQUIRE(gd.find("units[\"Goblin\"]") != std::string::npos);
+}
+
+TEST_CASE("Backend - Unity generates valid C#") {
+    auto& schema = SchemaRegistry::instance();
+    schema.load_imperium_default();
+    
+    Lexer lexer(R"(
+        structure Turret {
+            era: Ancient
+            name: "Torretta"
+            cost: 50
+        }
+    )");
+    auto tokens = lexer.tokenize();
+    REQUIRE(!lexer.has_errors());
+    
+    Parser parser(tokens);
+    auto ast = parser.parse();
+    REQUIRE(!parser.has_errors());
+    
+    UnityBackend backend;
+    std::string cs = backend.generate(ast);
+    
+    // Unity backend generates ScriptableObject classes per TYPE, not per instance
+    // structure Turret -> StructureData class with properties
+    REQUIRE(cs.find("class StructureData") != std::string::npos);
+    REQUIRE(cs.find("ScriptableObject") != std::string::npos);
+    REQUIRE(cs.find("public string era") != std::string::npos);
+    REQUIRE(cs.find("public string name") != std::string::npos);
+    REQUIRE(cs.find("public int cost") != std::string::npos);
+}
+
