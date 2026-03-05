@@ -33,8 +33,17 @@ jobs:
       if: matrix.os != 'windows-latest'
       run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
 
-    - name: Build
-      run: cmake --build build --config Release -j$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)
+    - name: Build (Windows)
+      if: matrix.os == 'windows-latest'
+      run: cmake --build build --config Release
+
+    - name: Build (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      run: cmake --build build --config Release -j$(nproc)
+
+    - name: Build (macOS)
+      if: matrix.os == 'macos-latest'
+      run: cmake --build build --config Release -j$(sysctl -n hw.ncpu)
 
     - name: Run tests
       shell: bash

@@ -20,13 +20,7 @@ std::string to_lower(const std::string& s) {
     return result;
 }
 
-// Trim whitespace
-std::string trim(const std::string& s) {
-    size_t start = s.find_first_not_of(" \t\n\r");
-    if (start == std::string::npos) return "";
-    size_t end = s.find_last_not_of(" \t\n\r");
-    return s.substr(start, end - start + 1);
-}
+
 
 // Tokenize string into words (removes punctuation)
 std::vector<std::string> tokenize(const std::string& s) {
@@ -67,11 +61,7 @@ std::string get_word_after(const std::vector<std::string>& tokens, const std::st
     return "";
 }
 
-// Get the last word
-std::string get_last_word(const std::vector<std::string>& tokens) {
-    if (tokens.empty()) return "";
-    return tokens.back();
-}
+
 
 // Get the first capitalized word (likely entity name) - check original query
 std::string extract_entity_name(const std::vector<std::string>& tokens, const std::string& original_query) {
@@ -614,6 +604,7 @@ QueryResult query(const std::string& query_str, const ContextResult& context) {
 // ============================================================================
 
 std::string format_query_result(const QueryResult& result, bool verbose) {
+    (void)verbose; // TODO: implement verbose output formatting
     if (!result.success) {
         return "Error: " + result.error;
     }
