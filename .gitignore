@@ -54,6 +54,10 @@ docs/examples/output/
 !tests/**/*.lua
 *.json
 !tests/**/*.json
+!**/package.json
+!**/package-lock.json
+!**/tsconfig.json
+!**/tsconfig.*.json
 *.cs
 *.gd
 *.context.json
