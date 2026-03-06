@@ -1,5 +1,5 @@
-#include "lexer.h"
-#include "keywords.h"
+#include "lexer.hpp"
+#include "keywords.hpp"
 #include <cctype>
 
 namespace lex {
@@ -134,12 +134,13 @@ Token Lexer::scan_token() {
 
 Token Lexer::scan_identifier() {
     Location loc{filename_, line_, column_, static_cast<int>(pos_)};
-    std::string text;
+    size_t start = pos_;
 
     while (std::isalnum(current()) || current() == '_') {
-        text += current();
         advance();
     }
+
+    std::string text = source_.substr(start, pos_ - start);
 
     auto it = KEYWORDS.find(text);
     if (it != KEYWORDS.end()) {
@@ -155,79 +156,95 @@ Token Lexer::scan_identifier() {
 
 Token Lexer::scan_number() {
     Location loc{filename_, line_, column_, static_cast<int>(pos_)};
-    std::string text;
+    size_t start = pos_;
     bool is_float = false;
 
     while (std::isdigit(current())) {
-        text += current();
         advance();
     }
 
     if (current() == '.' && std::isdigit(peek())) {
         is_float = true;
-        text += current();
         advance();
         while (std::isdigit(current())) {
-            text += current();
             advance();
         }
     }
 
-    if (is_float) {
-        return {TokenType::FLOAT, text, loc, std::stod(text)};
+    std::string text = source_.substr(start, pos_ - start);
+
+    try {
+        if (is_float) {
+            return {TokenType::FLOAT, text, loc, std::stod(text)};
+        }
+        return {TokenType::INTEGER, text, loc, static_cast<int64_t>(std::stoll(text))};
+    } catch (const std::exception& e) {
+        errors_.push_back("Invalid number format: " + text);
+        return {TokenType::ERROR, text, loc};
     }
-    return {TokenType::INTEGER, text, loc, static_cast<int64_t>(std::stoll(text))};
 }
 
 Token Lexer::scan_string() {
     Location loc{filename_, line_, column_, static_cast<int>(pos_)};
-    std::string text;
+    size_t start = pos_;
 
-    advance();
+    advance();  // Skip opening quote
 
     while (current() != '"' && current() != '\0') {
         if (current() == '\\') {
-            advance();
-            switch (current()) {
-                case 'n': text += '\n'; break;
-                case 't': text += '\t'; break;
-                case '"': text += '"'; break;
-                case '\\': text += '\\'; break;
-                default:
-                    errors_.push_back("Unknown escape sequence: \\" + std::string(1, current()));
-                    text += current();
-            }
-        } else {
-            text += current();
+            advance();  // Skip escape char
         }
         advance();
     }
 
     if (current() == '\0') {
+        std::string text = source_.substr(start, pos_ - start);
         errors_.push_back("Unterminated string");
         return {TokenType::ERROR, text, loc};
     }
 
-    advance();
+    advance();  // Skip closing quote
+
+    // Extract raw string content (without quotes) and process escapes
+    std::string raw = source_.substr(start + 1, pos_ - start - 2);
+    std::string text;
+    text.reserve(raw.size());
+
+    for (size_t i = 0; i < raw.size(); ++i) {
+        if (raw[i] == '\\' && i + 1 < raw.size()) {
+            switch (raw[i + 1]) {
+                case 'n': text += '\n'; ++i; break;
+                case 't': text += '\t'; ++i; break;
+                case '"': text += '"'; ++i; break;
+                case '\\': text += '\\'; ++i; break;
+                default:
+                    errors_.push_back("Unknown escape sequence: \\" + std::string(1, raw[i + 1]));
+                    text += raw[i];
+            }
+        } else {
+            text += raw[i];
+        }
+    }
+
     return {TokenType::STRING, text, loc, text};
 }
 
 Token Lexer::scan_hex_color() {
     Location loc{filename_, line_, column_, static_cast<int>(pos_)};
-    std::string text;
+    size_t start = pos_;
 
-    text += current();
-    advance();
+    advance();  // Skip '#'
 
     for (int i = 0; i < 6; i++) {
         if (!std::isxdigit(current())) {
+            std::string text = source_.substr(start, pos_ - start);
             errors_.push_back("Invalid hex color format");
             return {TokenType::ERROR, text, loc};
         }
-        text += current();
         advance();
     }
 
+    std::string text = source_.substr(start, pos_ - start);
     return {TokenType::HEX_COLOR, text, loc, text};
 }
 

@@ -13,6 +13,15 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Cache CMake build
+      uses: actions/cache@v4
+      with:
+        path: |
+          build
+          !build/tests
+        key: cmake-windows-${{ hashFiles('CMakeLists.txt', 'src/**/*.cpp', 'src/**/*.hpp') }}
+        restore-keys: cmake-windows-
+
     - name: Configure CMake
       run: cmake -B build -S .
 
@@ -25,6 +34,12 @@ jobs:
     - name: Test CLI
       run: .\build\Release\lexc.exe --help
 
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: lexc-windows
+        path: build/Release/lexc.exe
+
   build-linux:
     runs-on: ubuntu-latest
 
@@ -36,6 +51,15 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y cmake g++
 
+    - name: Cache CMake build
+      uses: actions/cache@v4
+      with:
+        path: |
+          build
+          !build/tests
+        key: cmake-linux-${{ hashFiles('CMakeLists.txt', 'src/**/*.cpp', 'src/**/*.hpp') }}
+        restore-keys: cmake-linux-
+
     - name: Configure CMake
       run: cmake -B build -S .
 
@@ -45,11 +69,29 @@ jobs:
     - name: Run tests
       run: ./build/tests/lexer_tests
 
+    - name: Test CLI
+      run: ./build/lexc --help
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: lexc-linux
+        path: build/lexc
+
   build-macos:
     runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Cache CMake build
+      uses: actions/cache@v4
+      with:
+        path: |
+          build
+          !build/tests
+        key: cmake-macos-${{ hashFiles('CMakeLists.txt', 'src/**/*.cpp', 'src/**/*.hpp') }}
+        restore-keys: cmake-macos-
 
     - name: Configure CMake
       run: cmake -B build -S .
@@ -59,3 +101,12 @@ jobs:
 
     - name: Run tests
       run: ./build/tests/lexer_tests
+
+    - name: Test CLI
+      run: ./build/lexc --help
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: lexc-macos
+        path: build/lexc

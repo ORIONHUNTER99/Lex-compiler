@@ -1,10 +1,10 @@
-#include "backend.h"
-#include "lua_backend.h"
-#include "json_backend.h"
-#include "godot_backend.h"
-#include "unity_backend.h"
-#include "love2d_backend.h"
-#include "defold_backend.h"
+#include "backend.hpp"
+#include "lua_backend.hpp"
+#include "json_backend.hpp"
+#include "godot_backend.hpp"
+#include "unity_backend.hpp"
+#include "love2d_backend.hpp"
+#include "defold_backend.hpp"
 
 namespace lex {
 

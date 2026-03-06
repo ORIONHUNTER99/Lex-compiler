@@ -1,12 +1,129 @@
-#include "parser.h"
-#include "../schema/schema.h"
+#include "parser.hpp"
+#include "../schema/schema.hpp"
 #include <sstream>
 #include <stdexcept>
 
 namespace lex {
 
-Parser::Parser(const std::vector<Token>& tokens)
-    : tokens_(tokens) {}
+// ============================================================================
+// Static Lookup Tables (initialized once)
+// ============================================================================
+
+const std::unordered_set<TokenType>& Parser::definition_keywords() {
+    static const std::unordered_set<TokenType> keywords = {
+        TokenType::ERA,
+        TokenType::STRUCTURE,
+        TokenType::UNIT,
+        TokenType::TECHNOLOGY,
+        TokenType::RESOURCE,
+        TokenType::CHOICE,
+        TokenType::ENDING,
+        TokenType::EVENT,
+        TokenType::SECRET,
+        TokenType::TERRAIN
+    };
+    return keywords;
+}
+
+const std::unordered_set<TokenType>& Parser::condition_keywords() {
+    static const std::unordered_set<TokenType> keywords = {
+        TokenType::WHEN,
+        TokenType::IF,
+        TokenType::AVAILABLE_IF,
+        TokenType::SECRET_IF,
+        TokenType::ACTIVE_IF,
+        TokenType::BONUS_IF
+    };
+    return keywords;
+}
+
+const std::unordered_set<TokenType>& Parser::property_keywords() {
+    static const std::unordered_set<TokenType> keywords = {
+        TokenType::IDENTIFIER,
+        TokenType::ERA,
+        TokenType::NAME,
+        TokenType::DESCRIPTION,
+        TokenType::COST,
+        TokenType::PRODUCTION,
+        TokenType::MAINTENANCE,
+        TokenType::REQUIRES,
+        TokenType::UNLOCKS,
+        TokenType::TYPE,
+        TokenType::CATEGORY,
+        TokenType::LEVEL,
+        TokenType::QUOTE,
+        TokenType::PERIOD,
+        TokenType::MUSIC,
+        TokenType::DOMINANT_COLOR,
+        TokenType::ATMOSPHERE,
+        TokenType::RESEARCH_COST,
+        TokenType::PREREQUISITES,
+        TokenType::ICON,
+        TokenType::COLOR,
+        TokenType::TOOLTIP,
+        TokenType::CONTEXT,
+        TokenType::REFERENCES,
+        TokenType::TEXT_CONTENT,
+        TokenType::EFFECT,
+        TokenType::ARCHIVIST,
+        TokenType::TRIGGER,
+        TokenType::CONDITION,
+        TokenType::ATTACK,
+        TokenType::DEFENSE,
+        TokenType::MOVEMENT,
+        TokenType::RANGE,
+        TokenType::POPULATION,
+        TokenType::HEALTH,
+        TokenType::HAPPINESS,
+        TokenType::STABILITY
+    };
+    return keywords;
+}
+
+const std::unordered_map<TokenType, std::string>& Parser::property_names() {
+    static const std::unordered_map<TokenType, std::string> names = {
+        {TokenType::ERA, "era"},
+        {TokenType::NAME, "name"},
+        {TokenType::DESCRIPTION, "description"},
+        {TokenType::COST, "cost"},
+        {TokenType::PRODUCTION, "production"},
+        {TokenType::MAINTENANCE, "maintenance"},
+        {TokenType::REQUIRES, "requires"},
+        {TokenType::UNLOCKS, "unlocks"},
+        {TokenType::TYPE, "type"},
+        {TokenType::CATEGORY, "category"},
+        {TokenType::LEVEL, "level"},
+        {TokenType::QUOTE, "quote"},
+        {TokenType::PERIOD, "period"},
+        {TokenType::MUSIC, "music"},
+        {TokenType::DOMINANT_COLOR, "dominant_color"},
+        {TokenType::ATMOSPHERE, "atmosphere"},
+        {TokenType::RESEARCH_COST, "research_cost"},
+        {TokenType::PREREQUISITES, "prerequisites"},
+        {TokenType::ICON, "icon"},
+        {TokenType::COLOR, "color"},
+        {TokenType::TOOLTIP, "tooltip"},
+        {TokenType::CONTEXT, "context"},
+        {TokenType::REFERENCES, "references"},
+        {TokenType::TEXT_CONTENT, "text"},
+        {TokenType::EFFECT, "effect"},
+        {TokenType::ARCHIVIST, "archivist"},
+        {TokenType::TRIGGER, "trigger"},
+        {TokenType::CONDITION, "condition"},
+        {TokenType::ATTACK, "attack"},
+        {TokenType::DEFENSE, "defense"},
+        {TokenType::MOVEMENT, "movement"},
+        {TokenType::RANGE, "range"},
+        {TokenType::POPULATION, "population"},
+        {TokenType::HEALTH, "health"},
+        {TokenType::HAPPINESS, "happiness"},
+        {TokenType::STABILITY, "stability"}
+    };
+    return names;
+}
+
+Parser::Parser(const std::vector<Token>& tokens, const SchemaRegistry* schema)
+    : tokens_(tokens), schema_(schema ? schema : &SchemaRegistry::instance()) {}
 
 // ============================================================================
 // Core Parsing
@@ -75,17 +192,12 @@ void Parser::skip_to_next_definition() {
     }
 }
 
-bool Parser::is_definition_keyword(TokenType type) {
-    return type == TokenType::ERA ||
-           type == TokenType::STRUCTURE ||
-           type == TokenType::UNIT ||
-           type == TokenType::TECHNOLOGY ||
-           type == TokenType::RESOURCE ||
-           type == TokenType::CHOICE ||
-           type == TokenType::ENDING ||
-           type == TokenType::EVENT ||
-           type == TokenType::SECRET ||
-           type == TokenType::TERRAIN;
+bool Parser::is_definition_keyword(TokenType type) const {
+    return definition_keywords().count(type) > 0;
+}
+
+bool Parser::is_condition_keyword(TokenType type) const {
+    return condition_keywords().count(type) > 0;
 }
 
 // ============================================================================
@@ -124,9 +236,8 @@ std::unique_ptr<Definition> Parser::parse_definition() {
         case TokenType::TERRAIN:     type_name = "terrain"; break;
         case TokenType::IDENTIFIER: {
             // Support for custom definition types from schema
-            auto& schema = SchemaRegistry::instance();
             type_name = current().lexeme;
-            if (schema.is_valid_definition(type_name)) {
+            if (schema_->is_valid_definition(type_name)) {
                 pos_++;  // Consume the identifier
                 auto def = parse_generic_definition(type_name);
                 if (def) def->visibility = visibility;
@@ -150,97 +261,13 @@ std::unique_ptr<Definition> Parser::parse_definition() {
 // Property Parsing
 // ============================================================================
 
-bool Parser::is_condition_keyword(TokenType type) {
-    return type == TokenType::WHEN ||
-           type == TokenType::IF ||
-           type == TokenType::AVAILABLE_IF ||
-           type == TokenType::SECRET_IF ||
-           type == TokenType::ACTIVE_IF ||
-           type == TokenType::BONUS_IF;
+bool Parser::is_property_keyword(TokenType type) const {
+    return property_keywords().count(type) > 0;
 }
 
-bool Parser::is_property_keyword(TokenType type) {
-    // Most keywords can be property names
-    return type == TokenType::IDENTIFIER ||
-           type == TokenType::ERA ||
-           type == TokenType::NAME ||
-           type == TokenType::DESCRIPTION ||
-           type == TokenType::COST ||
-           type == TokenType::PRODUCTION ||
-           type == TokenType::MAINTENANCE ||
-           type == TokenType::REQUIRES ||
-           type == TokenType::UNLOCKS ||
-           type == TokenType::TYPE ||
-           type == TokenType::CATEGORY ||
-           type == TokenType::LEVEL ||
-           type == TokenType::QUOTE ||
-           type == TokenType::PERIOD ||
-           type == TokenType::MUSIC ||
-           type == TokenType::DOMINANT_COLOR ||
-           type == TokenType::ATMOSPHERE ||
-           type == TokenType::RESEARCH_COST ||
-           type == TokenType::PREREQUISITES ||
-           type == TokenType::ICON ||
-           type == TokenType::COLOR ||
-           type == TokenType::TOOLTIP ||
-           type == TokenType::CONTEXT ||
-           type == TokenType::REFERENCES ||
-           type == TokenType::TEXT_CONTENT ||
-           type == TokenType::EFFECT ||
-           type == TokenType::ARCHIVIST ||
-           type == TokenType::TRIGGER ||
-           type == TokenType::CONDITION ||
-           type == TokenType::ATTACK ||
-           type == TokenType::DEFENSE ||
-           type == TokenType::MOVEMENT ||
-           type == TokenType::RANGE ||
-           type == TokenType::POPULATION ||
-           type == TokenType::HEALTH ||
-           type == TokenType::HAPPINESS ||
-           type == TokenType::STABILITY;
-}
-
-std::string Parser::property_token_to_string(TokenType type) {
-    // Convert token type to property name string
-    switch (type) {
-        case TokenType::ERA: return "era";
-        case TokenType::NAME: return "name";
-        case TokenType::DESCRIPTION: return "description";
-        case TokenType::COST: return "cost";
-        case TokenType::PRODUCTION: return "production";
-        case TokenType::MAINTENANCE: return "maintenance";
-        case TokenType::REQUIRES: return "requires";
-        case TokenType::UNLOCKS: return "unlocks";
-        case TokenType::TYPE: return "type";
-        case TokenType::CATEGORY: return "category";
-        case TokenType::LEVEL: return "level";
-        case TokenType::QUOTE: return "quote";
-        case TokenType::PERIOD: return "period";
-        case TokenType::MUSIC: return "music";
-        case TokenType::DOMINANT_COLOR: return "dominant_color";
-        case TokenType::ATMOSPHERE: return "atmosphere";
-        case TokenType::RESEARCH_COST: return "research_cost";
-        case TokenType::PREREQUISITES: return "prerequisites";
-        case TokenType::ICON: return "icon";
-        case TokenType::COLOR: return "color";
-        case TokenType::TOOLTIP: return "tooltip";
-        case TokenType::CONTEXT: return "context";
-        case TokenType::REFERENCES: return "references";
-        case TokenType::TEXT_CONTENT: return "text";
-        case TokenType::EFFECT: return "effect";
-        case TokenType::ARCHIVIST: return "archivist";
-        case TokenType::TRIGGER: return "trigger";
-        case TokenType::CONDITION: return "condition";
-        case TokenType::ATTACK: return "attack";
-        case TokenType::DEFENSE: return "defense";
-        case TokenType::MOVEMENT: return "movement";
-        case TokenType::RANGE: return "range";
-        case TokenType::POPULATION: return "population";
-        case TokenType::HEALTH: return "health";
-        case TokenType::HAPPINESS: return "happiness";
-        case TokenType::STABILITY: return "stability";
-        default: return "";
-    }
+std::string Parser::property_token_to_string(TokenType type) const {
+    auto it = property_names().find(type);
+    return it != property_names().end() ? it->second : "";
 }
 
 std::unique_ptr<Property> Parser::parse_property() {
@@ -359,11 +386,34 @@ std::unique_ptr<PropertyValue> Parser::parse_brace_value() {
         }
         pos_++;  // Skip colon
         
-        // Expect value - could be integer, string, or nested structure
+        // Expect value - could be integer, string, expression, or nested structure
         if (check(TokenType::INTEGER)) {
-            int64_t quantity = std::get<int64_t>(current().value);
-            pos_++;
-            map->resources[resource] = quantity;
+            // Check if this is a simple integer or start of an expression
+            size_t lookahead = pos_ + 1;
+            if (lookahead < tokens_.size() &&
+                (tokens_[lookahead].type == TokenType::PLUS ||
+                 tokens_[lookahead].type == TokenType::MINUS ||
+                 tokens_[lookahead].type == TokenType::STAR ||
+                 tokens_[lookahead].type == TokenType::SLASH)) {
+                // Expression detected - consume tokens until comma, right brace, or EOF
+                // This prevents infinite loop while providing a clear error
+                error("Expressions not allowed in resource maps - use simple integer values");
+                pos_++;  // consume the integer
+                // Skip remaining expression tokens
+                while (!check(TokenType::COMMA) &&
+                       !check(TokenType::RIGHT_BRACE) &&
+                       !check(TokenType::END_OF_FILE) &&
+                       pos_ < tokens_.size()) {
+                    pos_++;
+                }
+                // Store a default value
+                map->resources[resource] = 0;
+            } else {
+                // Simple integer
+                int64_t quantity = std::get<int64_t>(current().value);
+                pos_++;
+                map->resources[resource] = quantity;
+            }
         } else if (check(TokenType::STRING)) {
             // String value - store as string resource with quantity 0
             pos_++;
@@ -386,6 +436,18 @@ std::unique_ptr<PropertyValue> Parser::parse_brace_value() {
                 else if (check(TokenType::RIGHT_BRACE)) depth--;
                 pos_++;
             }
+        } else if (check(TokenType::MINUS)) {
+            // Negative number - consume the expression tokens
+            error("Negative values or expressions not allowed in resource maps");
+            pos_++;  // consume '-'
+            // Skip remaining expression tokens
+            while (!check(TokenType::COMMA) &&
+                   !check(TokenType::RIGHT_BRACE) &&
+                   !check(TokenType::END_OF_FILE) &&
+                   pos_ < tokens_.size()) {
+                pos_++;
+            }
+            map->resources[resource] = 0;
         } else {
             error("Expected value after ':'");
             pos_++;
@@ -477,7 +539,7 @@ std::unique_ptr<ReferenceList> Parser::parse_reference_list_content() {
 // ============================================================================
 
 // Operator precedence (higher = binds tighter)
-int Parser::get_operator_precedence(TokenType type) {
+int Parser::get_operator_precedence(TokenType type) const {
     switch (type) {
         // Lowest precedence
         case TokenType::OR:
@@ -505,7 +567,7 @@ int Parser::get_operator_precedence(TokenType type) {
     }
 }
 
-Expression::BinaryOp Parser::token_to_binary_op(TokenType type) {
+Expression::BinaryOp Parser::token_to_binary_op(TokenType type) const {
     switch (type) {
         case TokenType::PLUS:    return Expression::BinaryOp::ADD;
         case TokenType::MINUS:   return Expression::BinaryOp::SUB;
@@ -524,7 +586,7 @@ Expression::BinaryOp Parser::token_to_binary_op(TokenType type) {
     }
 }
 
-Expression::UnaryOp Parser::token_to_unary_op(TokenType type) {
+Expression::UnaryOp Parser::token_to_unary_op(TokenType type) const {
     switch (type) {
         case TokenType::NOT:   return Expression::UnaryOp::NOT;
         case TokenType::MINUS: return Expression::UnaryOp::NEG;
@@ -533,9 +595,17 @@ Expression::UnaryOp Parser::token_to_unary_op(TokenType type) {
 }
 
 std::unique_ptr<Expression> Parser::parse_expression(int min_precedence) {
+    // Depth limit check to prevent stack overflow
+    if (++depth_ > MAX_EXPRESSION_DEPTH) {
+        error("Expression nesting too deep (max " + std::to_string(MAX_EXPRESSION_DEPTH) + ")");
+        --depth_;
+        return Expression::make_null();
+    }
+
     // Parse left-hand side (unary or primary)
     auto left = parse_unary();
     if (!left) {
+        --depth_;
         return left;
     }
 
@@ -571,6 +641,7 @@ std::unique_ptr<Expression> Parser::parse_expression(int min_precedence) {
                                         std::move(right));
     }
 
+    --depth_;
     return left;
 }
 

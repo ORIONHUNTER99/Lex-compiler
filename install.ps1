@@ -38,8 +38,8 @@ if ($Version -eq "latest") {
         $Version = $LatestRelease.tag_name
         Write-Success "Latest version: $Version"
     } catch {
-        Write-Error "Failed to fetch latest version. Using v0.4.0"
-        $Version = "v0.4.0"
+        Write-Error "Failed to fetch latest version. Using v1.0.0"
+        $Version = "v1.0.0"
     }
 }
 

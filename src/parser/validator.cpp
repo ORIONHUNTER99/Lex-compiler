@@ -1,8 +1,12 @@
-#include "validator.h"
-#include "../schema/schema.h"
+#include "validator.hpp"
+#include "../schema/schema.hpp"
 #include <sstream>
 
 namespace lex {
+
+Validator::Validator(const SchemaRegistry* schema)
+    : schema_(schema ? schema : &SchemaRegistry::instance()) {
+}
 
 void Validator::add_error(const std::string& code, const std::string& message, const std::string& location) {
     SemanticError err;
@@ -65,11 +69,9 @@ void Validator::register_symbols(const std::vector<std::unique_ptr<Definition>>&
 }
 
 void Validator::validate_references(const std::vector<std::unique_ptr<Definition>>& definitions) {
-    auto& schema = SchemaRegistry::instance();
-
     for (const auto& def : definitions) {
         // Get schema for this definition type
-        auto def_schema = schema.get_definition(def->definition_type);
+        auto def_schema = schema_->get_definition(def->definition_type);
 
         for (const auto& prop : def->properties) {
             if (!prop->value) continue;
@@ -125,11 +127,9 @@ void Validator::validate_references(const std::vector<std::unique_ptr<Definition
 }
 
 void Validator::validate_required_properties(const std::vector<std::unique_ptr<Definition>>& definitions) {
-    auto& schema = SchemaRegistry::instance();
-
     for (const auto& def : definitions) {
         // Get schema for this definition type
-        auto def_schema = schema.get_definition(def->definition_type);
+        auto def_schema = schema_->get_definition(def->definition_type);
 
         // If no schema, skip validation (custom types have no required props)
         if (!def_schema) continue;

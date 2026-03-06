@@ -119,12 +119,12 @@ struct ContextResult {
     // Find entity by ID (case-insensitive)
     const EntityContext* find_entity(const std::string& id) const {
         std::string lower_id;
-        for (char c : id) lower_id += std::tolower(static_cast<unsigned char>(c));
-        
+        for (char c : id) lower_id += static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+
         for (const auto& e : entities) {
             std::string lower_eid;
-            for (char c : e.id) lower_eid += std::tolower(static_cast<unsigned char>(c));
-            
+            for (char c : e.id) lower_eid += static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+
             if (lower_eid == lower_id) return &e;
         }
         return nullptr;

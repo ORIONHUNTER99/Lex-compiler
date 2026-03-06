@@ -1,4 +1,4 @@
-#include "lua_backend.h"
+#include "lua_backend.hpp"
 #include <sstream>
 #include <algorithm>
 
@@ -351,31 +351,6 @@ std::string LuaBackend::generate_condition(const Condition* cond) {
     return lua.str();
 }
 
-std::string LuaBackend::generate_condition_block(const Condition* cond) {
-    // For complex conditions with properties in the block
-    if (!cond) return "";
-
-    std::stringstream lua;
-    lua << "        {\n";
-    lua << "            trigger = \"" << cond->trigger << "\",\n";
-
-    if (cond->expression) {
-        lua << "            check = function(game_state) return "
-            << generate_expression(cond->expression.get(), true)
-            << " end,\n";
-    }
-
-    for (const auto& prop : cond->properties) {
-        if (prop->value && prop->value->type == PropertyValue::Type::EXPRESSION) {
-            lua << "            " << prop->name << " = "
-                << generate_expression(prop->value->expression.get(), true) << ",\n";
-        }
-    }
-
-    lua << "        },\n";
-    return lua.str();
-}
-
 std::string LuaBackend::binary_op_to_lua(Expression::BinaryOp op) const {
     switch (op) {
         case Expression::BinaryOp::ADD: return "+";
@@ -401,24 +376,6 @@ std::string LuaBackend::unary_op_to_lua(Expression::UnaryOp op) const {
         case Expression::UnaryOp::NEG: return "-";
         default: return "";
     }
-}
-
-// ============================================================================
-// Legacy Helper implementations (using Definition accessors now)
-// ============================================================================
-
-std::string LuaBackend::get_string_property(const Definition& def, const std::string& name) {
-    auto result = def.get_string_property(name);
-    return result.value_or("");
-}
-
-int64_t LuaBackend::get_int_property(const Definition& def, const std::string& name, int64_t default_val) {
-    auto result = def.get_int_property(name);
-    return result.value_or(default_val);
-}
-
-const ResourceMap* LuaBackend::get_resource_map_property(const Definition& def, const std::string& name) {
-    return def.get_resource_map_property(name);
 }
 
 }

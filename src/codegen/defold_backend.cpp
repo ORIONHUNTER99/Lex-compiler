@@ -1,4 +1,4 @@
-#include "defold_backend.h"
+#include "defold_backend.hpp"
 #include <sstream>
 #include <algorithm>
 
@@ -397,20 +397,6 @@ std::string DefoldBackend::unary_op_to_lua(Expression::UnaryOp op) const {
         case Expression::UnaryOp::NEG: return "-";
         default: return "";
     }
-}
-
-std::string DefoldBackend::get_string_property(const Definition& def, const std::string& name) {
-    auto result = def.get_string_property(name);
-    return result.value_or("");
-}
-
-int64_t DefoldBackend::get_int_property(const Definition& def, const std::string& name, int64_t default_val) {
-    auto result = def.get_int_property(name);
-    return result.value_or(default_val);
-}
-
-const ResourceMap* DefoldBackend::get_resource_map_property(const Definition& def, const std::string& name) {
-    return def.get_resource_map_property(name);
 }
 
 }

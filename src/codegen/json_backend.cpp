@@ -1,5 +1,5 @@
-#include "json_backend.h"
-#include "lex/version.h"
+#include "json_backend.hpp"
+#include "lex/version.hpp"
 #include <sstream>
 
 namespace lex {

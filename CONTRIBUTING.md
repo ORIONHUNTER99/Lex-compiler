@@ -14,7 +14,10 @@ cmake --build build --config Release
 ## Running Tests
 
 ```bash
-.\build\tests\Debug\lexer_tests.exe
+# Windows:
+.\build\tests\Release\lexer_tests.exe
+# Linux/macOS:
+./build/tests/lexer_tests
 ```
 
 ## Code Style
@@ -25,8 +28,6 @@ cmake --build build --config Release
 - Members: `snake_case_`
 - Constants: `UPPER_CASE`
 - Include guards: `#pragma once`
-
-See [AGENTS.md](AGENTS.md) for detailed conventions.
 
 ## Pull Request Process
 

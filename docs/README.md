@@ -21,8 +21,12 @@ docs/
 ├── public/           # Versioned in git
 │   ├── en/          # English
 │   └── it/          # Italian
-├── internal/         # Excluded from git (.gitignore)
-│   ├── en/          # Internal notes EN
-│   └── it/          # Note interne IT
-└── archive/          # Old documents (can be deleted)
+├── internal/         # Internal design docs (excluded from git)
+├── examples/         # Example .lex files
+├── index.html        # GitHub Pages website
+├── TUTORIAL.md       # Main tutorial
+├── ROADMAP.md        # Project roadmap
+├── API_REFERENCE.md  # C++ API docs
+├── INTEGRATION_*.md  # Engine integration guides
+└── README.md         # This file
 ```

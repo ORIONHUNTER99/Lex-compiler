@@ -1,8 +1,8 @@
 #include "pass.hpp"
-#include "../lexer/lexer.h"
-#include "../parser/parser.h"
-#include "../parser/validator.h"
-#include "../codegen/backend.h"
+#include "../lexer/lexer.hpp"
+#include "../parser/parser.hpp"
+#include "../parser/validator.hpp"
+#include "../codegen/backend.hpp"
 
 namespace lex {
 

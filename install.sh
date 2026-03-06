@@ -60,8 +60,8 @@ get_latest_version() {
         VERSION="$LATEST"
         success "Latest version: $VERSION"
     else
-        error "Failed to fetch version, using v0.4.0"
-        VERSION="v0.4.0"
+        error "Failed to fetch version, using v1.0.0"
+        VERSION="v1.0.0"
     fi
 }
 
@@ -74,14 +74,9 @@ install() {
         get_latest_version
     fi
     
-    # Download URL - handle both .zip and .tar.gz
-    if [ "$PLATFORM" = "linux" ]; then
-        DOWNLOAD_URL="https://github.com/David-Imperium/Lex-compiler/releases/download/$VERSION/lexc-$PLATFORM-$ARCH.tar.gz"
-        EXT="tar.gz"
-    else
-        DOWNLOAD_URL="https://github.com/David-Imperium/Lex-compiler/releases/download/$VERSION/lexc-$PLATFORM-$ARCH.tar.gz"
-        EXT="tar.gz"
-    fi
+    # Download URL - all platforms use .tar.gz
+    DOWNLOAD_URL="https://github.com/David-Imperium/Lex-compiler/releases/download/$VERSION/lexc-$PLATFORM-$ARCH.tar.gz"
+    EXT="tar.gz"
     
     TEMP_DIR=$(mktemp -d)
     ARCHIVE="$TEMP_DIR/lexc.$EXT"
@@ -116,13 +111,26 @@ install() {
     info "Extracting..."
     cd "$TEMP_DIR"
     tar -xzf "$ARCHIVE"
-    
-    # Find the binary
-    BINARY=$(find . -name "lexc" -type f | head -1)
+
+    # Find the binary - check common locations first
+    BINARY=""
+    for candidate in "./lexc" "./bin/lexc" "./lexc-$PLATFORM-$ARCH/lexc"; do
+        if [ -f "$candidate" ] && [ -x "$candidate" 2>/dev/null ] || file "$candidate" 2>/dev/null | grep -q "executable"; then
+            BINARY="$candidate"
+            break
+        fi
+    done
+
+    # Fallback to searching for single executable
     if [ -z "$BINARY" ]; then
-        error "Binary not found in archive"
-        rm -rf "$TEMP_DIR"
-        exit 1
+        EXECUTABLES=$(find . -name "lexc" -type f 2>/dev/null | wc -l)
+        if [ "$EXECUTABLES" -eq 1 ]; then
+            BINARY=$(find . -name "lexc" -type f | head -1)
+        else
+            error "Expected exactly one 'lexc' binary, found $EXECUTABLES"
+            rm -rf "$TEMP_DIR"
+            exit 1
+        fi
     fi
     
     # Make executable

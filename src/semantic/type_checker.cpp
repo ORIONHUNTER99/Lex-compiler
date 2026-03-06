@@ -1,8 +1,12 @@
-#include "type_checker.h"
-#include "../schema/schema.h"
+#include "type_checker.hpp"
+#include "../schema/schema.hpp"
 #include <sstream>
 
 namespace lex {
+
+TypeChecker::TypeChecker(const SchemaRegistry* schema)
+    : schema_(schema ? schema : &SchemaRegistry::instance()) {
+}
 
 bool TypeChecker::check(const std::vector<std::unique_ptr<Definition>>& definitions) {
     // First pass: register all definitions
@@ -296,8 +300,7 @@ std::optional<LexType> TypeChecker::get_expected_property_type(
     }
 
     // Try schema-driven lookup
-    auto& schema = SchemaRegistry::instance();
-    auto def_schema = schema.get_definition(definition_type);
+    auto def_schema = schema_->get_definition(definition_type);
     if (def_schema) {
         auto prop_schema = def_schema->get_property(property_name);
         if (prop_schema) {

@@ -2,8 +2,8 @@
 
 #include <string>
 #include <memory>
-#include "../ast/ast.h"
-#include "../lexer/token.h"
+#include "../ast/ast.hpp"
+#include "../lexer/token.hpp"
 #include "../lex/lex.hpp"
 
 namespace lex {

@@ -1,6 +1,6 @@
 # Lex Language Specification
 
-**Version:** 0.4.0
+**Version:** 1.0.0
 
 ---
 

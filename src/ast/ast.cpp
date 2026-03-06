@@ -1,4 +1,4 @@
-#include "ast.h"
+#include "ast.hpp"
 
 namespace lex {
 
@@ -279,6 +279,12 @@ std::unique_ptr<Expression> Expression::make_bool(bool val) {
     auto expr = std::make_unique<Expression>();
     expr->type = Type::BOOLEAN;
     expr->value = val;
+    return expr;
+}
+
+std::unique_ptr<Expression> Expression::make_null() {
+    auto expr = std::make_unique<Expression>();
+    expr->type = Type::NULL_VAL;
     return expr;
 }
 

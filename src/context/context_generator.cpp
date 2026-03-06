@@ -1,6 +1,6 @@
 #include "context.hpp"
-#include "../ast/ast.h"
-#include "lex/version.h"
+#include "../ast/ast.hpp"
+#include "lex/version.hpp"
 #include <sstream>
 #include <algorithm>
 #include <set>
@@ -496,7 +496,7 @@ std::string format_context_markdown(const ContextResult& context, const ContextO
         // Capitalize first letter
         std::string section_title = type;
         if (!section_title.empty()) {
-            section_title[0] = std::toupper(section_title[0]);
+            section_title[0] = static_cast<char>(std::toupper(static_cast<unsigned char>(section_title[0])));
         }
         out << "## " << section_title << "s\n\n";
         
@@ -585,7 +585,7 @@ std::string format_context_minimal(const ContextResult& context, const ContextOp
     // Output each type group
     for (const auto& [type, entities] : by_type) {
         std::string type_upper = type;
-        for (auto& c : type_upper) c = std::toupper(c);
+        for (auto& c : type_upper) c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
         out << type_upper << "S:\n";
         
         for (const auto* entity : entities) {

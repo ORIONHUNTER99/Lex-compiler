@@ -16,7 +16,7 @@ namespace {
 // Convert string to lowercase
 std::string to_lower(const std::string& s) {
     std::string result = s;
-    for (auto& c : result) c = std::tolower(static_cast<unsigned char>(c));
+    for (auto& c : result) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
     return result;
 }
 
@@ -101,7 +101,7 @@ std::string extract_entity_name(const std::vector<std::string>& tokens, const st
                 std::string candidate = tokens[i + 1];
                 // Capitalize first letter
                 if (!candidate.empty()) {
-                    candidate[0] = std::toupper(static_cast<unsigned char>(candidate[0]));
+                    candidate[0] = static_cast<char>(std::toupper(static_cast<unsigned char>(candidate[0])));
                 }
                 return candidate;
             }
@@ -206,7 +206,7 @@ std::string extract_property_value(const std::vector<std::string>& tokens, const
             std::string val = tokens[i + 1];
             // Capitalize
             if (!val.empty()) {
-                val[0] = std::toupper(static_cast<unsigned char>(val[0]));
+                val[0] = static_cast<char>(std::toupper(static_cast<unsigned char>(val[0])));
             }
             return val;
         }
@@ -256,16 +256,16 @@ ParsedQuery parse_query(const std::string& query_str) {
             result.entity_name = after_requires;
             // Capitalize first letter
             if (!result.entity_name.empty()) {
-                result.entity_name[0] = std::toupper(static_cast<unsigned char>(result.entity_name[0]));
+                result.entity_name[0] = static_cast<char>(std::toupper(static_cast<unsigned char>(result.entity_name[0])));
             }
             return result;
         }
-        
+
         if (!after_unlocks.empty()) {
             result.type = QueryType::DEPENDENTS;
             result.entity_name = after_unlocks;
             if (!result.entity_name.empty()) {
-                result.entity_name[0] = std::toupper(static_cast<unsigned char>(result.entity_name[0]));
+                result.entity_name[0] = static_cast<char>(std::toupper(static_cast<unsigned char>(result.entity_name[0])));
             }
             return result;
         }
@@ -604,12 +604,30 @@ QueryResult query(const std::string& query_str, const ContextResult& context) {
 // ============================================================================
 
 std::string format_query_result(const QueryResult& result, bool verbose) {
-    (void)verbose; // TODO: implement verbose output formatting
     if (!result.success) {
         return "Error: " + result.error;
     }
-    
-    return result.answer;
+
+    if (!verbose) {
+        return result.answer;
+    }
+
+    // Verbose mode: include additional details
+    std::ostringstream out;
+    out << result.answer;
+
+    if (!result.entity_ids.empty()) {
+        out << "\n\nEntities: " << result.entity_ids.size();
+        for (const auto& id : result.entity_ids) {
+            out << "\n  - " << id;
+        }
+    }
+
+    if (!result.tree_output.empty() && result.tree_output != result.answer) {
+        out << "\n\n" << result.tree_output;
+    }
+
+    return out.str();
 }
 
 } // namespace lex

@@ -4,6 +4,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/David-Imperium/Lex-compiler)
 
+<p align="center">
+  <img src="docs/assets/lex_code_animation.webp" alt="Lex Compiler Animation" width="800"/>
+</p>
+
 **Stop writing boilerplate. Start describing worlds.**
 
 Lex is a declarative, multi-target transpiler that turns simple definitions into ready-to-use game code. Write once, compile to Lua, JSON, Godot, Unity, LÖVE2D, Defold — and more coming.
@@ -72,7 +76,10 @@ cmake -B build -S .
 cmake --build build --config Release
 
 # Compile your first file
+# Windows:
 .\build\Release\lexc.exe examples\imperium_minimal.lex -t lua,json
+# Linux/macOS:
+./build/Release/lexc examples/imperium_minimal.lex -t lua,json
 ```
 
 ## Usage
@@ -89,6 +96,7 @@ lexc content.lex -o output/ -t lua,json,gd,cs,love2d,defold
 ```
 
 **Options:**
+
 - `-o, --output <dir>` — Where to write files
 - `-t, --target <fmt>` — Output format(s): lua, json, gd, cs, love2d, defold
 - `--types <list>` — Custom definition types (comma-separated)
@@ -113,26 +121,6 @@ lexc content.lex -o output/ -t lua,json,gd,cs,love2d,defold
 | `unreal` | Unreal Engine | 📋 Lex Core |
 
 **6 backends today. 10+ coming.**
-
-## For Developers: Lex Core (Coming Soon)
-
-**Lex Base** (this release) is free and complete for modders and hobbyists.
-
-**Lex Core** — a commercial tier for professional developers — is coming soon:
-
-| Feature | Lex Base | Lex Core |
-|---------|----------|----------|
-| Engine backends | 6 engines | 10+ engines (Unreal, Bevy, Raylib...) |
-| Expression parser | Basic | Full (variables, complex conditions) |
-| Multi-file | Single file | Module system with imports |
-| Hot reload | Manual | Watch mode with live reload |
-| LSP | Syntax highlighting | Full IntelliSense |
-
-**Early Bird:** $49 lifetime license (price locks before subscription)
-
-*Join the waitlist:* star the repo or email `lex@imperium.dev`
-
----
 
 ---
 
@@ -213,6 +201,7 @@ Output:
 **Deep dive:** [API Reference](docs/API_REFERENCE.md) — C++ library documentation.
 
 **Integrate with your engine:**
+
 - [Godot 4.x](docs/INTEGRATION_GODOT.md)
 - [Unity](docs/INTEGRATION_UNITY.md)
 - [LÖVE2D](docs/INTEGRATION_LOVE2D.md)
@@ -236,9 +225,12 @@ See [ROADMAP.md](docs/ROADMAP.md) for details.
 
 ```bash
 # Run all tests
+# Windows:
 .\build\tests\Release\lexer_tests.exe
+# Linux/macOS:
+./build/tests/lexer_tests
 
-# 35 tests. 35 pass. Always.
+# 37 test cases. 392 assertions. All pass.
 ```
 
 ---
