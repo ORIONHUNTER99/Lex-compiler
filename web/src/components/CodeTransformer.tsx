@@ -249,7 +249,7 @@ export function CodeTransformer() {
   return (
     <div className="transformer">
       <div className="transformer-header" style={{ textAlign: 'center', marginBottom: '40px' }}>
-        <h2 style={{ fontSize: '2.5rem', textTransform: 'uppercase', color: '#00f2fe', textShadow: '0 0 10px rgba(0,242,254,0.3)', marginBottom: '8px' }}>System_Transform</h2>
+        <h2 className="glitch-text" data-text="SYSTEM_TRANSFORM" style={{ fontSize: '2.5rem', textTransform: 'uppercase', color: '#00f2fe', textShadow: '0 0 10px rgba(0,242,254,0.3)', marginBottom: '8px' }}>SYSTEM_TRANSFORM</h2>
         <p style={{ color: '#22c55e', fontFamily: '"JetBrains Mono", monospace', fontSize: '1rem' }}>// Watch Lex compiling live</p>
         <p className="hint" style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '16px' }}>Press &lt;Space&gt; to pause/resume process</p>
       </div>
@@ -260,25 +260,15 @@ export function CodeTransformer() {
       </div>
 
       <div className="transformer-content">
-        <div className="code-panel input-panel">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`${currentExample}-input`}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <CodeBlock
-                code={example.input}
-                language="lex"
-                title="INPUT :: game.lex"
-                typing={phase === 'input' && isTyping && !isPaused}
-                typingSpeed={25}
-                onTypingComplete={handleInputComplete}
-              />
-            </motion.div>
-          </AnimatePresence>
+        <div className="code-panel input-panel" style={{ display: 'flex', flexDirection: 'column' }}>
+          <CodeBlock
+            code={example.input}
+            language="lex"
+            title="INPUT :: game.lex"
+            typing={phase === 'input' && isTyping && !isPaused}
+            typingSpeed={25}
+            onTypingComplete={handleInputComplete}
+          />
         </div>
 
         <div className="transform-arrow">
@@ -308,25 +298,15 @@ export function CodeTransformer() {
           )}
         </div>
 
-        <div className="code-panel output-panel">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`${currentExample}-${selectedTarget}`}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <CodeBlock
-                code={example.outputs[selectedTarget]}
-                language={selectedTarget === 'csharp' ? 'csharp' : selectedTarget}
-                title={`OUTPUT :: ${targetNames[selectedTarget]}`}
-                typing={phase === 'output' && isTyping && !isPaused}
-                typingSpeed={2}
-                onTypingComplete={handleOutputComplete}
-              />
-            </motion.div>
-          </AnimatePresence>
+        <div className="code-panel output-panel" style={{ display: 'flex', flexDirection: 'column' }}>
+          <CodeBlock
+            code={phase === 'output' ? example.outputs[selectedTarget] : ''}
+            language={selectedTarget === 'csharp' ? 'csharp' : selectedTarget}
+            title={`OUTPUT :: ${targetNames[selectedTarget]}`}
+            typing={phase === 'output' && isTyping && !isPaused}
+            typingSpeed={2}
+            onTypingComplete={handleOutputComplete}
+          />
         </div>
       </div>
 

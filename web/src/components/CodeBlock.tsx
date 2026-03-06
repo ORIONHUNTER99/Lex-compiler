@@ -4,7 +4,6 @@ import 'prismjs/components/prism-lua';
 import 'prismjs/components/prism-json';
 import 'prismjs/components/prism-csharp';
 import 'prismjs/components/prism-javascript';
-import 'prismjs/themes/prism-tomorrow.css';
 
 interface CodeBlockProps {
   code: string;
@@ -95,11 +94,13 @@ export function CodeBlock({
           <span className="code-title" style={{ color: '#94a3b8', fontSize: '0.8rem', fontFamily: '"JetBrains Mono", monospace' }}>{title}</span>
         </div>
       )}
-      <pre className="code-content" style={{ background: '#000', margin: 0, padding: '24px', flexGrow: 1, overflowX: 'auto', fontSize: '0.85rem', fontFamily: '"JetBrains Mono", monospace', color: '#e2e8f0', border: '1px solid #334155', borderTop: 'none' }}>
-        <code ref={codeRef} className={`language-${language}`}>
+      <pre className="code-content" style={{ position: 'relative', background: '#000', margin: 0, padding: '1.5rem', flexGrow: 1, overflowX: 'auto', fontSize: '1rem', lineHeight: '1.6', fontFamily: '"JetBrains Mono", Consolas, monospace', color: '#e2e8f0', border: '1px solid #334155', borderTop: 'none', clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%)' }}>
+        <div className="scanlines-overlay" />
+        <div className="scanner-line" style={{ display: typing ? 'block' : 'none' }} />
+        <code ref={codeRef} className={`language-${language}`} style={{ position: 'relative', zIndex: 10 }}>
           {displayedCode}
         </code>
-        {showCursor && <span className="blinking-cursor" style={{ color: '#00f2fe', animation: 'blink 1s step-end infinite' }}>▋</span>}
+        {showCursor && <span className="blinking-cursor" style={{ position: 'relative', zIndex: 10, color: '#00f2fe', animation: 'blink 1s step-end infinite' }}>▋</span>}
       </pre>
       <style>{`
         @keyframes blink { 50% { opacity: 0; } }

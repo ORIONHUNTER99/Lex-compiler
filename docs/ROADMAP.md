@@ -36,7 +36,7 @@
 **New Features:**
 - Easy installation scripts (`install.ps1`, `install.sh`)
 - Unix man page (`docs/lexc.1`)
-- GitHub Pages website (`docs/index.html`)
+- GitHub Pages website (React web app)
 - Integration guides for Godot, Unity, LÖVE2D
 - Enhanced CLI help with examples
 - `-v/--version` flag
