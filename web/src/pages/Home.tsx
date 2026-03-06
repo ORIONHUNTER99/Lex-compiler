@@ -1,5 +1,5 @@
 import { CodeTransformer } from '../components/CodeTransformer'
-import { Hero, ProblemSolution, Stats, Install, Backends, Features, CTA, Tiers } from '../components/home'
+import { Hero, ProblemSolution, Stats, Install, Backends, Features, CTA, Tiers, FAQ } from '../components/home'
 import { useLanguage } from '../i18n/LanguageContext'
 
 export default function Home() {
@@ -27,6 +27,7 @@ export default function Home() {
                 <Backends />
                 <Tiers />
                 <Features />
+                <FAQ />
                 <CTA />
             </main>
         </div>

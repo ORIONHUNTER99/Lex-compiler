@@ -99,4 +99,11 @@ export type Translations = {
             cta: string;
         };
     };
+    faq: {
+        title: string;
+        items: Array<{
+            q: string;
+            a: string;
+        }>;
+    };
 };

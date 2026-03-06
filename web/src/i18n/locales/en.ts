@@ -117,4 +117,49 @@ export const en: Translations = {
             cta: 'Get Core',
         },
     },
+    faq: {
+        title: 'FAQ',
+        items: [
+            {
+                q: 'Why use Lex instead of writing JSON/Lua directly?',
+                a: 'You write once, compile to any engine. Change your engine? Recompile. No manual translation. No copy-paste errors. Your .lex file is the single source of truth.'
+            },
+            {
+                q: 'Why not just use a spreadsheet?',
+                a: 'Spreadsheets are great for data, but offer no type validation, no references between tables, no visibility filtering, and no code generation. They are also hard to version control. Lex gives you all of that + compiles to real code.'
+            },
+            {
+                q: 'How is Lex different from other DSLs?',
+                a: 'No lock-in: Output is standard code, not a proprietary format. Multi-target: One file compiles to 6+ engines. Schema-agnostic: Define your own types, not hardcoded to any game. Offline: No cloud, no API, runs locally.'
+            },
+            {
+                q: 'Is Lex only for games?',
+                a: 'Primarily, but not exclusively. Any project that needs declarative data definitions, multiple output formats, type validation, and cross-references can use Lex (e.g., configuration files, content management, API schemas).'
+            },
+            {
+                q: 'What if my engine isn\'t supported?',
+                a: 'Free backends like lua and json work everywhere. Core backends are adding more engines. You can also implement a custom backend in C++.'
+            },
+            {
+                q: 'Is Lex production-ready?',
+                a: 'Yes. Lex Base (free) is stable with 35+ tests and used in production projects. Core backends are newer but follow the same quality standards.'
+            },
+            {
+                q: 'Can I use Base commercially?',
+                a: 'Yes! The MIT license allows any use — personal, commercial, open source. No attribution required.'
+            },
+            {
+                q: 'Does every team member need a license?',
+                a: 'Yes, each developer needs their own license for the Core tier. Contact us for team pricing (5+ seats).'
+            },
+            {
+                q: 'Does the lifetime license expire?',
+                a: 'Never. Pay once, use forever. This includes all future updates to Core backends.'
+            },
+            {
+                q: 'Do I need internet to use Lex?',
+                a: 'No. Lex works completely offline. License verification is local.'
+            }
+        ]
+    }
 };
