@@ -61,6 +61,11 @@ docs/examples/output/
 *.cs
 *.gd
 *.context.json
+*.rpc
+
+# Test files in root (temporary)
+/test_*.lex
+/test_*.rpc
 
 # Internal (not for public release)
 .crush/
@@ -72,3 +77,9 @@ nul
 
 # Internal documentation
 docs/internal/
+
+# Example output directories
+examples/test_*/
+examples/minimal_test.lex
+examples/simple_test.lex
+examples/protocol/

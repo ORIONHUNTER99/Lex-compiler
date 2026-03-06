@@ -70,14 +70,6 @@ namespace {
             registry.register_factory("rpc", []() {
                 return std::make_unique<RPCBackend>();
             });
-            
-            registry.register_factory("rpc_python", []() {
-                return std::make_unique<RPCBackend>();
-            });
-            
-            registry.register_factory("rpc_go", []() {
-                return std::make_unique<RPCBackend>();
-            });
         }
     };
     

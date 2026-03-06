@@ -9,6 +9,7 @@ message(STATUS "Configuring Lex-Plus package...")
 
 add_library(lex_plus STATIC
     src/codegen/unreal_backend.cpp
+    src/codegen/rpc_backend.cpp
     # Add more premium backends here as they are implemented:
     # src/codegen/gamemaker_backend.cpp
     # src/codegen/rust_backend.cpp

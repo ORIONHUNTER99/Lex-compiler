@@ -40,6 +40,7 @@ const std::unordered_set<TokenType>& Parser::condition_keywords() {
 const std::unordered_set<TokenType>& Parser::property_keywords() {
     static const std::unordered_set<TokenType> keywords = {
         TokenType::IDENTIFIER,
+        TokenType::ID,
         TokenType::ERA,
         TokenType::NAME,
         TokenType::DESCRIPTION,
@@ -82,6 +83,7 @@ const std::unordered_set<TokenType>& Parser::property_keywords() {
 
 const std::unordered_map<TokenType, std::string>& Parser::property_names() {
     static const std::unordered_map<TokenType, std::string> names = {
+        {TokenType::ID, "id"},
         {TokenType::ERA, "era"},
         {TokenType::NAME, "name"},
         {TokenType::DESCRIPTION, "description"},
@@ -188,6 +190,10 @@ void Parser::skip_to_next_definition() {
         if (is_definition_keyword(current().type)) {
             return;
         }
+        // Also check for custom definition types from schema
+        if (current().type == TokenType::IDENTIFIER && schema_->is_valid_definition(current().lexeme)) {
+            return;
+        }
         pos_++;
     }
 }
@@ -244,6 +250,7 @@ std::unique_ptr<Definition> Parser::parse_definition() {
                 return def;
             }
             error("Unknown definition type: " + type_name);
+            pos_++;  // Skip the unknown type identifier to avoid infinite loop
             return nullptr;
         }
         default:
@@ -917,6 +924,9 @@ std::unique_ptr<Definition> Parser::parse_generic_definition(const std::string& 
             auto prop = parse_property();
             if (prop) {
                 def->properties.push_back(std::move(prop));
+            } else {
+                // Skip bad token to avoid infinite loop
+                pos_++;
             }
         }
     }
