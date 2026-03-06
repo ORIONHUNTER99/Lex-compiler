@@ -219,9 +219,10 @@ Output:
 
 | Version | Status | What's New |
 |---------|--------|------------|
-| v1.0.0 | ✅ Current | Stable release, 6 backends |
+| v1.0.1 | ✅ Current | Web demo, CLI animations |
 | v1.1.0 | 📋 Planned | TypeScript backend |
 | v1.2.0 | 📋 Planned | LSP, watch mode |
+| v1.3.0 | 📋 Planned | WebAssembly, web playground |
 | Lex Core | 🔜 Coming | Professional tier |
 
 See [ROADMAP.md](docs/ROADMAP.md) for details.

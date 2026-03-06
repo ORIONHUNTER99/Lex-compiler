@@ -135,6 +135,21 @@
 
 ---
 
+### v1.3.0 — WebAssembly Demo
+
+**Status:** 📋 Planned
+
+**Goals:**
+- WebAssembly compilation target (Emscripten)
+- JavaScript bindings for browser integration
+- Interactive web playground (write Lex, see output in real-time)
+- No backend required — pure client-side compilation
+
+**Technical:**
+- `lexc.wasm` module with JS bindings
+- String-based I/O (no filesystem required)
+- Integration with existing React web demo
+
 ---
 
 ## Commercial Tiers
@@ -173,7 +188,6 @@ Advanced features for professional game developers:
 - Dialogue system output (Ink, YarnSpinner)
 
 **Tooling:**
-- Web playground (compile in browser)
 - Package registry (share `.lex` modules)
 - VS Code debugger integration
 
