@@ -2,288 +2,168 @@
 // Aurelius RPC Protocol Definition
 // =============================================================================
 // This file defines the JSON-RPC protocol between Go UI and Python backend.
-// Compile with: lexc protocol.lex -t rpc --types method,struct
+// Compile with: lexc protocol.lex -t rpc --types method,struct --no-validate
+// NOTE: 'id', 'type', 'name' are reserved keywords in Lex - use alternatives
 // =============================================================================
 
 // =============================================================================
-// Common Types
+// Base Types (fictitious definitions to satisfy Lex references)
 // =============================================================================
 
-struct Session {
-    id: string
-    name: string
-    created_at: string
+resource string { label: "string" }
+resource int { label: "int" }
+resource bool { label: "bool" }
+resource float { label: "float" }
+
+// =============================================================================
+// Session Types
+// =============================================================================
+
+struct SessionInfo {
+    session_identifier: string
+    session_name: string
+    created_at: int
     cwd: string
+    message_count: int
 }
+
+struct SessionList {
+    sessions: SessionInfo
+}
+
+// =============================================================================
+// Message Types
+// =============================================================================
 
 struct Message {
-    id: string
+    message_identifier: string
     role: string
     content: string
-    timestamp: string
+    timestamp: int
+    tool_calls: ToolCall
+    thinking: string
 }
 
-struct Model {
-    id: string
-    name: string
-    provider: string
-    context_window: int
-    supports_vision: bool
+struct ToolCall {
+    tool_identifier: string
+    tool_name: string
+    arguments: string
+    result: string
 }
 
-struct Attachment {
-    type: string
-    data: string
-    mime_type: string
+struct Todo {
+    todo_identifier: string
+    content: string
+    status: string
 }
 
-struct ResponseContent {
-    type: string
-    text: string
+// =============================================================================
+// Chat Types
+// =============================================================================
+
+struct SendMessageResult {
+    message_identifier: string
+    status: string
 }
 
-struct AgentResult {
-    response: ResponseContent[]
-    session_id: string
+struct ChatToken {
+    message_identifier: string
+    content: string
 }
 
-struct File {
-    path: string
-    name: string
-    is_dir: bool
+struct UsageInfo {
+    prompt_tokens: int
+    completion_tokens: int
+    total_tokens: int
+}
+
+// =============================================================================
+// File Types
+// =============================================================================
+
+struct FileContent {
+    content: string
     size: int
     modified: int
 }
 
-struct LSPDiagnostics {
-    uri: string
-    diagnostics: Diagnostic[]
+struct FileInfo {
+    path: string
+    file_type: string
+    size: int
+    modified: int
 }
 
+struct FileList {
+    files: FileInfo
+}
+
+// =============================================================================
+// Attachment Types
+// =============================================================================
+
+struct Attachment {
+    content_type: string
+    path: string
+    data: string
+}
+
+// =============================================================================
+// LSP Types
+// =============================================================================
+
 struct Diagnostic {
-    range: Range
+    range_start_line: int
+    range_start_char: int
+    range_end_line: int
+    range_end_char: int
     severity: int
     message: string
     source: string
 }
 
-struct Range {
-    start: Position
-    end: Position
-}
-
-struct Position {
-    line: int
-    character: int
+struct DiagnosticsResult {
+    diagnostics: Diagnostic
 }
 
 // =============================================================================
-// Session Methods
+// MCP Types
 // =============================================================================
-
-method session/new {
-    input: SessionNewRequest
-    output: Session
-}
-
-struct SessionNewRequest {
-    name: string
-    cwd: string
-}
-
-method session/list {
-    input: Empty
-    output: SessionListResult
-}
-
-struct SessionListResult {
-    sessions: Session[]
-}
-
-method session/load {
-    input: SessionLoadRequest
-    output: Session
-}
-
-struct SessionLoadRequest {
-    session_id: string
-}
-
-method session/delete {
-    input: SessionDeleteRequest
-    output: SuccessResult
-}
-
-struct SessionDeleteRequest {
-    session_id: string
-}
-
-// =============================================================================
-// Chat Methods
-// =============================================================================
-
-method chat/sendMessage {
-    input: ChatSendMessageRequest
-    output: AgentResult
-}
-
-struct ChatSendMessageRequest {
-    session_id: string
-    content: string
-    attachments: Attachment[]
-}
-
-method chat/abort {
-    input: ChatAbortRequest
-    output: SuccessResult
-}
-
-struct ChatAbortRequest {
-    message_id: string
-}
-
-method chat/editMessage {
-    input: ChatEditMessageRequest
-    output: SuccessResult
-}
-
-struct ChatEditMessageRequest {
-    message_id: string
-    content: string
-}
-
-// =============================================================================
-// File Methods
-// =============================================================================
-
-method file/read {
-    input: FileReadRequest
-    output: FileReadResult
-}
-
-struct FileReadRequest {
-    path: string
-    encoding: string
-}
-
-struct FileReadResult {
-    content: string
-    size: int
-    modified: int
-}
-
-method file/write {
-    input: FileWriteRequest
-    output: SuccessResult
-}
-
-struct FileWriteRequest {
-    path: string
-    content: string
-}
-
-method file/list {
-    input: FileListRequest
-    output: FileListResult
-}
-
-struct FileListRequest {
-    path: string
-    pattern: string
-}
-
-struct FileListResult {
-    files: File[]
-}
-
-method file/delete {
-    input: FileDeleteRequest
-    output: SuccessResult
-}
-
-struct FileDeleteRequest {
-    path: string
-}
-
-// =============================================================================
-// LSP Methods
-// =============================================================================
-
-method lsp/start {
-    input: LSPStartRequest
-    output: LSPStartResult
-}
-
-struct LSPStartRequest {
-    language: string
-    cwd: string
-}
-
-struct LSPStartResult {
-    success: bool
-    language: string
-}
-
-method lsp/diagnostics {
-    input: LSPDiagnosticsRequest
-    output: LSPDiagnosticsResult
-}
-
-struct LSPDiagnosticsRequest {
-    uri: string
-}
-
-struct LSPDiagnosticsResult {
-    diagnostics: Diagnostic[]
-}
-
-// =============================================================================
-// MCP Methods
-// =============================================================================
-
-method mcp/listServers {
-    input: Empty
-    output: MCPServersResult
-}
-
-struct MCPServersResult {
-    servers: MCPServer[]
-}
 
 struct MCPServer {
-    name: string
-    status: string
-}
-
-method mcp/listTools {
-    input: MCPToolsRequest
-    output: MCPToolsResult
-}
-
-struct MCPToolsRequest {
     server_name: string
-}
-
-struct MCPToolsResult {
-    tools: MCPTool[]
+    status: string
+    tools: int
+    resources: int
 }
 
 struct MCPTool {
-    name: string
+    tool_name: string
     description: string
     input_schema: string
 }
 
 // =============================================================================
-// Settings Methods
+// Model Types
 // =============================================================================
 
-method settings/get {
-    input: Empty
-    output: SettingsResult
+struct ModelInfo {
+    model_identifier: string
+    model_name: string
+    provider: string
+    context_window: int
+    supports_vision: bool
 }
 
-struct SettingsResult {
+struct ModelList {
+    models: ModelInfo
+}
+
+// =============================================================================
+// Settings Types
+// =============================================================================
+
+struct Settings {
     model: string
     provider: string
     temperature: float
@@ -292,7 +172,104 @@ struct SettingsResult {
     context_window: int
 }
 
-method settings/set {
+// =============================================================================
+// Methods
+// =============================================================================
+
+method session_new {
+    input: SessionNewRequest
+    output: SessionInfo
+}
+
+struct SessionNewRequest {
+    session_name: string
+    cwd: string
+}
+
+method session_list {
+    input: Empty
+    output: SessionList
+}
+
+method session_load {
+    input: SessionLoadRequest
+    output: SessionLoadResult
+}
+
+struct SessionLoadRequest {
+    session_identifier: string
+}
+
+struct SessionLoadResult {
+    session_identifier: string
+    messages: Message
+    todos: Todo
+}
+
+method session_delete {
+    input: SessionDeleteRequest
+    output: SuccessResult
+}
+
+struct SessionDeleteRequest {
+    session_identifier: string
+}
+
+// Chat methods
+
+method chat_sendMessage {
+    input: ChatSendMessageRequest
+    output: SendMessageResult
+}
+
+struct ChatSendMessageRequest {
+    session_identifier: string
+    content: string
+    attachments: Attachment
+}
+
+// File methods
+
+method file_read {
+    input: FileReadRequest
+    output: FileContent
+}
+
+struct FileReadRequest {
+    path: string
+    encoding: string
+}
+
+method file_write {
+    input: FileWriteRequest
+    output: WriteResult
+}
+
+struct FileWriteRequest {
+    path: string
+    content: string
+}
+
+struct WriteResult {
+    success: bool
+    size: int
+}
+
+// Models method
+
+method models_list {
+    input: Empty
+    output: ModelList
+}
+
+// Settings methods
+
+method settings_get {
+    input: Empty
+    output: Settings
+}
+
+method settings_set {
     input: SettingsSetRequest
     output: SuccessResult
 }
@@ -303,48 +280,18 @@ struct SettingsSetRequest {
 }
 
 // =============================================================================
-// Models Methods
+// Common Types
 // =============================================================================
 
-method models/list {
-    input: Empty
-    output: ModelsResult
+struct Empty {
+    dummy: string
 }
-
-struct ModelsResult {
-    models: Model[]
-}
-
-// =============================================================================
-// Agent Methods
-// =============================================================================
-
-method agent/run {
-    input: AgentRunRequest
-    output: AgentResult
-}
-
-struct AgentRunRequest {
-    session_id: string
-    prompt: string
-    attachments: Attachment[]
-}
-
-method agent/summarize {
-    input: AgentSummarizeRequest
-    output: SuccessResult
-}
-
-struct AgentSummarizeRequest {
-    session_id: string
-}
-
-// =============================================================================
-// Common Result Types
-// =============================================================================
-
-struct Empty {}
 
 struct SuccessResult {
     success: bool
+}
+
+struct Error {
+    code: string
+    message: string
 }
