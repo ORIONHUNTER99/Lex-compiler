@@ -62,7 +62,6 @@ add_library(lex STATIC
     src/codegen/unity_backend.cpp
     src/codegen/love2d_backend.cpp
     src/codegen/defold_backend.cpp
-    src/codegen/rpc_backend.cpp
     src/schema/schema.cpp
     src/context/context_generator.cpp
     src/context/query.cpp

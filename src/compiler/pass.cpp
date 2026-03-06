@@ -127,6 +127,7 @@ bool VisibilityPass::run(PassContext& ctx) {
 bool CodegenPass::run(PassContext& ctx) {
     auto& registry = BackendRegistry::instance();
     
+    // Process standard targets
     for (const auto& target : ctx.options.targets) {
         std::string target_name = target_to_string(target);
         auto backend = registry.create(target_name);
@@ -145,6 +146,26 @@ bool CodegenPass::run(PassContext& ctx) {
         // Configure backend with source name (for Godot class name, etc.)
         backend->configure(ctx.options.source_name);
         
+        std::string output = backend->generate(ctx.ast);
+        ctx.outputs[target_name] = output;
+    }
+    
+    // Process custom targets (by name)
+    for (const auto& target_name : ctx.options.custom_targets) {
+        auto backend = registry.create(target_name);
+        
+        if (!backend) {
+            ctx.warnings.push_back({
+                .message = "Unknown custom target: " + target_name,
+                .location = "",
+                .severity = CompileErrorSeverity::Warning,
+                .code = "W002",
+                .suggestion = ""
+            });
+            continue;
+        }
+        
+        backend->configure(ctx.options.source_name);
         std::string output = backend->generate(ctx.ast);
         ctx.outputs[target_name] = output;
     }

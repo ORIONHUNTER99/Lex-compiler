@@ -53,6 +53,7 @@ std::string target_extension(const std::string& target_name) {
     if (target_name == "json") return ".json";
     if (target_name == "gd" || target_name == "godot") return ".gd";
     if (target_name == "cs" || target_name == "unity" || target_name == "csharp") return ".cs";
+    if (target_name == "rpc" || target_name == "rpc_python" || target_name == "rpc_go") return ".rpc";
     if (target_name == "love2d" || target_name == "love") return ".lua";
     if (target_name == "defold") return ".lua";
     if (target_name == "ts" || target_name == "typescript") return ".ts";

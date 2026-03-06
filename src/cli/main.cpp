@@ -13,6 +13,7 @@
 #include <functional>
 #include <csignal>
 #include <atomic>
+#include <set>
 
 #include <CLI/CLI.hpp>
 
@@ -506,6 +507,14 @@ int main(int argc, char* argv[]) {
     std::vector<std::string> target_names = parse_target_names(target_str);
     std::vector<lex::Target> targets = parse_targets(target_str);
     options.targets = targets;
+    
+    // Add custom targets (names not in the standard enum)
+    std::set<std::string> standard_targets = {"lua", "json", "gd", "godot", "cs", "unity", "love2d", "love", "defold", "ts", "typescript"};
+    for (const auto& name : target_names) {
+        if (standard_targets.find(name) == standard_targets.end()) {
+            options.custom_targets.push_back(name);
+        }
+    }
 
     // ========================================================================
     // License Verification

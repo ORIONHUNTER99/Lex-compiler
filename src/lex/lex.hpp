@@ -62,6 +62,7 @@ struct CompileOptions {
 
     // Output targets
     std::vector<Target> targets = {Target::Lua, Target::JSON};
+    std::vector<std::string> custom_targets;  // Custom backend names (e.g., "rpc")
 
     // Validation
     bool validate = true;
