@@ -13,6 +13,7 @@ Choose your language / Scegli la lingua:
 | Validation | [EN](./public/en/spec/validation.md) | [IT](./public/it/spec/validation.md) |
 | Architecture | [EN](./public/en/architecture/layers.md) | [IT](./public/it/architecture/layers.md) |
 | Tutorial | [EN](./public/en/guides/tutorial.md) | [IT](./public/it/guides/tutorial.md) |
+| **Licensing** | [Tiers & Pricing](./LICENSING.md) | — |
 
 ## Repository Structure
 
