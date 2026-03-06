@@ -3,13 +3,7 @@
 [![CI](https://github.com/David-Imperium/Lex-compiler/actions/workflows/ci.yml/badge.svg)](https://github.com/David-Imperium/Lex-compiler/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)](https://github.com/David-Imperium/Lex-compiler)
-[![Live Demo](https://img.shields.io/badge/demo-live-green.svg)](https://david-imperium.github.io/Lex-compiler/)
-
-<p align="center">
-  <a href="https://david-imperium.github.io/Lex-compiler/">
-    <img src="https://img.shields.io/badge/Try%20Live%20Demo-%F0%9F%9A%80-brightgreen?style=for-the-badge" alt="Live Demo">
-  </a>
-</p>
+[![Website](https://img.shields.io/badge/website-lex--compiler.io-blue.svg)](https://lex-compiler.io)
 
 <p align="center">
   <video src="docs/assets/lex_showcase.mp4" autoplay loop muted playsinline width="800"></video>
@@ -116,6 +110,8 @@ lexc content.lex -o output/ -t lua,json,gd,cs,love2d,defold
 
 ## Output Backends
 
+### Free (Base Tier)
+
 | Backend | Target | Ready? |
 |---------|--------|--------|
 | `lua` | Generic Lua | ✅ |
@@ -124,10 +120,29 @@ lexc content.lex -o output/ -t lua,json,gd,cs,love2d,defold
 | `cs` / `unity` | Unity C# | ✅ |
 | `love2d` | LÖVE2D | ✅ |
 | `defold` | Defold | ✅ |
-| `typescript` | TypeScript/JS | 📋 v1.1.0 |
-| `unreal` | Unreal Engine | 📋 Lex Core |
 
-**6 backends today. 10+ coming.**
+### Premium (Core+ Tier)
+
+| Backend | Target | Ready? |
+|---------|--------|--------|
+| `unreal` | Unreal Engine C++ | ✅ |
+| `gamemaker` | GameMaker GML | Planned |
+| `rust` | Rust structs | Planned |
+| `cpp` | C++ headers | Planned |
+| `python` | Python dataclasses | Planned |
+
+See [docs/BACKENDS.md](docs/BACKENDS.md) for complete list.
+
+---
+
+## Tiers
+
+| Tier | Price | Backends | Features |
+|------|-------|----------|----------|
+| **Base** | FREE | 6 backends | Core features, MIT license |
+| **Core** | $49 lifetime | +9 backends | Multi-file, advanced expressions |
+
+See [docs/TIERS.md](docs/TIERS.md) for details.
 
 ---
 
@@ -182,6 +197,27 @@ Output:
   }
 }
 ```
+
+---
+
+## FAQ
+
+**Why Lex instead of JSON/Lua directly?**
+Write once, compile to any engine. No manual translation. Single source of truth.
+
+**Why not just use a spreadsheet?**
+Lex gives you type validation, references, visibility filtering, code generation, and version control — none of which spreadsheets provide.
+
+**Is Lex only for games?**
+Primarily, but works for any declarative data: configs, content management, API schemas.
+
+**What if my engine isn't supported?**
+Use `lua` or `json` backends (work everywhere), or implement a custom backend in C++.
+
+**Can I use Base commercially?**
+Yes! MIT license allows any use.
+
+→ [Full FAQ](docs/TIERS.md#faq)
 
 ---
 

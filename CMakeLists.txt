@@ -24,6 +24,27 @@ if(NOT CLI11_FOUND)
 endif()
 
 # ============================================================================
+# Packages (Premium Extensions)
+# ============================================================================
+
+# Auto-include any packages in the packages/ directory
+# This allows Lex-Plus and other extensions to be added without modifying this file
+set(LEX_PLUS_FOUND OFF)
+
+if(EXISTS "${CMAKE_SOURCE_DIR}/packages")
+    file(GLOB package_dirs "${CMAKE_SOURCE_DIR}/packages/*")
+    foreach(pkg_dir ${package_dirs})
+        if(IS_DIRECTORY ${pkg_dir})
+            if(EXISTS "${pkg_dir}/CMakeLists.txt")
+                get_filename_component(pkg_name ${pkg_dir} NAME)
+                message(STATUS "Found package: ${pkg_name}")
+                add_subdirectory(${pkg_dir})
+            endif()
+        endif()
+    endforeach()
+endif()
+
+# ============================================================================
 # Lex Library
 # ============================================================================
 
@@ -41,11 +62,13 @@ add_library(lex STATIC
     src/codegen/unity_backend.cpp
     src/codegen/love2d_backend.cpp
     src/codegen/defold_backend.cpp
+    src/codegen/rpc_backend.cpp
     src/schema/schema.cpp
     src/context/context_generator.cpp
     src/context/query.cpp
     src/compiler/pass.cpp
     src/compiler/pipeline.cpp
+    src/license/license.cpp
 )
 
 target_include_directories(lex
@@ -66,6 +89,12 @@ endif()
 
 add_executable(lexc src/cli/main.cpp)
 target_link_libraries(lexc PRIVATE lex CLI11::CLI11)
+
+# Link premium package if found
+if(LEX_PLUS_FOUND)
+    target_link_libraries(lexc PRIVATE lex_plus)
+    message(STATUS "Linking Lex-Plus to executable")
+endif()
 
 # ============================================================================
 # Tests

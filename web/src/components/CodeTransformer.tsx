@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CodeBlock } from './CodeBlock';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface Example {
   input: string;
@@ -191,6 +192,7 @@ const targetNames: Record<Target, string> = {
 };
 
 export function CodeTransformer() {
+  const { t } = useLanguage();
   const [currentExample, setCurrentExample] = useState(0);
   const [selectedTarget, setSelectedTarget] = useState<Target>('lua');
   const [phase, setPhase] = useState<'input' | 'transform' | 'output'>('input');
@@ -248,10 +250,8 @@ export function CodeTransformer() {
 
   return (
     <div className="transformer">
-      <div className="transformer-header" style={{ textAlign: 'center', marginBottom: '40px' }}>
-        <h2 className="glitch-text" data-text="SYSTEM_TRANSFORM" style={{ fontSize: '2.5rem', textTransform: 'uppercase', color: '#00f2fe', textShadow: '0 0 10px rgba(0,242,254,0.3)', marginBottom: '8px' }}>SYSTEM_TRANSFORM</h2>
-        <p style={{ color: '#22c55e', fontFamily: '"JetBrains Mono", monospace', fontSize: '1rem' }}>// Watch Lex compiling live</p>
-        <p className="hint" style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '16px' }}>Press &lt;Space&gt; to pause/resume process</p>
+      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+        <p className="hint" style={{ color: '#94a3b8', fontSize: '0.8rem', fontFamily: '"JetBrains Mono", monospace' }}>{t('teaser.hint')}</p>
       </div>
 
       <div className="target-indicator" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'rgba(177,34,229,0.1)', border: '1px solid #b122e5', borderRadius: '4px', margin: '0 auto 24px', boxShadow: '0 0 15px rgba(177,34,229,0.2)' }}>

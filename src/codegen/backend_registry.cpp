@@ -5,6 +5,7 @@
 #include "unity_backend.hpp"
 #include "love2d_backend.hpp"
 #include "defold_backend.hpp"
+#include "rpc_backend.hpp"
 
 namespace lex {
 
@@ -64,6 +65,18 @@ namespace {
             
             registry.register_factory("defold", []() {
                 return std::make_unique<DefoldBackend>();
+            });
+            
+            registry.register_factory("rpc", []() {
+                return std::make_unique<RPCBackend>();
+            });
+            
+            registry.register_factory("rpc_python", []() {
+                return std::make_unique<RPCBackend>();
+            });
+            
+            registry.register_factory("rpc_go", []() {
+                return std::make_unique<RPCBackend>();
             });
         }
     };

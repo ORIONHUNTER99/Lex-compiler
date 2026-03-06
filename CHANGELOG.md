@@ -4,10 +4,44 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+**Tier Tags:**
+- `(Free)` — Available in Lex Base
+- `[Core]` — Requires Lex Core
+
+---
+
+## [1.1.0] - 2026-03-06
+
+### Added
+- **License System** — Tier verification for premium features
+  - `--license` CLI flag for activation
+  - `LEX_LICENSE` environment variable support
+  - Offline verification (no call-home)
+
+- **Package System** — Auto-include for Lex-Plus extensions
+  - `packages/` directory auto-detected by CMake
+  - Premium backends loaded dynamically
+
+- **Unreal Backend** `[Core]` — Generate C++ headers for Unreal Engine
+  - UCLASS, USTRUCT, UENUM support
+  - Blueprint-accessible properties
+
+- **GameMaker Backend** `[Core]` — Generate GML scripts (planned)
+- **Rust Backend** `[Core]` — Generate Rust structs (planned)
+- **C++ Backend** `[Core]` — Generate C++ headers (planned)
+- **Python Backend** `[Core]` — Generate Python dataclasses (planned)
+
+### Distribution
+- **Lex-Plus Package** — Single package for all premium tiers
+  - License key unlocks your tier
+  - Download from GitHub Sponsors
+
+---
+
 ## [1.0.0] - 2026-03-05
 
 ### Added
-- **Modular Architecture** — Pass-based compilation pipeline
+- **Modular Architecture** `(Free)` — Pass-based compilation pipeline
   - LexerPass: Tokenization
   - ParserPass: AST construction
   - ValidationPass: Semantic validation
@@ -15,12 +49,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - CodegenPass: Multi-target code generation
   - CompilerPipeline: Orchestrator for all passes
 
-- **Backend Registry** — Extensible backend system
+- **Backend Registry** `(Free)` — Extensible backend system
   - Factory pattern for backend creation
   - Runtime backend registration
   - Easy to add new targets
 
-- **Documentation** — Complete guides
+- **Documentation** `(Free)` — Complete guides
   - Tutorial: "Your First Mod" (docs/TUTORIAL.md)
   - API Reference for C++ library (docs/API_REFERENCE.md)
   - Integration guides for Godot, Unity, LÖVE2D

@@ -19,6 +19,7 @@
 #include "../lex/lex.hpp"
 #include "../context/context.hpp"
 #include "../context/query.hpp"
+#include "../license/license.hpp"
 
 namespace fs = std::filesystem;
 
@@ -442,7 +443,9 @@ int main(int argc, char* argv[]) {
 
     std::string target_str = "lua";
     app.add_option("-t,--target", target_str,
-        "Output format(s): lua,json,gd,cs,love2d,defold");
+        "Output format(s): lua,json,gd,cs,love2d,defold\n"
+        "  Free: lua, json, godot, unity, love2d, defold\n"
+        "  Core+: unreal, gamemaker, construct, bevy, pygame, raylib, cpp, rust, python");
 
     std::string context_str;
     app.add_option("--context", context_str, "Generate AI context: json,md,minimal,all");
@@ -467,6 +470,9 @@ int main(int argc, char* argv[]) {
 
     bool show_version = false;
     app.add_flag("-v,--version", show_version, "Show version");
+
+    std::string license_key;
+    app.add_option("--license", license_key, "License key (or set LEX_LICENSE env)");
 
     CLI11_PARSE(app, argc, argv);
 
@@ -500,6 +506,61 @@ int main(int argc, char* argv[]) {
     std::vector<std::string> target_names = parse_target_names(target_str);
     std::vector<lex::Target> targets = parse_targets(target_str);
     options.targets = targets;
+
+    // ========================================================================
+    // License Verification
+    // ========================================================================
+
+    std::optional<lex::license::License> license;
+
+    // Check --license flag first, then LEX_LICENSE env
+    if (!license_key.empty()) {
+        license = lex::license::LicenseManager::parse(license_key);
+        if (!license) {
+            std::cerr << color::red << "✗ Invalid license key format" << color::reset << "\n";
+            return 1;
+        }
+    } else {
+        license = lex::license::LicenseManager::from_env();
+    }
+
+    // Check for premium backends without license
+    if (!license) {
+        // Free tier: only free backends allowed
+        for (const auto& target_name : target_names) {
+            if (lex::license::CORE_BACKENDS.count(target_name) > 0) {
+                std::cerr << color::red << "✗ Backend '" << target_name
+                          << "' requires a license" << color::reset << "\n";
+                std::cerr << color::yellow << "  Get a license: https://github.com/sponsors/David-Imperium"
+                          << color::reset << "\n";
+                std::cerr << color::dim << "  Free backends: lua, json, godot, unity, love2d, defold"
+                          << color::reset << "\n";
+                return 1;
+            }
+        }
+    } else {
+        // Licensed: check tier access
+        auto available_backends = license->get_available_backends();
+        for (const auto& target_name : target_names) {
+            if (available_backends.count(target_name) == 0) {
+                std::cerr << color::red << "✗ Your " << license->tier_name()
+                          << " license doesn't include '" << target_name << "'" << color::reset << "\n";
+                std::cerr << color::yellow << "  Upgrade: https://github.com/sponsors/David-Imperium"
+                          << color::reset << "\n";
+                return 1;
+            }
+        }
+
+        if (verbose) {
+            std::cout << color::green << "✓ License: " << license->tier_name()
+                      << " (" << (license->is_lifetime ? "lifetime" : "subscription") << ")"
+                      << color::reset << "\n";
+        }
+    }
+
+    // ========================================================================
+    // Compilation
+    // ========================================================================
 
     if (watch_mode) {
         return run_watch_mode(input_file, output_dir, targets, target_names, options);

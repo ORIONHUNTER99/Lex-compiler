@@ -9,4 +9,16 @@ export default defineConfig({
     strictPort: true,
   },
   base: '/Lex-compiler/', // Base path per GitHub Pages
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-motion': ['framer-motion'],
+          'vendor-markdown': ['react-markdown', 'remark-gfm'],
+          'vendor-prism': ['prismjs'],
+        }
+      }
+    }
+  }
 })

@@ -4,6 +4,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/David-Imperium/Lex-compiler)
 
+<p align="center">
+  <video src="docs/assets/lex_showcase.mp4" autoplay loop muted playsinline width="800"></video>
+</p>
+
 Un transpiler dichiarativo e multi-target per contenuti di gioco.
 
 **Principio:** *Descrivi il cosa, non il come.*
@@ -35,6 +39,7 @@ lexc input.lex -o output/ -t lua,json,gd,cs,love2d,defold
 ```
 
 Opzioni:
+
 - `-o, --output <dir>` — Directory di output
 - `-t, --target <fmt>` — Formato/i di output: lua, json, gd, cs, love2d, defold
 - `--types <list>` — Tipi di definizione personalizzati (separati da virgola)
@@ -72,11 +77,13 @@ item Sword {
 ```
 
 Compila con:
+
 ```bash
 lexc game.lex --types character,item -t json
 ```
 
 Output:
+
 ```json
 {
   "characters": {
