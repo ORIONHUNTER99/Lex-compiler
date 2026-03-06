@@ -89,8 +89,8 @@ private:
                 // Progress bar mode
                 int filled = progress_ / 5;
                 output += "[";
-                output += std::string(filled, '█');
-                output += std::string(20 - filled, '░');
+                for (int i = 0; i < filled; ++i) output += "\u2588";  // █
+                for (int i = 0; i < 20 - filled; ++i) output += "\u2591";  // ░
                 output += "] ";
                 output += std::to_string(progress_) + "% ";
                 output += message_;
