@@ -3,7 +3,7 @@
 [![CI](https://github.com/David-Imperium/Lex-compiler/actions/workflows/ci.yml/badge.svg)](https://github.com/David-Imperium/Lex-compiler/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)](https://github.com/David-Imperium/Lex-compiler)
-[![Website](https://img.shields.io/badge/website-lex--compiler.io-blue.svg)](https://lex-compiler.io)
+[![Website](https://img.shields.io/badge/website-GitHub%20Pages-blue.svg)](https://david-imperium.github.io/Lex-compiler/)
 
 <p align="center">
   <video src="docs/assets/lex_showcase.mp4" autoplay loop muted playsinline width="800"></video>
