@@ -23,6 +23,14 @@ if(NOT CLI11_FOUND)
     FetchContent_MakeAvailable(CLI11)
 endif()
 
+# OpenSSL for Ed25519 signature verification
+find_package(OpenSSL QUIET)
+if(OpenSSL_FOUND)
+    message(STATUS "OpenSSL found: ${OpenSSL_VERSION}")
+else()
+    message(STATUS "OpenSSL not found - license verification will use offline mode")
+endif()
+
 # ============================================================================
 # Packages (Premium Extensions)
 # ============================================================================
@@ -80,6 +88,12 @@ if(MSVC)
     target_compile_options(lex PRIVATE /W4)
 else()
     target_compile_options(lex PRIVATE -Wall -Wextra -pedantic)
+endif()
+
+# Link OpenSSL if available (for Ed25519 verification)
+if(OpenSSL_FOUND)
+    target_link_libraries(lex PUBLIC OpenSSL::Crypto)
+    target_compile_definitions(lex PUBLIC LEX_HAS_OPENSSL)
 endif()
 
 # ============================================================================
