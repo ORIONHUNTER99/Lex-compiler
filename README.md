@@ -112,35 +112,40 @@ lexc content.lex -o output/ -t lua,json,gd,cs,love2d,defold
 
 ### Free (Lex Public)
 
-| Backend | Target | Ready? |
+| Backend | Target | Status |
 |---------|--------|--------|
-| `lua` | Generic Lua | ✅ |
-| `json` | Universal JSON | ✅ |
-| `gd` / `godot` | Godot 4.x | ✅ |
-| `cs` / `unity` | Unity C# | ✅ |
-| `love2d` | LÖVE2D | ✅ |
-| `defold` | Defold | ✅ |
+| `lua` | Generic Lua | ✅ Ready |
+| `json` | Universal JSON | ✅ Ready |
+| `gd` / `godot` | Godot 4.x | ✅ Ready |
+| `cs` / `unity` | Unity C# | ✅ Ready |
+| `love2d` | LÖVE2D | ✅ Ready |
+| `defold` | Defold | ✅ Ready |
 
-### Premium (Lex-Plus)
+### Premium (Lex-Plus Core)
 
-| Backend | Target | Ready? |
+| Backend | Target | Status |
 |---------|--------|--------|
-| `unreal` | Unreal Engine C++ | ✅ |
-| `gamemaker` | GameMaker GML | Planned |
-| `rust` | Rust structs | Planned |
-| `cpp` | C++ headers | Planned |
-| `python` | Python dataclasses | Planned |
+| `unreal` | Unreal Engine C++ | ✅ Ready |
+| `rpc` | RPC Protocol | ✅ Ready |
+| `gamemaker` | GameMaker GML | 📋 Planned |
+| `rust` | Rust structs | 📋 Planned |
+| `cpp` | C++ headers | 📋 Planned |
+| `python` | Python dataclasses | 📋 Planned |
+| `typescript` | TypeScript | 📋 Planned |
+| `go` | Go structs | 📋 Planned |
+| `java` | Java records | 📋 Planned |
+| `c` | C headers | 📋 Planned |
 
-See [docs/BACKENDS.md](docs/BACKENDS.md) for complete list.
+See [docs/BACKENDS.md](docs/BACKENDS.md) for details.
 
 ---
 
 ## Tiers
 
-| Tier | Price | Backends | Features |
-|------|-------|----------|----------|
-| **Lex (Free)** | FREE | 6 backends | Core features, MIT license |
-| **Core** | $49 lifetime | +9 backends | Multi-file, advanced expressions |
+| Tier | Price | Backends | Distribution |
+|------|-------|----------|--------------|
+| **Lex (Free)** | FREE | 6 backends | GitHub (public) |
+| **Lex-Plus Core** | $49 lifetime | +10 backends | Codeberg (private) |
 
 See [docs/TIERS.md](docs/TIERS.md) for details.
 
@@ -283,7 +288,7 @@ See [ROADMAP.md](docs/ROADMAP.md) for details.
 
 **Lex** — MIT License. Free forever.
 
-**Lex Core** — Commercial license. Coming soon.
+**Lex-Plus Core** — Commercial license. $49 lifetime.
 
 ---
 

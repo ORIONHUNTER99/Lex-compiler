@@ -154,29 +154,30 @@
 
 ## Commercial Tiers
 
-Lex is available in multiple tiers for different audiences:
+Lex is available in two tiers:
 
 | Tier | Target | License |
 |------|--------|---------|
 | **Lex (Free)** | Modders, Hobbyists | MIT (Free) |
-| **Core** | Indie Developers | Commercial ($49 early bird) |
+| **Lex-Plus Core** | Indie Developers | Commercial ($49) |
 
-### Lex (Current)
-- All 6 engine backends: Lua, JSON, Godot, Unity, Love2D, Defold
+### Lex (Free)
+- 6 engine backends: Lua, JSON, Godot, Unity, Love2D, Defold
 - Custom schemas via `--types`
 - AI Context Generator
 - Query System
 - VS Code extension
+- GitHub public repository
 
-### Core Tier (Coming Soon)
-Advanced features for professional game developers:
-- Advanced backends: Unreal, Bevy, Raylib, C++ Headers
-- Expression parser (complex conditions, variables)
-- Multi-file compilation with modules
-- Hot reload support
-- LSP integration
+### Lex-Plus Core ($49 lifetime)
+Premium backends for professional game developers:
+- **Ready:** Unreal, RPC
+- **Planned:** GameMaker, Rust, C++, Python, TypeScript, Go, Java, C
+- Multi-file compilation
+- Advanced expressions
+- Codeberg private repository (invite-only)
 
-**Early Bird Pricing:** $49 lifetime license (locks in before subscription model)
+**Early Bird Pricing:** $49 lifetime (locks in before subscription model)
 
 ---
 
