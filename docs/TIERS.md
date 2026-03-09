@@ -39,33 +39,24 @@ Lex offers two tiers — free for modders, premium for indie developers.
 
 ---
 
-## Lex-Plus Core ($49 lifetime)
+## Lex-Plus
 
 **For indie developers who need more engine support**
 
-### Backends (+10)
-| Backend | Target | Status |
-|---------|--------|--------|
-| `unreal` | Unreal Engine C++ | ✅ Ready |
-| `gamemaker` | GameMaker GML | 📋 Planned |
-| `rust` | Rust structs | 📋 Planned |
-| `cpp` | C++ headers | 📋 Planned |
-| `python` | Python dataclasses | 📋 Planned |
-| `typescript` | TypeScript | 📋 Planned |
-| `go` | Go structs | 📋 Planned |
-| `java` | Java records | 📋 Planned |
-| `c` | C headers | 📋 Planned |
-| `rpc` | RPC protocol | ✅ Ready |
-
 ### Features
 - All Free features
-- Multi-file projects
-- Advanced expressions
+- Additional backends
 - Priority support
 
 ### Distribution
-- **Source:** https://codeberg.org/David-Imperium/Lex-Plus (private, invite-only)
+- **Source:** Private repository (invite-only)
 - **License:** Commercial (requires purchase)
+
+---
+
+## Pricing
+
+Contact for details.
 
 ---
 
@@ -86,39 +77,6 @@ Lex offers two tiers — free for modders, premium for indie developers.
 | **Lex-Plus Core** | $9/mo | $79/year |
 
 Lifetime pricing is for early supporters. Once Lex matures, we'll switch to subscriptions.
-
----
-
-## How to Purchase
-
-1. Visit [GitHub Sponsors](https://github.com/sponsors/David-Imperium)
-2. Choose Core tier ($49)
-3. Receive Codeberg invite + license key
-4. Clone Lex-Plus from Codeberg
-5. Build and activate
-
----
-
-## Backend Status
-
-| Backend | Tier | Status |
-|---------|------|--------|
-| lua | Free | ✅ Ready |
-| json | Free | ✅ Ready |
-| gd (Godot) | Free | ✅ Ready |
-| cs (Unity) | Free | ✅ Ready |
-| love2d | Free | ✅ Ready |
-| defold | Free | ✅ Ready |
-| unreal | Core | ✅ Ready |
-| gamemaker | Core | 📋 Planned |
-| rust | Core | 📋 Planned |
-| cpp | Core | 📋 Planned |
-| python | Core | 📋 Planned |
-| typescript | Core | 📋 Planned |
-| go | Core | 📋 Planned |
-| java | Core | 📋 Planned |
-| c | Core | 📋 Planned |
-| rpc | Core | ✅ Ready |
 
 ---
 

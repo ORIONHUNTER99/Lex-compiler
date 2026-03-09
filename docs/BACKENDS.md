@@ -30,32 +30,11 @@ lexc game.lex -t unity -o ./output/
 
 ---
 
-## Premium Backends (Core Tier)
+## Premium Backends
 
-These backends require Lex Core. [Get Lex-Plus](https://github.com/sponsors/David-Imperium)
+Additional backends for professional developers.
 
-| Backend | Output | Target Engine | Status |
-|---------|--------|---------------|--------|
-| **unreal** | `.h` | Unreal Engine 5 | ✅ Ready |
-| **gamemaker** | `.gml` | GameMaker Studio 2 | Planned |
-| **construct** | `.json` | Construct 3 | Planned |
-| **bevy** | `.rs` | Bevy Engine (Rust) | Planned |
-| **pygame** | `.py` | Pygame framework | Planned |
-| **raylib** | `.h` | Raylib C library | Planned |
-| **cpp** | `.h` | Raw C++ headers | Planned |
-| **rust** | `.rs` | Rust structs/enums | Planned |
-| **python** | `.py` | Python dataclasses | Planned |
-
-### Usage
-
-```bash
-# Requires license key
-lexc game.lex -t unreal --license LEX-CORE-XXXX-XXXX-XXXX
-
-# Or set environment variable
-export LEX_LICENSE=LEX-CORE-XXXX-XXXX-XXXX
-lexc game.lex -t unreal
-```
+Contact for availability.
 
 ---
 

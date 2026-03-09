@@ -148,57 +148,18 @@
 
 ---
 
-## Planned Versions
+## What's Next
 
-### v1.1.0 — TypeScript Backend
-
-**Status:** 📋 Planned
-
-**Goals:**
-- TypeScript/JavaScript code generation
-- Type definitions output (`.d.ts`)
-- Node.js module format
-- Web game support (Phaser, PixiJS, etc.)
-
----
-
-### v1.2.0 — Developer Experience
-
-**Status:** 📋 Planned
-
-**Goals:**
-- Watch mode (`--watch` for live recompilation)
-- Incremental compilation
-- Language Server Protocol (LSP)
-- VS Code diagnostics (real-time error checking)
-
----
-
-### v1.3.0 — WebAssembly Demo
-
-**Status:** 📋 Planned
-
-**Goals:**
-- WebAssembly compilation target (Emscripten)
-- JavaScript bindings for browser integration
-- Interactive web playground (write Lex, see output in real-time)
-- No backend required — pure client-side compilation
-
-**Technical:**
-- `lexc.wasm` module with JS bindings
-- String-based I/O (no filesystem required)
-- Integration with existing React web demo
+Coming soon. Stay tuned.
 
 ---
 
 ## Commercial Tiers
 
-Lex is available in two tiers:
-
 | Tier | Target | License |
 |------|--------|---------|
 | **Lex (Free)** | Modders, Hobbyists | MIT (Free) |
-| **Lex-Plus Core** | Indie Developers | Commercial ($49) |
+| **Lex-Plus** | Indie Developers | Commercial |
 
 ### Lex (Free)
 - 6 engine backends: Lua, JSON, Godot, Unity, Love2D, Defold
@@ -206,40 +167,10 @@ Lex is available in two tiers:
 - AI Context Generator
 - Query System
 - VS Code extension
-- GitHub public repository
 
-### Lex-Plus Core ($49 lifetime)
-Premium backends for professional game developers:
-- **Ready:** Unreal, RPC
-- **Planned:** GameMaker, Rust, C++, Python, TypeScript, Go, Java, C
-- Multi-file compilation
-- Advanced expressions
-- Codeberg private repository (invite-only)
-
-**Early Bird Pricing:** $49 lifetime (locks in before subscription model)
-
----
-
-## Future Considerations
-
-**Domain-Specific Backends:**
-- Shader DSL (GLSL/HLSL generation)
-- Aether integration (Imperium Engine)
-- Dialogue system output (Ink, YarnSpinner)
-
-**Tooling:**
-- Package registry (share `.lex` modules)
-- VS Code debugger integration
-
-**Distribution:**
-- Homebrew (macOS): `brew install lexc`
-- Chocolatey (Windows): `choco install lexc`
-- AUR (Arch Linux): `lexc-bin`
-- npm (Node.js wrapper): `npm install -g lexc`
-
-**Performance:**
-- Parallel compilation for large projects
-- Binary intermediate format for faster loads
+### Lex-Plus
+Premium backends for professional game developers.
+Contact for details.
 
 ---
 

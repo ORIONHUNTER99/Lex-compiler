@@ -121,20 +121,9 @@ lexc content.lex -o output/ -t lua,json,gd,cs,love2d,defold
 | `love2d` | LÖVE2D | ✅ Ready |
 | `defold` | Defold | ✅ Ready |
 
-### Premium (Lex-Plus Core)
+### Premium (Lex-Plus)
 
-| Backend | Target | Status |
-|---------|--------|--------|
-| `unreal` | Unreal Engine C++ | ✅ Ready |
-| `rpc` | RPC Protocol | ✅ Ready |
-| `gamemaker` | GameMaker GML | 📋 Planned |
-| `rust` | Rust structs | 📋 Planned |
-| `cpp` | C++ headers | 📋 Planned |
-| `python` | Python dataclasses | 📋 Planned |
-| `typescript` | TypeScript | 📋 Planned |
-| `go` | Go structs | 📋 Planned |
-| `java` | Java records | 📋 Planned |
-| `c` | C headers | 📋 Planned |
+Additional backends for professional developers.
 
 See [docs/BACKENDS.md](docs/BACKENDS.md) for details.
 
@@ -142,10 +131,10 @@ See [docs/BACKENDS.md](docs/BACKENDS.md) for details.
 
 ## Tiers
 
-| Tier | Price | Backends | Distribution |
-|------|-------|----------|--------------|
-| **Lex (Free)** | FREE | 6 backends | GitHub (public) |
-| **Lex-Plus Core** | $49 lifetime | +10 backends | Codeberg (private) |
+| Tier | Backends | Distribution |
+|------|----------|--------------|
+| **Lex (Free)** | 6 backends | GitHub (public) |
+| **Lex-Plus** | Additional backends | Private repository |
 
 See [docs/TIERS.md](docs/TIERS.md) for details.
 
@@ -258,15 +247,7 @@ Yes! MIT license allows any use.
 
 ## Roadmap
 
-| Version | Status | What's New |
-|---------|--------|------------|
-| v1.0.1 | ✅ Current | Web demo, CLI animations |
-| v1.1.0 | 📋 Planned | TypeScript backend |
-| v1.2.0 | 📋 Planned | LSP, watch mode |
-| v1.3.0 | 📋 Planned | WebAssembly, web playground |
-| Lex Core | 🔜 Coming | Professional tier |
-
-See [ROADMAP.md](docs/ROADMAP.md) for details.
+See [ROADMAP.md](docs/ROADMAP.md) for released versions.
 
 ---
 
